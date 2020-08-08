@@ -1,0 +1,27 @@
+PLAN:
+- Use a CLI to manipulate actual Linux File structure
+- Include a preprocessor for rendering only
+- Render in markdown
+- Backup the notes direcotry in git
+- Entire implementation should be using symlinks and fake directories
+- use ngx-markdown angular package
+
+Support the following commands:
+1) List all notes in archive
+2) Render a note
+3) make a new note
+4) Delete a note
+5) symlink notes into directories
+6) Set the notes dir up with a git repo
+7) OPen a note in a preffered text editor
+8) Open a note for editing in a default text editor
+9) Open a Fake directory / Filter of notes for editing
+10) Save the note --> git commit
+11) Push note changes
+12) 
+
+
+Call this Note Modules ---> hahah get it play on node modules
+
+
+
