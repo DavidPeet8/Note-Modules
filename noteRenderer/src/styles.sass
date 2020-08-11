@@ -1,14 +1,34 @@
-/* You can add global styles to this file, and also import other style files */
+@import './variables'
+@import './mixins'
+
 *
 	box-sizing: border-box
 	padding: 0
 	margin: 0
 	font-family: 'Ubuntu Mono', monospace
 
+html,body
+	height: 100%
+	width: 100%
+
+::webkit-scrollbar-corner
+	background: rgba(0,0,0,0)
+
+::-webkit-scrollbar 
+	width: 6px
+
+::-webkit-scrollbar-track 
+	background: $dark-grey
+
+::-webkit-scrollbar-thumb 
+	background-color: $light-grey
+	border-radius: 6px
+
+
 /*---------------------------- MARKDOWN STYLING -----------------------------*/
 h1
 	font-size: 35pt
-	border-bottom: 1px solid black
+	border-bottom: 1px solid white
 	padding: 10px
 	margin-bottom: 20px
 
@@ -20,3 +40,5 @@ p
 
 ul
 	font-size: 14pt
+	list-style-position: inside
+
