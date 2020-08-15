@@ -1,11 +1,20 @@
-<section class="viewport">
-	<div class="header">
+<section class="viewport" [ngStyle]="getStyle()">
+	<div class="header" [style]="headerStyle">
 		<h1 class="center title">NoteCLI</h1>
-		<h4>Check me out on Github: davidpeet8</h4>
+		<h4 class="sayhi">
+			<i (click)="href('github', $event)" class="fab fa-github-square icon"></i> 
+			<i (click)="href('linkedin', $event)" class="fab fa-linkedin icon"></i>
+			<i (click)="href('website', $event)" class="fas fa-link icon"></i>
+		</h4>
+		<h4 class="settings">
+			<i (click)="openSettingsModal()" class="fas fa-cog"></i> 
+		</h4>
 	</div>
-  	<app-render-parent></app-render-parent>
+	<div class="content">
+		<app-render-parent></app-render-parent>
+	</div>
   	<div class="footer center">
-  		<h6 class="center">Made with experimentation 🧪 by David Peet</h6>
+  		<h6 class="center">Made with 🍻 by David Peet</h6>
   	</div>
 </section>
 

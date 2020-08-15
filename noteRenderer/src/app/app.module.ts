@@ -15,7 +15,7 @@ import { RenderParentComponent } from './components/render-parent/render-parent.
     AppComponent,
     CodeviewComponent,
     DirectoryTreeComponent,
-    RenderParentComponent
+    RenderParentComponent,
   ],
   imports: [
     BrowserModule,

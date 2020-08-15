@@ -1,3 +1,7 @@
-<section class="dirtree-section">
-	<p>Dir tree</p>
+<section class="dirtree-section" #dirSection>
+	<i [(class)]="iconClasses" (click)="onClick()" class="icon" #icon></i>
+	<p (click)="onClick()" class="file-name">{{fileName}}</p>
+	<div *ngIf="isDirectory" [(class)]="dropdownClasses" #dropdown>
+		<app-directory-tree></app-directory-tree>
+	</div>
 </section>

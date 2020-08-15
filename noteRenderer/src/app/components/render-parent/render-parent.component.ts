@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-render-parent',
-  templateUrl: './render-parent.component.html',
-  styleUrls: ['./render-parent.component.sass']
+	selector: 'app-render-parent',
+	templateUrl: './render-parent.component.html',
+	styleUrls: ['./render-parent.component.sass']
 })
-export class RenderParentComponent implements OnInit {
+export class RenderParentComponent implements OnInit 
+{
 
-  constructor() { }
+	constructor() { }
 
-  ngOnInit(): void {
-  }
-
+	ngOnInit(): void {
+	}
 }
