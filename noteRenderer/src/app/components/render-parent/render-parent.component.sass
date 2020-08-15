@@ -6,15 +6,14 @@
 
 .editor
 	height: 100%
+	color: white
+	background-color: $dark-grey
 
 .dirtree-wrapper
 	flex-grow: 0
 	flex-shrink: 0
-	color: white
-	background-color: $dark-grey
 	height: 100%
 	@include scaleProp(width, 100px, 100px, 150px, 200px, 250px)
-	overflow: auto
 	display: flex
 	flex-flow: row nowrap
 	justify-content: space-between
@@ -26,9 +25,12 @@
 	height: 100%
 	border-right: 1px solid $light-grey
 	cursor: col-resize
+	flex-grow: 0
+	flex-shrink: 0
 	
 .dirtree-content	
 	width: auto
+	overflow: auto
 
 .codeview
 	width: auto
