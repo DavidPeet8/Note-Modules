@@ -25,7 +25,7 @@ export class AppComponent
 				location = "https://davidpeet8.github.io/website/#/";
 				break;
 		}
-		if (event.ctrlKey == true)
+		if (event.ctrlKey)
 		{
 			window.open(location, "_blank")
 		}
