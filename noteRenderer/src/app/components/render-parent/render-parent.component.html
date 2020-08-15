@@ -1,7 +1,14 @@
-<section class="editor">
-	<div class="main-grid">
-		<app-directory-tree [children]="[]"></app-directory-tree>
-		<app-codeview></app-codeview>
+<section (window:resize)="setMaxHeight()" class="editor" #editor>
+	<div class="main-flex">
+		<div class="dirtree-wrapper" #dirSection>
+			<div class="dirtree-content">
+				<app-directory-tree [children]="[]"></app-directory-tree>
+			</div>
+			<div draggable="true" (drag)="onDrag($event)" class="dirtree-sidebar" #resizeBar></div>
+		</div>
+		<div class="codeview" #codeSection>
+			<app-codeview></app-codeview>
+		</div>
 	</div>
 </section>
   

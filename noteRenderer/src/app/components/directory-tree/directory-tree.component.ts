@@ -1,14 +1,13 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
 	selector: 'app-directory-tree',
 	templateUrl: './directory-tree.component.html',
 	styleUrls: ['./directory-tree.component.sass']
 })
-export class DirectoryTreeComponent implements OnInit, AfterViewInit 
+export class DirectoryTreeComponent implements OnInit 
 {
 	@Input() children;
-	@ViewChild("dirSection") dirSection: ElementRef;
 	fileName = "File name";
 	isDirectory;
 	isOpen = false;
@@ -28,12 +27,6 @@ export class DirectoryTreeComponent implements OnInit, AfterViewInit
 		{
 			this.isDirectory = true;
 		}
-	}
-
-	ngAfterViewInit(): void
-	{
-		// subtract height of footer and header
-		this.dirSection.nativeElement.style.maxHeight = (window.innerHeight - 40 - 100) + "px"; 
 	}
 
 	onClick(): void

@@ -1,20 +1,23 @@
-@import 'variables'
+@import "mixins"
 
 .dirtree-section
 	padding: 20px
-	background-color: $dark-grey
-	height: 100%
-	overflow: auto
-	color: white
 
 .icon
-	display: inline-block
+	flex-grow: 0
+	flex-shrink: 0
 
 .file-name
-	font-size: 14pt
-	display: inline-block
-	margin-left: 10px
+	@include scaleProp(margin-left, 10px, 10px, 15px, 15px, 20px)
+	white-space: nowrap
 
 .children-dropdown
-	margin-left: 10px
+	@include scaleProp(margin-left, 10px, 10px, 15px, 15px, 20px)
+
+.file
+	display: flex
+	flex-direction: row
+	justify-content: flex-start
+	align-items: center
+	flex-wrap: nowrap
 

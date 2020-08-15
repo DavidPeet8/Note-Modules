@@ -1,0 +1,41 @@
+@import "variables"
+
+@mixin scaleProp($propname, $xsval, $sval, $mval, $lval, $xlval)
+	@media only screen and (max-width: $xsmallWidthMax)
+		#{$propname}: $xsval
+	@media only screen and (max-width: $smallWidthMax) and (min-width: $smallWidthMin)
+		#{$propname}: $sval
+	@media only screen and (max-width: $medWidthMax) and (min-width: $medWidthMin)
+		#{$propname}: $mval
+	@media only screen and (min-width: $largeWidthMin) and (max-width: $largeWidthMax)
+		#{$propname}: $lval
+	@media only screen and (min-width: $xlargeWidthMin)
+		#{$propname}: $xlval
+
+@mixin applyXSmall($prop, $val)
+	@media only screen and (max-width: $xsmallWidthMax)
+		#{$prop}: $val
+
+@mixin applySmall($prop, $val)
+	@media only screen and (max-width: $smallWidthMax)
+		#{$prop}: $val
+
+@mixin applyLarge($prop, $val)
+	@media only screen and (max-width: $largeWidthMax)
+		#{$prop}: $val
+
+@mixin hideSmall()
+	@include applySmall(display, none)
+
+@mixin hideMedium()
+	@media only screen and (max-width: $medWidthMax) and (min-width: $medWidthMin)
+		display: none
+
+@mixin hideLarge()
+	@media only screen and (min-width: $largeWidthMin)
+		display: none
+
+@mixin scalePadding($paddingSmall, $paddingMed, $paddingLarge) 
+	@include scaleProp(padding-top, $paddingSmall, $paddingSmall, $paddingMed, $paddingLarge, $paddingLarge)
+	@include scaleProp(padding-left, $paddingSmall, $paddingSmall, $paddingMed, $paddingLarge, $paddingLarge)
+	@include scaleProp(padding-right, $paddingSmall, $paddingSmall, $paddingMed, $paddingLarge, $paddingLarge)

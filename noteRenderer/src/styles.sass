@@ -1,11 +1,11 @@
-@import './variables'
-@import './mixins'
+@import "mixins"
 
 *
 	box-sizing: border-box
 	padding: 0
 	margin: 0
 	font-family: 'Ubuntu Mono', monospace
+	@include scaleProp(font-size, 14pt, 14pt, 18pt, 18pt, 20pt)
 
 html,body
 	height: 100%
@@ -15,7 +15,8 @@ html,body
 	background: rgba(0,0,0,0)
 
 ::-webkit-scrollbar 
-	width: 6px
+	width: $scrollbarWidth
+	height: $scrollbarWidth
 
 ::-webkit-scrollbar-track 
 	background: $dark-grey
@@ -27,19 +28,15 @@ html,body
 
 /*---------------------------- MARKDOWN STYLING -----------------------------*/
 h1
-	font-size: 35pt
 	border-bottom: 1px solid white
 	padding: 10px
 	margin-bottom: 20px
+	@include scaleProp(font-size, 35pt, 40pt, 40pt, 45pt, 45pt)
 
 h2
-	font-size: 25pt
-
-p
-	font-size: 14pt
+	@include scaleProp(font-size, 20pt, 25pt, 25pt, 30pt, 30pt)
 
 ul
-	font-size: 14pt
 	list-style-position: inside
 
 .hidden

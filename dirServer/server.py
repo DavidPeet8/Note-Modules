@@ -6,10 +6,10 @@ import time
 
 hostName = "localhost"
 port = 8000
-servePath = "~/.notes/"
+servePath = os.path.expanduser("~/.notes/")
 webServer = None
 
-class Server(BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
 		self.send_response(200)
 		self.send_header("Content-type", "text/html")
@@ -34,7 +34,7 @@ def main(argv):
 			print ("Set port: " + arg)
 		elif opt in ("-d", "dir="):
 			global servePath 
-			servePath = string(arg)
+			servePath = os.path.expanduser(string(arg))
 			print("Set serve path: " + arg)
 
 	if not os.path.exists(servePath):
@@ -42,7 +42,7 @@ def main(argv):
 	
 	os.chdir(servePath)
 	global webServer
-	webServer = HTTPServer((hostName, port), Server)
+	webServer = HTTPServer((hostName, port), RequestHandler)
 	print("Serving at port", port)
 	atexit.register(stopServer)
 	webServer.serve_forever()

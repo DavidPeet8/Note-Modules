@@ -1,4 +1,4 @@
-@import 'variables'
+@import "mixins"
 
 .header
 	padding: 20px
@@ -18,7 +18,7 @@
 	font-size: 18pt
 	flex-grow: 0
 	flex-shrink: 0
-	height: 40px
+	height: 50px
 	width: 100%
 
 .title
@@ -43,8 +43,11 @@
 	margin-top: 20px
 	margin-right: 20px
 
-.icon
-	margin-left: 10px
+.iconSize
+	@include scaleProp(font-size, 14pt, 14pt, 18pt, 20pt, 25pt)
+
+.connect
+	@include scaleProp(margin-left, 10px, 10px, 15px, 15px, 15px)
 
 .settings
 	position: absolute
