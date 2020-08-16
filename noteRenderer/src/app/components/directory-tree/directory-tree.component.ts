@@ -18,7 +18,12 @@ export class DirectoryTreeComponent implements OnInit
 
 	ngOnInit(): void 
 	{
-		if (this.children == undefined || this.children.length == 0)
+		this.updateFileIcons();
+	}
+
+	updateFileIcons(): void
+	{
+		if (this.children == undefined || !(this.children instanceof Array))
 		{
 			this.isDirectory = false;
 			this.iconClasses = "fas fa-file";

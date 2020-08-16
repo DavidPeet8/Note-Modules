@@ -14,4 +14,9 @@ export class CodeviewComponent implements OnInit {
 
 	ngOnInit(): void {}
 
+	getCode(): String 
+	{
+		// Return URI of resource
+		return 'http://localhost:8000/testfile'
+	}
 }

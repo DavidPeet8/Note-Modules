@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
 	selector: 'app-render-parent',
@@ -10,8 +11,10 @@ export class RenderParentComponent implements OnInit
 	@ViewChild("dirSection") dirSection: ElementRef;
 	@ViewChild("editor") editor: ElementRef;
 	@ViewChild("resizeBar") resizeBar: ElementRef;
+	dirlist;
+	resizeBarY;
 
-	constructor() { }
+	constructor(private http: HttpClient) { }
 
 	ngOnInit(): void {
 	}
@@ -19,6 +22,13 @@ export class RenderParentComponent implements OnInit
 	ngAfterViewInit(): void
 	{
 		this.setMaxHeight();
+		this.resizeBarY = this.resizeBar.nativeElement.offsetTop;
+		//fetch('http://localhost:8000/testfile').then((data) => { data.text().then((d) => {console.log(d);}); });
+		fetch('http://localhost:8000/file-list').then((data) => { 
+			return data.json();
+		}).then((json) => {
+			this.dirlist = json.dirs;
+		});
 	}
 
 	setMaxHeight(): void 

@@ -2,7 +2,7 @@
 	<div class="main-flex">
 		<div class="dirtree-wrapper" #dirSection>
 			<div class="dirtree-content">
-				<app-directory-tree [children]="[]"></app-directory-tree>
+				<app-directory-tree [children]="dirlist"></app-directory-tree>
 			</div>
 			<div draggable="true" (drag)="onDrag($event)" class="dirtree-sidebar" #resizeBar></div>
 		</div>
