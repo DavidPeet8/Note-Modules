@@ -7,7 +7,8 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class DirectoryTreeComponent implements OnInit 
 {
-	@Input() children;
+	@Input() fileDescriptor;
+	contentlist = [];
 	fileName = "File name";
 	isDirectory;
 	isOpen = false;
@@ -19,11 +20,25 @@ export class DirectoryTreeComponent implements OnInit
 	ngOnInit(): void 
 	{
 		this.updateFileIcons();
+		this.updateFileName();
+		this.updateDirList();
+	}
+
+	updateDirList(): void 
+	{
+		if (this.fileDescriptor instanceof Array)
+		{
+			this.contentlist = this.fileDescriptor[1];
+		} 
+		else 
+		{
+			this.contentlist = [];
+		}
 	}
 
 	updateFileIcons(): void
 	{
-		if (this.children == undefined || !(this.children instanceof Array))
+		if (this.fileDescriptor == undefined || !(this.fileDescriptor instanceof Array))
 		{
 			this.isDirectory = false;
 			this.iconClasses = "fas fa-file";
@@ -32,6 +47,11 @@ export class DirectoryTreeComponent implements OnInit
 		{
 			this.isDirectory = true;
 		}
+	}
+
+	updateFileName(): void
+	{
+		this.fileName = (this.fileDescriptor instanceof Array) ? this.fileDescriptor[0] : this.fileDescriptor;
 	}
 
 	onClick(): void
@@ -49,4 +69,14 @@ export class DirectoryTreeComponent implements OnInit
 			this.dropdownClasses = "hidden";
 		}
 	}
+
+	openFile(): void 
+	{
+		if (!this.isDirectory)
+		{
+			console.log("open file: " + this.fileName);
+			// Actually open this file in the code thing
+		}
+	}
 }
+
