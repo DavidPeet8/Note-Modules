@@ -1,34 +1,47 @@
 <section class="codeview" #codeview>
 	<div #content>
-		<!-- Must include http:// -->
-		<!--src attribute infers that the entire file is a code file and is not present in the markdown-->
-		<!-- <markdown (ready)="setOverscroll()" [src]="getCode()" katex></markdown> -->
-		<markdown ngPreserveWhitespaces katex #markdown>
-			# SHit
-
-			so this was entirely supposed to be code tho
-			{{ '>' }} Blockquote?
-
-			[I'm an inline-style link](https://www.google.com)
-			[I'm a reference-style link][Arbitrary case-insensitive reference text]
-			[I'm a relative reference to a repository file](../blob/master/LICENSE)
-			linkme: <https://www.google.com>
-			```javascript
-			function main() {{ '{' }}
-				if (the things):
-					a = $ 2^n $;
-			{{ '}' }}
-			```
-
-			Markdown | Less | Pretty
-			--- | --- | ---
-			*Still* | `renders` | **nicely**
-			1 | 2 | 3
-
-			---
-
-			`mycode`
-		</markdown>
+		<markdown [data]="renderContent" katex #displayText></markdown> 
 	</div>
 	<!-- https://www.npmjs.com/package/ngx-markdown#installation -->
 </section>
+
+<!-- Must include http:// -->
+<!--src attribute infers that the entire file is a code file and is not present in the markdown-->
+<!-- <markdown (ready)="setOverscroll()" [src]="getCode()" katex></markdown> -->
+<!-- <markdown ngPreserveWhitespaces katex #markdown>
+	# SHit
+
+	so this was entirely supposed to be code tho
+	{{ '>' }} Blockquote?
+
+	[I'm an inline-style link](https://www.google.com)
+	[I'm a reference-style link][Arbitrary case-insensitive reference text]
+	[I'm a relative reference to a repository file](../blob/master/LICENSE)
+	linkme: <https://www.google.com>
+	```javascript
+	function main() {{ '{' }}
+		if (the things):
+			a = $ 2^n $;
+	{{ '}' }}
+	```
+
+	Markdown | Less | Pretty
+	--- | --- | ---
+	*Still* | `renders` | **nicely**
+	1 | 2 | 3
+
+	---
+
+	`mycode`
+
+	___
+
+	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+	tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+	quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+	consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+	cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+	proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+</markdown> -->
+

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { FetchRenderEventBusService } from '@services/fetch-render-event-bus.service';
+import { FileAccessAPIService } from '@services/file-access-api.service';
 
 @Component({
 	selector: 'app-render-parent',
@@ -11,24 +12,25 @@ export class RenderParentComponent implements OnInit
 	@ViewChild("dirSection") dirSection: ElementRef;
 	@ViewChild("editor") editor: ElementRef;
 	@ViewChild("resizeBar") resizeBar: ElementRef;
-	dirlist;
-	resizeBarY;
+	dirlist; resizeBarY;
 
-	constructor(private http: HttpClient) { }
+	constructor(private eventBus: FetchRenderEventBusService, private fileAPI: FileAccessAPIService) { }
 
-	ngOnInit(): void {
+	ngOnInit(): void 
+	{
+		this.eventBus.subscribeDirEvent(this.setDirList.bind(this));
 	}
 
 	ngAfterViewInit(): void
 	{
 		this.setMaxHeight();
 		this.resizeBarY = this.resizeBar.nativeElement.offsetTop;
-		//fetch('http://localhost:8000/testfile').then((data) => { data.text().then((d) => {console.log(d);}); });
-		fetch('http://localhost:8000/file-list').then((data) => { 
-			return data.json();
-		}).then((json) => {
-			this.dirlist = json.dirs;
-		});
+		
+	}
+
+	setDirList(): void 
+	{
+		this.dirlist = this.fileAPI.getDirList();
 	}
 
 	setMaxHeight(): void 

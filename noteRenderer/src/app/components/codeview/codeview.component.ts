@@ -1,4 +1,6 @@
 import { Component, OnInit, Input, ElementRef, ViewChild} from '@angular/core';
+import { FetchRenderEventBusService } from '@services/fetch-render-event-bus.service';
+import { FileAccessAPIService } from '@services/file-access-api.service';
 
 @Component({
   selector: 'app-codeview',
@@ -7,23 +9,24 @@ import { Component, OnInit, Input, ElementRef, ViewChild} from '@angular/core';
 })
 export class CodeviewComponent implements OnInit {
 	// View Displaying a note
-	@Input() filePath: String;
 	@Input() willOverscroll: boolean = true;
 	@ViewChild('codeview') codeview; 
 	@ViewChild('content') content;
-	@ViewChild('markdown') markdown;
+	@ViewChild('displayText') displayText;
+	renderContent: String = "";
 	
-	constructor() { }
+	constructor(private eventBus: FetchRenderEventBusService, private fileAPI: FileAccessAPIService) { }
 
 	ngOnInit(): void 
 	{
-		// Make the request for the first note to display or just leave it empty
+		this.eventBus.subscribeCodeEvent(this.setCode.bind(this));
 	}
 
-	getCode(): String 
+	setCode(): void 
 	{
-		// Return URI of resource
-		return 'http://localhost:8000/testfile'
+		// Make the request for the first note to display or just leave it empty
+		// Fetch the content Required, then set it here
+		this.renderContent = this.fileAPI.getCurrentFile();
 	}
 
 	setOverscroll(): void
@@ -32,8 +35,6 @@ export class CodeviewComponent implements OnInit {
 		
 		let editorScreenHeight = this.codeview.nativeElement.offsetHeight;
 		let contentScrollHeight = this.content.nativeElement.scrollHeight;
-		console.log("editorScreenHeight: " + editorScreenHeight);
-		console.log("contentScrollHeight: " + contentScrollHeight);
 		this.content.nativeElement.style.height = contentScrollHeight + editorScreenHeight - 150 + "px";
 	}
 }
