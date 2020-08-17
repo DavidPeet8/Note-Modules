@@ -2,8 +2,8 @@
 	<div #content>
 		<!-- Must include http:// -->
 		<!--src attribute infers that the entire file is a code file and is not present in the markdown-->
-		<markdown (ready)="setOverscroll()" [src]="getCode()" katex></markdown>
-		<markdown ngPreserveWhitespaces katex>
+		<!-- <markdown (ready)="setOverscroll()" [src]="getCode()" katex></markdown> -->
+		<markdown ngPreserveWhitespaces katex #markdown>
 			# SHit
 
 			so this was entirely supposed to be code tho

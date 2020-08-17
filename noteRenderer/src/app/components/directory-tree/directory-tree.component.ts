@@ -54,8 +54,15 @@ export class DirectoryTreeComponent implements OnInit
 		this.fileName = (this.fileDescriptor instanceof Array) ? this.fileDescriptor[0] : this.fileDescriptor;
 	}
 
-	onClick(): void
+	openFile(): void 
 	{
+
+		if (!this.isDirectory)
+		{
+			console.log("open file: " + this.fileName);
+			// Actually open this file in the code thing
+		}
+
 		if (this.isDirectory && !this.isOpen) 
 		{
 			this.iconClasses = "fas fa-folder-open";
@@ -67,15 +74,6 @@ export class DirectoryTreeComponent implements OnInit
 			this.iconClasses = "fas fa-folder";
 			this.isOpen = false;
 			this.dropdownClasses = "hidden";
-		}
-	}
-
-	openFile(): void 
-	{
-		if (!this.isDirectory)
-		{
-			console.log("open file: " + this.fileName);
-			// Actually open this file in the code thing
 		}
 	}
 }

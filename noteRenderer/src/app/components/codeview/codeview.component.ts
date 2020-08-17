@@ -11,10 +11,14 @@ export class CodeviewComponent implements OnInit {
 	@Input() willOverscroll: boolean = true;
 	@ViewChild('codeview') codeview; 
 	@ViewChild('content') content;
+	@ViewChild('markdown') markdown;
 	
 	constructor() { }
 
-	ngOnInit(): void {}
+	ngOnInit(): void 
+	{
+		// Make the request for the first note to display or just leave it empty
+	}
 
 	getCode(): String 
 	{
@@ -25,18 +29,11 @@ export class CodeviewComponent implements OnInit {
 	setOverscroll(): void
 	{
 		if(!this.willOverscroll) return;
-
-		// if height is large enough, then 
-		console.log("Height: ")
-		console.log(this.content.nativeElement.scrollHeight);
 		
-		if (this.content.nativeElement.scrollHeight) 
-		{
-			let editorScreenHeight = this.codeview.nativeElement.offsetHeight;
-			let contentScrollHeight = this.content.nativeElement.scrollHeight;
-			console.log("editorScreenHeight: " + editorScreenHeight);
-			console.log("contentScrollHeight: " + contentScrollHeight);
-			this.content.nativeElement.style.height = contentScrollHeight + editorScreenHeight - 150 + "px";
-		}
+		let editorScreenHeight = this.codeview.nativeElement.offsetHeight;
+		let contentScrollHeight = this.content.nativeElement.scrollHeight;
+		console.log("editorScreenHeight: " + editorScreenHeight);
+		console.log("contentScrollHeight: " + contentScrollHeight);
+		this.content.nativeElement.style.height = contentScrollHeight + editorScreenHeight - 150 + "px";
 	}
 }
