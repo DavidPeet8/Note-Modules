@@ -74,8 +74,11 @@ export class FileAccessAPIService {
 		await fetch(this.host + this._getQueryParams({modify: true})).then((data) => {
 			return data.text()
 		}).then((text) => {
+			console.log("Checking Dir List : lastModifiedTime: " + text);
+			console.log("Old Last Modified Time: " + this.rootDir.lastModifiedTime);
 			if (text != this.rootDir.lastModifiedTime) 
 			{
+				console.log("different last modified time")
 				this._fetchDirList(); // DirTree was Modified
 			}
 		});

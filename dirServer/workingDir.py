@@ -21,11 +21,11 @@ class WorkingDir:
 		return results
 
 	def modifyTime(self, path):
+		# print(path + " lastModifyTime: " + str(os.path.getmtime(path)))
 		return os.path.getmtime(path)
 
 	def ls(self):
 		dirlist = self._ls('.')
-		print(dirlist)
 		return dirlist
 
 
@@ -33,6 +33,7 @@ class WorkingDir:
 		try:
 			fileDescriptor = open(path, "r")
 			text = fileDescriptor.read()
+			close(fileDescriptor)
 			return text
 		except:
 			print("Permission Error")

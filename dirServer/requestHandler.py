@@ -13,12 +13,13 @@ def pathExistsInCurrentDir(path):
 		matched = False
 		for j in range(len(currArr)):
 			if isinstance(currArr[j], list) and pathArr[i] == currArr[j][0]:
+				# print("Matched "+ pathArr[i] + " with " + currArr[j][0])
 				matched = True
 				currArr = currArr[j][1] 
 				break;
-		if i == len(pathArr)-1 and pathArr[i] == currArr[j]:
+			if i == len(pathArr) - 1 and pathArr[i] == currArr[j]:
 				return True
-		elif matched == False: 
+		if matched == False: 
 			return False
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -39,11 +40,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 		encodedJson = ""
 		responseStatus = 200;
 		url = urlparse(self.path)
-		print(url.query)
+
 		if url.query == 'modify=true':
 			# We are looking for modification times not actual data
 			# Exists to reduce polling payload size
-			encodedJson = str(config.currentDir.modifyTime('.' + url.path)).encode()
+			encodedJson = str(config.currentDir.modifyTime('./' + url.path[1:])).encode()
 
 		elif (url.path == "/"):
 			contents = config.currentDir.ls()

@@ -27,6 +27,7 @@ export class CodeviewComponent implements OnInit {
 		// Make the request for the first note to display or just leave it empty
 		// Fetch the content Required, then set it here
 		this.renderContent = this.fileAPI.getCurrentFile();
+		this.setOverscroll();
 	}
 
 	setOverscroll(): void
