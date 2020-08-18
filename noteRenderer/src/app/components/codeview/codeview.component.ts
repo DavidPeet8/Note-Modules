@@ -12,6 +12,7 @@ export class CodeviewComponent implements OnInit {
 	@Input() willOverscroll: boolean = true;
 	@ViewChild('codeview') codeview; 
 	@ViewChild('content') content;
+	@ViewChild('scrollContent') scrollContent;
 	@ViewChild('displayText') displayText;
 	renderContent: String = "";
 	
@@ -24,18 +25,22 @@ export class CodeviewComponent implements OnInit {
 
 	setCode(): void 
 	{
-		// Make the request for the first note to display or just leave it empty
 		// Fetch the content Required, then set it here
 		this.renderContent = this.fileAPI.getCurrentFile();
 		this.setOverscroll();
 	}
 
+	// TODO: Use Angular Observables
+	// Problem is that these values are being fetched before the render content is updated, so the overscroll is always one late
+	// This should really be implemented using Angular Observables
 	setOverscroll(): void
 	{
 		if(!this.willOverscroll) return;
-		
+
 		let editorScreenHeight = this.codeview.nativeElement.offsetHeight;
-		let contentScrollHeight = this.content.nativeElement.scrollHeight;
+		let contentScrollHeight = this.scrollContent.nativeElement.scrollHeight;
+		console.log("editorScreenHeight: " + editorScreenHeight);
+		console.log("contentScrollHeight: " + contentScrollHeight);
 		this.content.nativeElement.style.height = contentScrollHeight + editorScreenHeight - 150 + "px";
 	}
 }

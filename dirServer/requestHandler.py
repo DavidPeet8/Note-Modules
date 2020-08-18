@@ -53,6 +53,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 				'modifyTime': config.currentDir.modifyTime(".")
 			}).encode()
 		elif pathExistsInCurrentDir(url.path[1:]):
+			print(url.path[1:])
 			encodedJson = json.dumps({
 				'fileData': config.currentDir.cat(url.path[1:]), 
 				'modifyTime': config.currentDir.modifyTime(url.path[1:])

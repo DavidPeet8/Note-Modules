@@ -1,6 +1,8 @@
 <section class="codeview" #codeview>
 	<div #content>
-		<markdown [data]="renderContent" katex #displayText></markdown> 
+		<div #scrollContent>
+			<markdown [data]="renderContent" katex #displayText></markdown> 
+		</div>
 	</div>
 	<!-- https://www.npmjs.com/package/ngx-markdown#installation -->
 </section>

@@ -30,10 +30,10 @@ class WorkingDir:
 
 
 	def cat(self, path):
-		try:
-			fileDescriptor = open(path, "r")
-			text = fileDescriptor.read()
-			close(fileDescriptor)
-			return text
-		except:
-			print("Permission Error")
+		# try:
+		fileDescriptor = open(path, "r")
+		text = fileDescriptor.read()
+		fileDescriptor.close()
+		return text
+		# except:
+		#  	print("Permission Error")
