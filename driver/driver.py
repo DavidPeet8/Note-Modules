@@ -5,12 +5,8 @@ import cmd, sys, os
 from colorama import init, Fore, Back, Style
 init()
 
-def fork():
-	try:
-		pid = os.fork()
-	except OSError as e:
-		raise RuntimeError("Fork Failed: %s [%d]" % (e.strerror, e.errno))
-	return pid
+basePath = os.path.expanduser("~/.notes")
+textEditorCMD = "subl"
 
 class NoteShell (cmd.Cmd):
 	intro = "Welcome to NoteShell.\nAuthor: David Peet\nGithub: davidpeet8\nType help or ? for a list of commands.\n"
@@ -22,27 +18,27 @@ class NoteShell (cmd.Cmd):
 	# should recieve no arguments
 	def do_init(self, arg):
 		'Initialize directories needed for this application to function as required'
-		os.mkdir("~/.notes")
-		os.mkdir("~/.notes/.flat_notes")
-		os.mkdir("~/.notes/build")
+		if not os.path.isdir(basePath + "/.flat_notes"):
+			os.mkdir(os.path.expanduser("~/.notes/.flat_notes"))
+		if not os.path.isdir(basePath + "/build"):
+			os.mkdir(os.path.expanduser("~/.notes/build"))
+		cwd = os.getcwd();
+		os.chdir(basePath) # Go to root directory
+		self.do_git("init")
+		os.chdir(cwd) # change back to the previous directory
+
 
 	# Directory to open in text editor
 	def do_edit(seld, args):
 		'Opens the specified file or directory in sublime text'
 		arglist = args.split(" ")
-		pid = os.fork()
-
-		if pid == 0: # Child Process
-			print("PID is 0! Starting Sublime")
-			os.execvp("subl", arglist)
+		arglist.insert(0, textEditorCMD)
+		pid = os.spawnvp(os.P_NOWAIT, textEditorCMD, arglist)
 
 	# List of things to render in the UI
 	def do_render(self, args):
 		arglist = args.split(" ")
-		pid = os.fork()
-
-		if pid == 0:
-			os.execlp() # Start Angular UI
+		pid = os.spawnvp(os.P_NOWAIT, "", arglist)
 
 	def do_ls(self, args):
 		'List contents of current directory'
@@ -106,6 +102,18 @@ class NoteShell (cmd.Cmd):
 		'Quit the command line interface'
 		sys.exit()
 
+	def do_save(self, args):
+		'Save the notes to github'
+		self.do_git("add .")
+		self.do_git("commit -m \"Save\"")
+		self.do_git("push")
+
+	def do_git(self, args):
+		arglist = args.split(" ")
+		arglist.insert(0, "git")
+		pid = os.spawnvp(os.P_NOWAIT, "git", arglist)
+
+
 	# -------------------- ALIASES -------------------
 
 	def do_c(self, args):
@@ -126,9 +134,12 @@ class NoteShell (cmd.Cmd):
 		self.prompt = self.promptBase + self.promptPath + self.propmptTerminator
 
 
-
+if not os.path.isdir(basePath):
+	os.mkdir(os.path.expanduser("~/.notes"))
 os.chdir(os.path.expanduser("~/.notes")) # Set working directory to base of notes directory
 
 # Start the CLI if this is the main process
 if __name__ == '__main__':
 	NoteShell().cmdloop()
+
+# NOTE: When spawning processes, argv[0] MUST be the program name / essentially it gets ignored
