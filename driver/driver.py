@@ -30,10 +30,10 @@ class NoteShell (cmd.Cmd):
 	def do_edit(seld, args):
 		'Opens the specified file or directory in sublime text'
 		arglist = args.split(" ")
-		print(arglist)
 		pid = os.fork()
 
 		if pid == 0: # Child Process
+			print("PID is 0! Starting Sublime")
 			os.execvp("subl", arglist)
 
 	# List of things to render in the UI
