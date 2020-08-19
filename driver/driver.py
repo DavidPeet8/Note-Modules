@@ -55,10 +55,13 @@ class NoteShell (cmd.Cmd):
 
 	def do_ls(self, args):
 		'List contents of current directory'
-		if isinstance(args, list):
-			arr = os.scandir(args[0])
-		elif args != "":
-			arr = os.scandir(args)
+		arglist = args.split(" ")
+
+		if arglist[0] != "":
+			if arglist[0] == "-a" or arglist[0] == "--all":
+				arr = os.scandir(flatNotesPath)
+			else:
+				arr = os.scandir(args)
 		else: 
 			arr = os.scandir(".")
 
@@ -71,13 +74,20 @@ class NoteShell (cmd.Cmd):
 
 	def do_cat(self, args):
 		'Print out the contents of the argument file'
+		text = self._cat_helper(args)
+
+		if text != "":
+			print(text)
+
+	def _cat_helper(self, args):
 		try:
 			fd = open(args, "r")
 			text = fd.read()
 			fd.close()
-			print(text)
+			return text
 		except: 
 			invalid("Cannot cat, check that file exists and that you have read permission.")
+			return ""
 
 	def do_cd(self, arg):
 		'Navigate within stored notes'
@@ -96,7 +106,7 @@ class NoteShell (cmd.Cmd):
 		To create a note - create note <note_path>
 		'''
 		arglist = args.split(" ")
-		print(arglist[1:])
+
 		if arglist and len(arglist) >= 2:
 			low = arglist[0].lower()
 			if low == '-f' or low == '--filter':
