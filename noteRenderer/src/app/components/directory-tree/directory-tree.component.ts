@@ -61,6 +61,7 @@ export class DirectoryTreeComponent implements OnInit
 
 		if (!this.isDirectory)
 		{
+			console.log("BasePath: " + this.basePath)
 			this.fileAPI.switchActiveFile(this.basePath + "/" + this.fileName);
 		}
 

@@ -4,6 +4,6 @@
 		<p class="file-name">{{fileName}}</p>
 	</div>
 	<div *ngIf="isDirectory" [(class)]="dropdownClasses" #dropdown>
-		<app-directory-tree *ngFor="let child of contentlist; index as i" [fileDescriptor]="child" [basePath]="basePath + fileName"></app-directory-tree>
+		<app-directory-tree *ngFor="let child of contentlist; index as i" [fileDescriptor]="child" [basePath]="basePath + '/'+ fileName"></app-directory-tree>
 	</div>
 </section>

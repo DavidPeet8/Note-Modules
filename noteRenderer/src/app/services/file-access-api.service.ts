@@ -30,8 +30,8 @@ export class FileAccessAPIService {
 		this._fetchFile(this.activeFile.activeFileURI);
 		setInterval(() => {
 			// This does not work as dir update time is not necessaily updated when time is updated
-			//this._checkDirListModified.bind(this)(); 
-			this._fetchDirList.bind(this)();
+			this._checkDirListModified.bind(this)(); 
+			//this._fetchDirList.bind(this)(); // This triggers a refresh every time this is called :()
 			this._checkFileModified.bind(this)();
 		}, 5000);
 	}
@@ -50,18 +50,18 @@ export class FileAccessAPIService {
 
 	async _fetchFile(fileName)
 	{
-		await fetch(this.host + '/' + this.activeFile.activeFileURI + this._getQueryParams({modify: false})).then((data) => {
+		await fetch(this.host + fileName + this._getQueryParams({modify: false})).then((data) => {
 			return data.json();
 		}).then((json) => {
 			this.activeFile.activeFileText = json.fileData;
 			this.activeFile.lastModifiedTime = json.modifyTime;
-			this.publishCodeEvent(this.activeFile.activeFileURI);
+			this.publishCodeEvent(fileName);
 		});
 	}
 
 	async _checkFileModified()
 	{
-		await fetch(this.host + '/' + this.activeFile.activeFileURI + this._getQueryParams({modify: true})).then((data) => {
+		await fetch(this.host + this.activeFile.activeFileURI + this._getQueryParams({modify: true})).then((data) => {
 			return data.text()
 		}).then((text) => {
 			if (text != this.activeFile.lastModifiedTime) 
@@ -107,6 +107,7 @@ export class FileAccessAPIService {
 	// Switch active file to partialURI and force an immediate fetch
 	switchActiveFile(partialURI): void
 	{
+		console.log("partialURI: " + partialURI)
 		if(partialURI == this.activeFile.activeFileURI) return;
 		this.activeFile.activeFileURI = partialURI;
 		this._fetchFile(partialURI);
