@@ -29,7 +29,9 @@ export class FileAccessAPIService {
 		this._fetchDirList();
 		this._fetchFile(this.activeFile.activeFileURI);
 		setInterval(() => {
-			this._checkDirListModified.bind(this)();
+			// This does not work as dir update time is not necessaily updated when time is updated
+			//this._checkDirListModified.bind(this)(); 
+			this._fetchDirList.bind(this)();
 			this._checkFileModified.bind(this)();
 		}, 5000);
 	}
