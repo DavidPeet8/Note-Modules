@@ -56,6 +56,9 @@ export class FileAccessAPIService {
 			this.activeFile.activeFileText = json.fileData;
 			this.activeFile.lastModifiedTime = json.modifyTime;
 			this.publishCodeEvent(fileName);
+		}).catch((e) => 
+		{
+			this._fetchDirList();
 		});
 	}
 
@@ -107,7 +110,6 @@ export class FileAccessAPIService {
 	// Switch active file to partialURI and force an immediate fetch
 	switchActiveFile(partialURI): void
 	{
-		console.log("partialURI: " + partialURI)
 		if(partialURI == this.activeFile.activeFileURI) return;
 		this.activeFile.activeFileURI = partialURI;
 		this._fetchFile(partialURI);

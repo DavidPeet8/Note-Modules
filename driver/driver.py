@@ -2,6 +2,7 @@
 # CLI Driver for note CLI
 
 import cmd, sys, os, shutil, re
+import collections
 from colorama import init, Fore, Back, Style
 init()
 
@@ -234,6 +235,7 @@ class NoteShell (cmd.Cmd):
 		'''
 		arglist = args.split(" ")
 		firstArg = arglist[0].lower()
+		fileMap = {}
 		if (firstArg == "-d" or firstArg == "--deep") and len(arglist) >=3:
 			# Start the Deep search process
 			pattern = arglist[1]
@@ -242,9 +244,12 @@ class NoteShell (cmd.Cmd):
 			for path in searchFiles:
 				path = os.path.expanduser(path)
 				if os.path.isdir(path):
-					print(self.search_dir(pattern, os.scandir(path)))
+					fileMap = {**fileMap, **self.search_dir(pattern, os.scandir(path))}
 				else:
-					print(search_file(pattern, path))
+					fileMap[path] = search_file(pattern, path)
+
+			for key, value in fileMap.items():
+				print("["+ key[2:] + ", " + str(value) + "]")
 
 		elif len(arglist) >= 1:
 			# Just run a quick file name search
@@ -264,13 +269,13 @@ class NoteShell (cmd.Cmd):
 		return len(re.findall(pattern, text, re.IGNORECASE))
 
 	def search_dir(self, pattern, filelist):
-		results = []
+		results = {}
 		for file in filelist:
 			if os.path.isdir(file.path):
 				if not file.name.startswith("."): 
-					results += self.search_dir(pattern, os.scandir(file.path))
+					results = {**results, **self.search_dir(pattern, os.scandir(file.path))}
 			else:
-				results += self.search_file(pattern, file.path);
+				results[file.path] = self.search_file(pattern, file.path);
 		return results
 
 
