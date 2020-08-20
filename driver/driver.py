@@ -117,9 +117,16 @@ class NoteShell (cmd.Cmd):
 						os.mkdir(f)
 					except:
 						print("Filter Already Exists.")
+				return
 			elif firstArg == '-n' or firstArg == '--note':
 				# Create the new notes
 				for n in arglist[1:]:
+					if os.path.exists(flatNotesPath + '/' + n):
+						invalid()
+						print('A note of this name already exists in .flat_notes')
+						print('To add this note to the specified directory use the add command.')
+						print('To remove this file permanantly use the remove command.')
+						return
 					fd = open(flatNotesPath + '/' + n,"a+")
 					fd.write("\n")
 					fd.close()
@@ -127,8 +134,8 @@ class NoteShell (cmd.Cmd):
 						os.link(flatNotesPath + '/' + n, n)
 					except: 
 						print("Note Already Exists.")
-			else:
-				invalid("Unspecified Creation Type.")
+				return
+		invalid("Unspecified Creation Type.")
 
 	def do_remove(self, args):
 		'''
@@ -214,9 +221,10 @@ class NoteShell (cmd.Cmd):
 
 	def do_git(self, args):
 		'Allow performing git commands, syntax as usual'
+		GITEXE = "git"
 		arglist = args.split(" ")
-		arglist.insert(0, "git")
-		pid = os.spawnvp(os.P_NOWAIT, "git", arglist)
+		arglist.insert(0, GITEXE)
+		pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist)
 
 		# List of things to render in the UI
 	def do_render(self, args):
@@ -226,6 +234,10 @@ class NoteShell (cmd.Cmd):
 
 	def do_build(self, args):
 		'Preprocess notes and send them to the build directory'
+		PREPROCESSOR_EXE = "preprocessor"
+		arglist = args.split(" ")
+		arglist.insert(0, PREPROCESSOR_EXE)
+		pid = os.spawnvp(os.P_WAIT, PREPROCESSOR_EXE, arglist)
 
 	def do_search(self, args):
 		'''
@@ -277,8 +289,6 @@ class NoteShell (cmd.Cmd):
 			else:
 				results[file.path] = self.search_file(pattern, file.path);
 		return results
-
-
 
 
 	# -------------------- ALIASES -------------------
