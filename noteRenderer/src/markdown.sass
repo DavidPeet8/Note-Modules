@@ -1,0 +1,73 @@
+@import "variables"
+
+/*---------------------------- MARKDOWN STYLING -----------------------------*/
+.md-h1
+	border-bottom: 1px solid white
+	padding: 10px
+	margin-bottom: 20px
+	@include scaleProp(font-size, 35pt, 40pt, 40pt, 45pt, 45pt)
+
+.md-h2
+	@include scaleProp(font-size, 20pt, 25pt, 25pt, 30pt, 30pt)
+
+.md-ul, .md-ol
+	list-style-position: inside
+
+.md-hr
+	margin-top: 30px
+	margin-bottom: 30px
+
+.md-blockquote
+	border-left: 3px solid $light-grey
+	padding-left: 12px
+	color: $light-grey
+	margin-left: 50px
+
+a
+	color: $link-color
+
+.md-codespan
+	border-radius: 4px
+	padding-top: 2px
+	padding-bottom: 2px
+	padding-left: 10px
+	padding-right: 10px
+	line-height: 1.2
+	background-color: $light-grey
+	color: #EB236C
+
+.md-strong
+	color: $code-light-blue
+
+.md-table 
+	border-collapse: collapse
+	table-layout: fixed
+	margin: 25px auto
+
+th
+	text-align: center
+
+th,td
+	padding: 10px
+
+// tbody tr:nth-child(even) 
+// 	background-color: $light-grey
+
+// tbody tr:nth-child(odd)
+// 	background-color: $mid-grey
+
+table td 
+  border: 1px solid $light-grey
+
+table tr:first-child td 
+  border-top: 0
+
+table tr td:first-child 
+  border-left: 0
+
+table tr:last-child td 
+  border-bottom: 0
+
+table tr td:last-child 
+  border-right: 0
+

@@ -29,7 +29,8 @@
             ],
             "styles": [
               "src/styles.sass",
-              "node_modules/prismjs/themes/prism-okaidia.css",
+              "src/prism-monokai.sass",
+              //"node_modules/prismjs/themes/prism-okaidia.css",
               "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.css",
               "node_modules/katex/dist/katex.min.css",
             ],
