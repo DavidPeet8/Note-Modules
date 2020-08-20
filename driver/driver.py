@@ -248,7 +248,7 @@ class NoteShell (cmd.Cmd):
 				else:
 					fileMap[path] = search_file(pattern, path)
 
-			for key, value in fileMap.items():
+			for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
 				print("["+ key[2:] + ", " + str(value) + "]")
 
 		elif len(arglist) >= 1:
