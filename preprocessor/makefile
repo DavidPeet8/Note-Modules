@@ -6,7 +6,7 @@ CPPSTANDARD=c++17
 
 SRCDIR=./src
 OBJDIR=./obj
-OBJECTS=main.o args.o file.o
+OBJECTS=main.o args.o file.o preprocessor.o
 
 OBJECTPATHS=$(call addprefix, ${OBJDIR}/, ${OBJECTS})
 DEPENDSPATHS=${OBJECTPATHS:.o=.d}

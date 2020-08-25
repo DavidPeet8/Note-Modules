@@ -7,6 +7,7 @@ class File
 {
 	const std::string name;
 	bool visited = false;
+	bool willBuild = true;
 
 	// Non-owning pointers to the next/prev non visited node
 	File *next;
@@ -19,6 +20,7 @@ public:
 	void visit() { visited = true; }
 	void setPrev(File * file) { prev = file; }
 	void setNext(File * file) { next = file; }
+	void setNoBuild(){ willBuild = false; }
 };
 
 #endif
