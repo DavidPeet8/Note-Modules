@@ -44,11 +44,20 @@ class NoteShell (cmd.Cmd):
 
 
 	# Directory to open in text editor
-	def do_edit(seld, args):
+	def do_edit(self, args):
 		'Opens the specified file or directory in sublime text'
 		arglist = args.split(" ")
+		
+		cwd = os.getcwd()
+		os.chdir(flatNotesPath)
+		for p in arglist:
+			if not os.path.exists(p):
+				print("Note " + p + " does not exist, creating it in .flat_notes")
+				self.do_create("-n " + p)
+
 		arglist.insert(0, textEditorCMD)
 		pid = os.spawnvp(os.P_NOWAIT, textEditorCMD, arglist)
+		os.chdir(cwd)
 
 	def do_ls(self, args):
 		'List contents of current directory'
@@ -128,10 +137,12 @@ class NoteShell (cmd.Cmd):
 						print('To remove this file permanantly use the remove command.')
 						return
 					fd = open(flatNotesPath + '/' + n,"a+")
-					fd.write("\n")
+					fd.write("")
 					fd.close()
+
 					try:
-						os.link(flatNotesPath + '/' + n, n)
+						if os.getcwd() != flatNotesPath:
+							os.link(flatNotesPath + '/' + n, n)
 					except: 
 						print("Note Already Exists.")
 				return

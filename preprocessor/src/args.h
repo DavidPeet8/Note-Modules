@@ -11,13 +11,14 @@ class File;
 
 struct Args
 {
-	std::string flatNotesPath;
+	std::string baseNotesPath;
 	std::unordered_map<std::string, std::unique_ptr<File>> filesToProcess;
 
 public:
 	Args(int argc, const char * const * const argv);
 	void printDirList();
 	std::unordered_map<std::string, std::unique_ptr<File>> &getMap() { return filesToProcess; }
+	std::string getBaseNotesPath() { return baseNotesPath; }
 
 private:
 	void initFileList(int argc, const char * const * const argv);

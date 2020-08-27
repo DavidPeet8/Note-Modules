@@ -10,7 +10,8 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
-Args::Args(int argc, const char * const * const argv): flatNotesPath(argv[1]), filesToProcess()
+Args::Args(int argc, const char * const * const argv): 
+baseNotesPath(fs::path(argv[1]).c_str()), filesToProcess()
 {
 	if (argc > 2) // All files in flat_notes should be added to the list of files to process
 	{
@@ -30,10 +31,10 @@ Args::Args(int argc, const char * const * const argv): flatNotesPath(argv[1]), f
 
 void Args::initFileList(int argc, const char * const * const argv)
 {
+	cerr << "Initializing from provided file list" << endl;
+
 	// Set hashtable size to be argc^2 to attempt to minimize probability of collision
 	filesToProcess.reserve(pow(argc, 2));
-
-	cerr << "Initializing from provided file list" << endl;
 
 	for (int i = 2; i < argc; ++i)
 	{
@@ -53,11 +54,11 @@ void Args::initFileList(int argc, const char * const * const argv)
 
 void Args::initNoFileList()
 {
-	fs::directory_iterator dirit(flatNotesPath);
+	cerr << "Initializing from no file list" << endl; 
+
+	fs::directory_iterator dirit(baseNotesPath + "/.flat_notes");
 	File * prev = nullptr; // Non-owning ref
 	File * first = nullptr;
-
-	cerr << "Initializing from no file list" << endl; 
 
 	for (const auto & entry : dirit)
 	{

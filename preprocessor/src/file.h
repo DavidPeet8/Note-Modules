@@ -16,11 +16,18 @@ class File
 public:
 	File(const std::string &name): name(name){}
 
-	void cp(const std::string &targetDirPath);
-	void visit() { visited = true; }
+	void visit() 
+	{ 
+		visited = true; 
+		prev->setNext(next); // Non owning no delete needed
+	}
+	bool isVisited() const { return visited; }
 	void setPrev(File * file) { prev = file; }
 	void setNext(File * file) { next = file; }
+	File *getNext() const { return next; }
+	File *getPrev() const { return prev; }
 	void setNoBuild(){ willBuild = false; }
+	const std::string &getName() const { return name; }
 };
 
 #endif

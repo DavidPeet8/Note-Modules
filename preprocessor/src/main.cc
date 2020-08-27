@@ -10,7 +10,7 @@ using namespace std;
 /*
 The following directives are to be recognized
 
-[//]: # (build=[true/false])                                 | Default to true if not stated
+[//]: # (nobuild) -- To avoid building
 [//]: # (import [name of note to copy paste in])
 
 */
@@ -23,6 +23,9 @@ int main(int argc, char **argv)
 	cin.tie(nullptr);
 	
 	Args a(argc, argv);
+	auto &fileList = a.getMap(); // List of files to preprocess	
 
-	auto &fileList = a.getMap();
+	Preprocessor preproc(move(fileList), a.getBaseNotesPath());
+
+	preproc.build();
 }

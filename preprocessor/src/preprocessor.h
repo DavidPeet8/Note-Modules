@@ -3,12 +3,12 @@
 
 #include "file.h"
 
-#include <regex>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
+#include <regex>
 
 
 class Preprocessor 
@@ -22,6 +22,7 @@ public:
 private:
 	// Store a list of files to preprocess
 	std::unordered_map<std::string, std::unique_ptr<File>> fileList;
+	const std::string baseNotesDir;
 
 	// Store a cache of files that already have been processed - indicate 
 	std::unordered_set<File*> cache;
@@ -36,19 +37,18 @@ public:
 		std::vector<std::string> targets;
 
 	public:
+
 		Cmd(const CmdType type, const std::string targetsStr);
-		
-		CmdType getType() { return type; }
-		const std::vector<std::string> &getTargets() { return targets; }
+
+		CmdType getType() const { return type; }
+		const std::vector<std::string> &getTargets() const { return targets; }
+
 
 		bool operator==(const CmdType otherType) { return type == otherType; }
 	};
 
 	// Force the argument to be moved in 
-	Preprocessor(std::unordered_map<std::string, std::unique_ptr<File>> &filesToProcess);
-
-	// Build designated file recursively
-	void build (const std::string &noteName);
+	Preprocessor(std::unordered_map<std::string, std::unique_ptr<File>> filesToProcess, const std::string baseNotesDir);
 	
 	// Build the next nonvisited file in the file list
 	void build ();
@@ -56,7 +56,18 @@ public:
 	static Cmd getCmd(const std::string &rawCommand);
 
 	static CmdType strToCmdType(const std::string &);
+
+private:
+	// Build designated file recursively
+	void build (const std::string &noteName);
+
+	void linkBuiltFiles();
+
+	void applyCmd(const Cmd &cmd, File *curFile, std::ostream &);
+
+	void copyBuiltFile(std::ostream &curFileStream, const std::string &noteToAppend);
 	
+	bool shouldShortCircuit(File *note);
 };
 
 #endif
