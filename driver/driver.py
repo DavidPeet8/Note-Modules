@@ -1,9 +1,12 @@
 #! /usr/bin/python3
 # CLI Driver for note CLI
+# Maybe switch to using the subprocess module
 
 import cmd, sys, os, shutil, re
 import collections
 from colorama import init, Fore, Back, Style
+import atexit, signal
+import webbrowser
 init()
 
 basePath = os.path.expanduser("~/.notes")
@@ -11,10 +14,22 @@ flatNotesPath = os.path.expanduser("~/.notes/.flat_notes")
 textEditorCMD = "subl"
 promptColor = Fore.CYAN + Style.BRIGHT
 
+PREPROCESSOR_EXE = basePath + "/.exe/preprocessor"
+SERVER_EXE = basePath + "/.exe/dirServer/server.py"
+UI_EXE = basePath + "/.exe/UI"
+arPID = []
+
 def invalid(reason=""):
 	print("Invalid Command.")
 	if reason != "":
 		print(reason)
+
+# reap all children onexit - this may prevent exit from process 
+def reap():
+	for pid in arPID:
+		os.kill(pid, signal.SIGKILL)
+
+atexit.register(reap)
 
 class NoteShell (cmd.Cmd):
 	intro = '''
@@ -58,7 +73,7 @@ class NoteShell (cmd.Cmd):
 				self.do_create("-n " + p)
 
 		arglist.insert(0, textEditorCMD)
-		pid = os.spawnvp(os.P_NOWAIT, textEditorCMD, arglist)
+		pid = os.spawnvp(os.P_NOWAIT, textEditorCMD, arglist) # Doesn't need to be reaped here
 		os.chdir(cwd)
 
 	def do_ls(self, args):
@@ -237,22 +252,30 @@ class NoteShell (cmd.Cmd):
 		GITEXE = "git"
 		arglist = args.split(" ")
 		arglist.insert(0, GITEXE)
-		pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist)
+		pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist) # Will terminate normally, no need to reap
 
 		# List of things to render in the UI
 	def do_render(self, args):
 		'Render target files in the Angular UI'
 		arglist = args.split(" ")
-		pid = os.spawnvp(os.P_NOWAIT, basePath + "/.exe/dirServer/server.py", arglist) # Start the Server
-		pid2 = os.spawnlp(os.P_NOWAIT, "python3","-m http.server -d " + basePath + "/.exe/UI") # Start the UI
+		arglist.insert(0, "server.py")
+		port = "4300"
+		global arPID
+
+		pid = os.spawnvp(os.P_NOWAIT, SERVER_EXE, arglist) # Start the Server
+		arPID += [pid] # Set up to be reaped
+		pid2 = os.spawnlp(os.P_NOWAIT, "python3", "python3", "-m", "http.server", port, "-d", UI_EXE) # Start the UI
+		arPID += [pid2] # Set up to be reaped
+		webbrowser.open("http://localhost:" + port)
+		print("Server PID: ", pid)
+		print("UI PID: ", pid2)
 
 	def do_build(self, args):
 		'Preprocess notes and send them to the build directory'
-		PREPROCESSOR_EXE = "preprocessor"
 		arglist = args.split(" ")
 		arglist.insert(0, PREPROCESSOR_EXE)
 		arglist.insert(1, basePath)
-		pid = os.spawnvp(os.P_WAIT, PREPROCESSOR_EXE, arglist)
+		pid = os.spawnvp(os.P_WAIT, PREPROCESSOR_EXE, arglist) # This will terminate of it's own accord, no need to be reaped
 
 	def do_search(self, args):
 		'''

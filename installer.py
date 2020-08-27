@@ -34,7 +34,7 @@ print("Installed Preprocessor")
 copytree("./noteRenderer/build", installPath + "/UI")
 print("Installed UI")
 # Install the cli driver
-copy("./driver/driver.py", installPath + "/notes.py")
+copy("./driver/driver.py", installPath + "/notes")
 print("Installed CLI")
 
 
