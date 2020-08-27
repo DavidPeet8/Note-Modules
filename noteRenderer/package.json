@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "pbuild": "ng build --prod --output-path build --base-href /noteRenderer/"
+    "pbuild": "ng build --prod --output-path build --base-href ./"
   },
   "private": true,
   "dependencies": {

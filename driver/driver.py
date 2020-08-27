@@ -37,6 +37,8 @@ class NoteShell (cmd.Cmd):
 			os.mkdir(basePath + "/build")
 		if not os.path.isdir(basePath+ "/.config"):
 			os.mkdir(basePath + "/.config")
+		if not os.path.isdir(basePath+ "/.exe"):
+			os.mkdir(basePath + "/.exe")
 		cwd = os.getcwd();
 		os.chdir(basePath) # Go to root directory
 		self.do_git("init") # initialize a git repository
@@ -241,13 +243,15 @@ class NoteShell (cmd.Cmd):
 	def do_render(self, args):
 		'Render target files in the Angular UI'
 		arglist = args.split(" ")
-		pid = os.spawnvp(os.P_NOWAIT, "", arglist)
+		pid = os.spawnvp(os.P_NOWAIT, basePath + "/.exe/dirServer/server.py", arglist) # Start the Server
+		pid2 = os.spawnlp(os.P_NOWAIT, "python3","-m http.server -d " + basePath + "/.exe/UI") # Start the UI
 
 	def do_build(self, args):
 		'Preprocess notes and send them to the build directory'
 		PREPROCESSOR_EXE = "preprocessor"
 		arglist = args.split(" ")
 		arglist.insert(0, PREPROCESSOR_EXE)
+		arglist.insert(1, basePath)
 		pid = os.spawnvp(os.P_WAIT, PREPROCESSOR_EXE, arglist)
 
 	def do_search(self, args):
