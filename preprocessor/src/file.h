@@ -27,6 +27,7 @@ public:
 	File *getNext() const { return next; }
 	File *getPrev() const { return prev; }
 	void setNoBuild(){ willBuild = false; }
+	bool shouldBuild() { return willBuild; }
 	const std::string &getName() const { return name; }
 };
 

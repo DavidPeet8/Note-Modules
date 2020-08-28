@@ -61,7 +61,7 @@ private:
 	// Build designated file recursively
 	void build (const std::string &noteName);
 
-	void linkBuiltFiles();
+	void linkBuiltFiles(const std::string &basePath, const std::string &pathTail = "");
 
 	void applyCmd(const Cmd &cmd, File *curFile, std::ostream &);
 

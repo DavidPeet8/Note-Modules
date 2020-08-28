@@ -8,8 +8,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <regex>
+#include <filesystem>
 
 using namespace std;
+namespace fs = std::filesystem;
 
 const unordered_map<Preprocessor::DFAState, unordered_map<Preprocessor::CharType, Preprocessor::DFAState>> Preprocessor::dfa = 
 {
@@ -125,7 +127,8 @@ void Preprocessor::build()
 		file = file->getNext();
 	}
 
-	linkBuiltFiles();
+	cerr << "Linking" << endl;
+	linkBuiltFiles(baseNotesDir, "");
 }
 
 // NoBuild simply means do not make any copies out of flat notes in builddir
@@ -133,7 +136,7 @@ void Preprocessor::build(const string &noteName)
 {
 	File *note = fileList[noteName].get();
 	if (shouldShortCircuit(note)) { return; }
-	
+
 	cerr << "Initializing build of " << noteName << std::endl;
 
 	static basic_regex pattern("\\[\\/\\/\\]\\s*:\\s*#\\s*\\(.*\\)");
@@ -165,12 +168,49 @@ void Preprocessor::build(const string &noteName)
 	cache.emplace(note); // Add the note to the cache as it is done building
 }
 
-void Preprocessor::linkBuiltFiles()
+void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail)
 {
-	cerr << "Linking..." << endl;
-	// Copy over all other filters to build but use /build versions of the notes
-	// Only copy over if willBuild is true for the file
-	
+	// Traversal over non-hidden folders recreating folder and file structure
+	// only link files where willBuild is true 
+	// Link recursively
+	const auto cwd = fs::current_path();
+	fs::current_path(baseNotesDir + pathTail); // cd into build directory
+	fs::directory_iterator baseDir(basePath + pathTail);
+
+	for (const auto &item : baseDir)
+	{
+		string name = item.path().filename().string();
+		cerr << "Processing " << name << endl;
+		string mirrorPath = basePath + "/build" + pathTail + "/" + name;
+		cerr << "MirrorPath: " << mirrorPath << endl;
+
+		if (name[0] == '.' || name == "build") { continue; }
+		if (item.is_directory())
+		{
+			// Create the corresponding directory under 
+			if (!fs::exists(mirrorPath))
+			{
+				fs::create_directory(mirrorPath);
+			}
+			linkBuiltFiles(basePath, pathTail + "/" + name); // Recursively process next dir
+		}
+		else if (item.is_regular_file())
+		{
+			if (fs::exists(mirrorPath))
+			{
+				fs::remove(mirrorPath);
+			}
+
+			const auto itr = fileList.find(name);
+
+			if (fs::exists(basePath + "/build/.flat_notes/" + name) && itr != fileList.end() && itr->second->shouldBuild()) 
+			{
+				fs::create_hard_link(basePath + "/build/.flat_notes/" + name, mirrorPath);
+			}
+		}
+	}
+	fs::current_path(cwd);
+
 }
 
 bool Preprocessor::shouldShortCircuit(File *note)

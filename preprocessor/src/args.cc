@@ -3,17 +3,17 @@
 
 #include <string>
 #include <cmath>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 Args::Args(int argc, const char * const * const argv): 
 baseNotesPath(fs::path(argv[1]).c_str()), filesToProcess()
 {
-	if (argc > 2) // All files in flat_notes should be added to the list of files to process
+	if (argc > 2) 
 	{
 		initFileList(argc, argv);
 	}

@@ -7,6 +7,13 @@ This supports the following directives:
 ## Notes: 
 All paths must not contain spaces, or must be wrapped in quotations
 
+# Dependancies
+This project depends on libc++ (LLVM implementation) due to the use of the filesystem header. To install the required packages run the following command
+`sudo apt-get install libc++-10-dev libc++abi-10-dev`
+For more information check out:  
+https://libcxx.llvm.org/docs/UsingLibcxx.html#using-libc-on-linux
+https://apt.llvm.org/
+
 # Testing
 To run the suite of tests using google tests, run the following commands:
 1. `sudo apt install libgtest-dev`

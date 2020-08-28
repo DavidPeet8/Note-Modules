@@ -33,10 +33,10 @@ atexit.register(reap)
 
 class NoteShell (cmd.Cmd):
 	intro = '''
-	Welcome to NoteShell.
-	Author: David Peet
-	Github: davidpeet8
-	Type help or ? for a list of commands.
+Welcome to NoteShell.
+Author: David Peet
+Github: davidpeet8
+Type help or ? for a list of commands.
 	'''
 	promptBase = promptColor + "(NoteShell) " 
 	promptPath = ""
@@ -105,16 +105,6 @@ class NoteShell (cmd.Cmd):
 
 		if text != "":
 			print(text)
-
-	def _cat_helper(self, args):
-		try:
-			fd = open(args, "r")
-			text = fd.read()
-			fd.close()
-			return text
-		except: 
-			invalid("Cannot cat, check that file exists and that you have read permission.")
-			return ""
 
 	def do_cd(self, arg):
 		'Navigate within stored notes'
@@ -197,18 +187,6 @@ class NoteShell (cmd.Cmd):
 				else:
 					invalid()
 
-	def _perm_remove(self, arglist):
-		cwd = os.getcwd();
-		arr = os.scandir(".")
-		for file in arr:
-			if file.is_dir():
-				os.chdir(file.name)
-				self._perm_remove(arglist)
-				os.chdir(cwd)
-			elif file.name in arglist:
-				self.do_remove(file.name)
-
-
 	def do_add(self, args):
 		'''
 		Add an existing notes by NAME not by path to target filter
@@ -229,13 +207,6 @@ class NoteShell (cmd.Cmd):
 
 		except:
 			invalid()
-
-	def _add_helper(self, arglist):
-		'''
-		Should only be called by do_add 
-		'''
-		for file in arglist:
-			os.link(flatNotesPath + "/" + file, './' + file)
 
 	def do_quit(self, args):
 		'Quit the command line interface'
@@ -272,10 +243,17 @@ class NoteShell (cmd.Cmd):
 
 	def do_build(self, args):
 		'Preprocess notes and send them to the build directory'
-		arglist = args.split(" ")
+		arglist = args.split(" ") if args else [] # avoid arglist [''] 
+		print(arglist)
 		arglist.insert(0, PREPROCESSOR_EXE)
 		arglist.insert(1, basePath)
 		pid = os.spawnvp(os.P_WAIT, PREPROCESSOR_EXE, arglist) # This will terminate of it's own accord, no need to be reaped
+
+	def do_clean(self, args):
+		cwd = os.getcwd()
+		os.chdir(basePath)
+		shutil.rmtree("build")
+		os.chdir(cwd)
 
 	def do_search(self, args):
 		'''
@@ -312,23 +290,6 @@ class NoteShell (cmd.Cmd):
 		else: 
 			invalid("Incorrect Number of arguments")
 
-	def search_file(self, pattern, path):
-		fd = open(path, "r")
-		text = fd.read()
-		fd.close()
-		return len(re.findall(pattern, text, re.IGNORECASE))
-
-	def search_dir(self, pattern, filelist):
-		results = {}
-		for file in filelist:
-			if os.path.isdir(file.path):
-				if not file.name.startswith("."): 
-					results = {**results, **self.search_dir(pattern, os.scandir(file.path))}
-			else:
-				results[file.path] = self.search_file(pattern, file.path);
-		return results
-
-
 	# -------------------- ALIASES -------------------
 
 	def do_cr(self, args):
@@ -355,11 +316,59 @@ class NoteShell (cmd.Cmd):
 		'Alias for search command'
 		self.do_search(args)
 
+	def do_mkdir(self, args):
+		'Alias for create --filter command'
+		self.do_create(["-f"] + args)
+
 	# ---------------- OVERRIDES ---------------
 
 	def postcmd(self, stop, line):
 		self.prompt = self.promptBase + self.promptPath + self.propmptTerminator
 
+	# ---------------- HELPERS ----------------
+	def _add_helper(self, arglist):
+		'''
+		Should only be called by do_add 
+		'''
+		for file in arglist:
+			os.link(flatNotesPath + "/" + file, './' + file)
+
+	def _perm_remove(self, arglist):
+		cwd = os.getcwd();
+		arr = os.scandir(".")
+		for file in arr:
+			if file.is_dir():
+				os.chdir(file.name)
+				self._perm_remove(arglist)
+				os.chdir(cwd)
+			elif file.name in arglist:
+				self.do_remove(file.name)
+
+	def _cat_helper(self, args):
+		try:
+			fd = open(args, "r")
+			text = fd.read()
+			fd.close()
+			return text
+		except: 
+			invalid("Cannot cat, check that file exists and that you have read permission.")
+			return ""
+
+	def search_file(self, pattern, path):
+		fd = open(path, "r")
+		text = fd.read()
+		fd.close()
+		return len(re.findall(pattern, text, re.IGNORECASE))
+
+	def search_dir(self, pattern, filelist):
+		results = {}
+		for file in filelist:
+			if os.path.isdir(file.path):
+				if not file.name.startswith("."): 
+					results = {**results, **self.search_dir(pattern, os.scandir(file.path))}
+			else:
+				results[file.path] = self.search_file(pattern, file.path);
+		return results
 
 if not os.path.isdir(basePath):
 	os.mkdir(basePath)

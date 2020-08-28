@@ -1,9 +1,10 @@
 COMPILER=clang++
 EXEC=preprocessor
 TESTEXEC=unitTests
-COMPILATION_FLAGS=-Werror=vla -Wall -MMD 
-LINKER_FLAGS=-lstdc++fs
-TEST_LINK_FLAGS=-lgtest_main -lgtest -lpthread 
+COMPILATION_FLAGS=-Werror=vla -Wall -MMD -stdlib=libc++
+LINKER_FLAGS=-lc++abi -lc++
+#-lstdc++fs
+TEST_LINK_FLAGS=-lgtest_main -lgtest -lpthread
 CPPSTANDARD=c++17
 
 SRCDIR=./src
