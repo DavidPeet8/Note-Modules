@@ -182,8 +182,10 @@ void Preprocessor::build(const string &noteName)
 			{
 				string matchedStr = match->str();
 				cerr << "Command found\n" << matchedStr << endl;
+				out << match->prefix() << endl;
 				Cmd cmd = getCmd(matchedStr);
 				applyCmd(cmd, note, out);
+				if (match == matchEndItr) { out << match->suffix() << endl; }
 			}
 		}
 	}
