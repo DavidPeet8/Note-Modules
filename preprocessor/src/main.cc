@@ -9,7 +9,7 @@ using namespace std;
 /*
 The following directives are to be recognized
 
-[//]: # (nobuild) -- To avoid building
+[//]: # (nobuild) -- To avoid appearing in filters after build
 [//]: # (import [name of note to copy paste in])
 
 */
@@ -23,8 +23,8 @@ int main(int argc, char **argv)
 	
 	Args a(argc, argv);
 	auto &fileList = a.getMap(); // List of files to preprocess	
+	// a.printDirList();
 
 	Preprocessor preproc(move(fileList), a.getBaseNotesPath());
-
 	preproc.build();
 }

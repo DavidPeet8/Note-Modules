@@ -11,7 +11,7 @@ using namespace std;
 namespace fs = std::filesystem;
 
 Args::Args(int argc, const char * const * const argv): 
-baseNotesPath(fs::path(argv[1]).c_str()), filesToProcess()
+baseNotesPath(fs::path(argv[1]).string()), filesToProcess()
 {
 	if (argc > 2) 
 	{
@@ -84,5 +84,8 @@ void Args::printDirList()
 	for (const auto &entry : filesToProcess)
 	{
 		cout << entry.first << endl;
+		cout << "FileList entry ptr:" << entry.second.get() << "\n";
+		cout << "\tnext ptr:"<< entry.second->getNext() << "\n";
+		cout << "\tprev ptr:" << entry.second->getPrev() << "\n";
 	}
 }

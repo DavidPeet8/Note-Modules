@@ -106,7 +106,8 @@ Preprocessor::Cmd::Cmd(const CmdType type, const string targetsStr): type{type}
 // ------------------- PREPROCESSOR -----------------------
 
 Preprocessor::Preprocessor(unordered_map<string, unique_ptr<File>> fl, const string notesDir): 
-fileList{move(fl)}, baseNotesDir{move(notesDir)} {}
+fileList{move(fl)}, baseNotesDir{move(notesDir)} 
+{}
 
 // API Build function
 void Preprocessor::build()
@@ -128,37 +129,60 @@ void Preprocessor::build()
 	}
 
 	cerr << "Linking" << endl;
-	linkBuiltFiles(baseNotesDir, "");
+	linkBuiltFiles(fs::absolute(baseNotesDir), ""); // Must pass absolute path or the recursive traversal eats it
 }
 
 // NoBuild simply means do not make any copies out of flat notes in builddir
 void Preprocessor::build(const string &noteName)
 {
-	File *note = fileList[noteName].get();
-	if (shouldShortCircuit(note)) { return; }
+	auto itr = fileList.find(noteName);
+	if (itr == fileList.end() && fs::exists(baseNotesDir + "/.flat_notes/" + noteName)) 
+	{
+		File *prevFile = fileList.begin()->second.get();
+		File *nextFile = prevFile->getNext();
 
+		// Not in the file list but on the file system
+		itr = fileList.emplace(noteName, make_unique<File>(noteName)).first;
+
+		itr->second->setPrev(prevFile); // Set current to point to previous node
+		itr->second->setNext(nextFile); // Set current to point to next node
+		prevFile->setNext(itr->second.get()); // Set previous to point to new node
+		nextFile->setPrev(itr->second.get()); // Set next to point back to current node
+	}
+	else if (itr == fileList.end())
+	{
+		cerr << "[ ERROR ]: Note with name " << noteName << " does not exist and cannot be built" << endl;
+		return;
+	}
+
+	File *note = itr->second.get();
+	if (shouldShortCircuit(note)) { return; }
 	cerr << "Initializing build of " << noteName << std::endl;
 
-	static basic_regex pattern("\\[\\/\\/\\]\\s*:\\s*#\\s*\\(.*\\)");
+	static basic_regex pattern("\\[\\/\\/\\]\\s*:\\s*#\\s*\\(.*?\\)");
 	
 	note->visit();
 	ifstream in (baseNotesDir + "/.flat_notes/" + note->getName());
 	ofstream out (baseNotesDir + "/build/.flat_notes/" + note->getName());
-	smatch matchRes;
 	string line;
 
 	while (getline(in, line))
 	{
-		bool foundMatch = regex_search(line, matchRes, pattern);
-		if (!foundMatch)
+		// Use regex iterator here?
+		const auto matchBeginItr = sregex_iterator(line.begin(), line.end(), pattern);
+		const auto matchEndItr = sregex_iterator();
+
+		if (matchBeginItr == matchEndItr)
 		{
 			out << line << "\n";
 		}
 		else 
 		{
-			for (int i = 0; i < matchRes.size(); ++i)
+			for (auto match = matchBeginItr; match != matchEndItr; ++match)
 			{
-				Cmd cmd = getCmd(matchRes[i]);
+				string matchedStr = match->str();
+				cerr << "Command found\n" << matchedStr << endl;
+				Cmd cmd = getCmd(matchedStr);
 				applyCmd(cmd, note, out);
 			}
 		}
@@ -180,18 +204,20 @@ void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail
 	for (const auto &item : baseDir)
 	{
 		string name = item.path().filename().string();
-		cerr << "Processing " << name << endl;
+		cerr << "Linking " << name << endl;
 		string mirrorPath = basePath + "/build" + pathTail + "/" + name;
-		cerr << "MirrorPath: " << mirrorPath << endl;
 
 		if (name[0] == '.' || name == "build") { continue; }
 		if (item.is_directory())
 		{
+			cerr << "Item is a directory with mirrorPath: " << mirrorPath << endl;
 			// Create the corresponding directory under 
 			if (!fs::exists(mirrorPath))
 			{
+				cerr << "Directory created" << endl;
 				fs::create_directory(mirrorPath);
 			}
+			cerr << "Proceeding to Link" << endl;
 			linkBuiltFiles(basePath, pathTail + "/" + name); // Recursively process next dir
 		}
 		else if (item.is_regular_file())
@@ -236,6 +262,7 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 			const auto & targets = cmd.getTargets();
 			for (const auto &target : targets)
 			{
+				cerr << "Recursively Building target " << target << endl;
 				build(target); // Recursively build each target to include in order
 				// Copy build contents into the current file inline
 				copyBuiltFile(curFileStream, target);

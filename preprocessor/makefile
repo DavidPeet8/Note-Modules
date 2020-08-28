@@ -1,10 +1,8 @@
 COMPILER=clang++
 EXEC=preprocessor
 TESTEXEC=unitTests
-COMPILATION_FLAGS=-Werror=vla -Wall -MMD -stdlib=libc++
+COMPILATION_FLAGS=-Werror -Wall -MMD -stdlib=libc++
 LINKER_FLAGS=-lc++abi -lc++
-#-lstdc++fs
-TEST_LINK_FLAGS=-lgtest_main -lgtest -lpthread
 CPPSTANDARD=c++17
 
 SRCDIR=./src
@@ -14,7 +12,7 @@ TESTDIR=./test
 
 MAIN_OBJ=main.o
 MAIN_PATH=$(call addprefix, ${OBJDIR}/, ${MAIN_OBJ})
-OTHER_OBJS=args.o file.o preprocessor.o
+OTHER_OBJS=args.o preprocessor.o
 OTHER_PATHS=$(call addprefix, ${OBJDIR}/, ${OTHER_OBJS})
 TEST_OBJS=preprocessor.test.o
 TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
@@ -40,7 +38,8 @@ ${TEST_OBJDIR}/%.o: ${TESTDIR}/%.cc
 	${COMPILER} $< -std=${CPPSTANDARD} -c -o $@ ${COMPILATION_FLAGS}
 
 
-debug: COMPILATION_FLAGS+=-g 
+debug: COMPILATION_FLAGS+=-g -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 
+debug: LINKER_FLAGS+=-fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 
 debug: ${EXEC}
 
 compile: $(OBJECTPATHS)
@@ -53,6 +52,7 @@ link:
 clean:
 	rm -f ${OBJDIR}/* ${EXEC}
 
+test: LINKER_FLAGS+=-lgtest_main -lgtest -lpthread
 test: ${OTHER_PATHS} ${TEST_PATHS}
-	${COMPILER} ${OTHER_PATHS} ${TEST_PATHS} -o ${TESTEXEC} ${LINKER_FLAGS} ${TEST_LINK_FLAGS} 
+	${COMPILER} ${OTHER_PATHS} ${TEST_PATHS} -o ${TESTEXEC} ${LINKER_FLAGS}
 

@@ -318,7 +318,11 @@ Type help or ? for a list of commands.
 
 	def do_mkdir(self, args):
 		'Alias for create --filter command'
-		self.do_create(["-f"] + args)
+		self.do_create("-f " + args)
+
+	def do_touch(self, args):
+		'Alias for create --note command'
+		self.do_create("-n " + args)
 
 	# ---------------- OVERRIDES ---------------
 

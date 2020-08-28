@@ -24,7 +24,7 @@ print("Installed Local Directory Server")
 # Remake the file
 cwd = os.getcwd()
 os.chdir("./preprocessor")
-os.spawnvp(os.P_WAIT, "make", ["make"])
+os.spawnvp(os.P_WAIT, "make", ["make", "debug"])
 print("Remade Preprocessor")
 os.chdir(cwd)
 # Install the preprocessor
