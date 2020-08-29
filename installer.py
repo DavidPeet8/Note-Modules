@@ -12,7 +12,7 @@ if not os.path.exists(basePath):
 if not os.path.exists(installPath):
 	os.mkdir(installPath)
 else:
-	rmtree(basePath + "/.exe")
+	rmtree(installPath)
 	print("Cleaned old installation")
 
 

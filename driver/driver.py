@@ -66,16 +66,22 @@ Type help or ? for a list of commands.
 	def do_edit(self, args):
 		'Opens the specified file or directory in sublime text'
 		arglist = shlex.split(args)
+		filelist = []
 		
 		cwd = os.getcwd()
 		os.chdir(flatNotesPath)
 		for p in arglist:
 			if not os.path.exists(p):
-				print("Note " + p + " does not exist, creating it in .flat_notes")
-				self.do_create("-n " + p)
+				shouldCreate = input("Note " + p + " does not exist, do you want to create it in .flat_notes? [y/n]")
+				if shouldCreate.lower().strip() == "y":
+					self.do_create("-n " + p)
+					filelist += [p]
+			else:
+				filelist += [p]
 
-		arglist.insert(0, textEditorCMD)
-		subprocess.run(arglist, close_fds = True)
+		if filelist:
+			filelist.insert(0, textEditorCMD)
+			subprocess.run(filelist, close_fds = True)
 		os.chdir(cwd)
 
 	def do_ls(self, args):
@@ -333,6 +339,16 @@ Type help or ? for a list of commands.
 		'Alias for create --note command'
 		self.do_create("-n " + args)
 
+	# ------------- AUTO COMPLETE --------------
+	def complete_ls(self, text, line, startIdx, endIdx):
+		return self.dir_complete(text, line, startIdx, endIdx)
+
+	def complete_cat(self, text, line, startIdx, endIdx):
+		return self.file_complete(text, line, startIdx, endIdx)
+
+	def complete_cd(self, text, line, startIdx, endIdx):
+		return self.dir_complete(text, line, startIdx, endIdx)
+
 	# ---------------- OVERRIDES ---------------
 
 	def postcmd(self, stop, line):
@@ -382,6 +398,33 @@ Type help or ? for a list of commands.
 			else:
 				results[file.path] = self.search_file(pattern, file.path);
 		return results
+
+	def cur_dir_contents(self):
+		return os.scandir(os.getcwd())
+
+	def file_complete(self, text, line, startIdx, endIdx):
+		if text:
+			return [
+				entry.name for entry in self.cur_dir_contents()
+				if entry.is_file() and entry.name.startswith(text)
+			]
+		else: 
+			return [
+				entry.name for entry in self.cur_dir_contents()
+				if entry.is_file()
+			]
+			
+	def dir_complete(self, text, line, startIdx, endIds):
+		if text:
+			return [
+				entry.name for entry in self.cur_dir_contents()
+				if entry.is_dir() and entry.name.startswith(text)
+			]
+		else: 
+			return [
+				entry.name for entry in self.cur_dir_contents()
+				if entry.is_dir()
+			]
 
 if not os.path.isdir(basePath):
 	os.mkdir(basePath)

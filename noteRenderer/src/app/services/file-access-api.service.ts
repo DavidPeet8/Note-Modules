@@ -42,6 +42,7 @@ export class FileAccessAPIService {
 		await fetch(this.host + this._getQueryParams({modify: false})).then((data) => { 
 			return data.json();
 		}).then((json) => {
+			console.log("Rerieved response for dirlist")
 			this.rootDir.dirlist = json.dirs;
 			this.rootDir.lastModifiedTime = json.modifyTime;
 			this.publishDirEvent();
