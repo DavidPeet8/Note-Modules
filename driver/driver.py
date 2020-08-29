@@ -82,10 +82,15 @@ Type help or ? for a list of commands.
 		'List contents of current directory'
 		arglist = shlex.split(args)
 		firstArg = arglist[0].lower() if arglist else ""
+		isAll = False
 
 		try:
 			if firstArg != "":
 				if firstArg == "-a" or firstArg == "--all":
+					isAll = True
+					dirPath = arglist[1] if len(arglist) > 1 and arglist[1] else "."
+					arr = os.scandir(dirPath)
+				elif firstArg == "-n" or firstArg == "--notes":
 					arr = os.scandir(flatNotesPath)
 				else:
 					arr = os.scandir(args)
@@ -93,6 +98,8 @@ Type help or ? for a list of commands.
 				arr = os.scandir(".")
 
 			for entry in arr:
+				if isAll == False and entry.name.startswith('.'): 
+					continue
 				if entry.is_dir():
 					print(Fore.BLUE + Style.BRIGHT + entry.name)
 					print(Style.RESET_ALL, end="")
@@ -113,7 +120,6 @@ Type help or ? for a list of commands.
 		try:
 			os.chdir(arg)
 			promptPath = os.getcwd().split('.notes',1)
-			# print(promptPath)
 			self.promptPath = promptPath[1] if isinstance(promptPath, list) and len(promptPath) > 1 else "/"
 		except:
 			invalid()
@@ -226,7 +232,6 @@ Type help or ? for a list of commands.
 		arglist = shlex.split(args)
 		arglist.insert(0, GITEXE)
 		subprocess.run(arglist)
-		#pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist) # Will terminate normally, no need to reap
 
 		# List of things to render in the UI
 	def do_render(self, args):
@@ -386,4 +391,3 @@ os.chdir(basePath) # Set working directory to base of notes directory
 if __name__ == '__main__':
 	NoteShell().cmdloop()
 
-# NOTE: When spawning processes, argv[0] MUST be the program name / essentially it gets ignored

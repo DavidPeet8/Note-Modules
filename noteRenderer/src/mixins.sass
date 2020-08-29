@@ -39,3 +39,8 @@
 	@include scaleProp(padding-top, $paddingSmall, $paddingSmall, $paddingMed, $paddingLarge, $paddingLarge)
 	@include scaleProp(padding-left, $paddingSmall, $paddingSmall, $paddingMed, $paddingLarge, $paddingLarge)
 	@include scaleProp(padding-right, $paddingSmall, $paddingSmall, $paddingMed, $paddingLarge, $paddingLarge)
+
+@mixin gradient()
+	background: linear-gradient(132deg, rgba(255,132,0,1) 0%, rgba(255,0,95,1) 50%, rgba(255,48,170,1) 100%), rgba(0,0,0, 0.3)
+	background-color: rgba(0,0,0,0.3)
+	background-blend-mode: multiply
