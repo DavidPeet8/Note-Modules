@@ -7,6 +7,8 @@ import collections
 from colorama import init, Fore, Back, Style
 import atexit, signal
 import webbrowser
+import subprocess
+import shlex
 init()
 
 basePath = os.path.expanduser("~/.notes")
@@ -63,7 +65,7 @@ Type help or ? for a list of commands.
 	# Directory to open in text editor
 	def do_edit(self, args):
 		'Opens the specified file or directory in sublime text'
-		arglist = args.split(" ")
+		arglist = shlex.split(args)
 		
 		cwd = os.getcwd()
 		os.chdir(flatNotesPath)
@@ -73,13 +75,13 @@ Type help or ? for a list of commands.
 				self.do_create("-n " + p)
 
 		arglist.insert(0, textEditorCMD)
-		pid = os.spawnvp(os.P_NOWAIT, textEditorCMD, arglist) # Doesn't need to be reaped here
+		subprocess.run(arglist, close_fds = True)
 		os.chdir(cwd)
 
 	def do_ls(self, args):
 		'List contents of current directory'
-		arglist = args.split(" ")
-		firstArg = arglist[0].lower()
+		arglist = shlex.split(args)
+		firstArg = arglist[0].lower() if arglist else ""
 
 		try:
 			if firstArg != "":
@@ -122,7 +124,7 @@ Type help or ? for a list of commands.
 		To create a filter - create filter <filter_path>
 		To create a note - create note <note_path>
 		'''
-		arglist = args.split(" ")
+		arglist = shlex.split(args)
 
 		if arglist and len(arglist) >= 2:
 			firstArg = arglist[0].lower()
@@ -161,11 +163,11 @@ Type help or ? for a list of commands.
 		-r flag allows recursive removal of directories matched
 		-p flag allows permanant removal of a note, remove all instances of the note within the notes directory
 		'''
-		arglist = args.split(" ")
+		arglist = shlex.split(args)
 		i, recursive = 0, False
-		firstArg = arglist[0].lower()
+		firstArg = arglist[0].lower() if arglist else ""
 
-		if firstArg == "-r" or firstArg == "--remove":
+		if firstArg == "-r" or firstArg == "--recursive":
 			i = 1
 			recursive = True
 
@@ -193,8 +195,8 @@ Type help or ? for a list of commands.
 		add p <path to add to> [ list of files ]
 		add [ list of files ] 	--> (added to .)
 		'''
-		arglist = args.split(" ")
-		firstArg = arglist[0].lower()
+		arglist = shlex.split(args)
+		firstArg = arglist[0].lower() if arglist else ""
 	
 		try:
 			if firstArg == "-p" or firstArg == '--path':
@@ -221,29 +223,29 @@ Type help or ? for a list of commands.
 	def do_git(self, args):
 		'Allow performing git commands, syntax as usual'
 		GITEXE = "git"
-		arglist = args.split(" ")
+		arglist = shlex.split(args)
 		arglist.insert(0, GITEXE)
-		pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist) # Will terminate normally, no need to reap
+		subprocess.run(arglist, capure_output=True)
+		#pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist) # Will terminate normally, no need to reap
 
 		# List of things to render in the UI
 	def do_render(self, args):
 		'Render target files in the Angular UI'
-		arglist = args.split(" ")
-		arglist.insert(0, "server.py")
+		arglist = shlex.split(args)
+		arglist.insert(0, SERVER_EXE)
 		port = "4300"
 		global arPID
 
-		pid = os.spawnvp(os.P_NOWAIT, SERVER_EXE, arglist) # Start the Server
-		arPID += [pid] # Set up to be reaped
-		pid2 = os.spawnlp(os.P_NOWAIT, "python3", "python3", "-m", "http.server", port, "-d", UI_EXE) # Start the UI
-		arPID += [pid2] # Set up to be reaped
+		pid = subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+		pid2 = subprocess.Popen(["python3", "-m", "http.server", port, "-d", UI_EXE], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+		arPID += [pid, pid2]
 		webbrowser.open("http://localhost:" + port)
 		print("Server PID: ", pid)
 		print("UI PID: ", pid2)
 
 	def do_build(self, args):
 		'Preprocess notes and send them to the build directory'
-		arglist = args.split(" ") if args else [] # avoid arglist [''] 
+		arglist = shlex.split(args)
 		print(arglist)
 		arglist.insert(0, PREPROCESSOR_EXE)
 		arglist.insert(1, basePath)
@@ -261,8 +263,8 @@ Type help or ? for a list of commands.
 		Use the -d flag for a deep search including the bodies of each file
 		search [-d] pattern [dir to search in]
 		'''
-		arglist = args.split(" ")
-		firstArg = arglist[0].lower()
+		arglist = shlex.split(args)
+		firstArg = arglist[0].lower() if arglist else ""
 		fileMap = {}
 		if (firstArg == "-d" or firstArg == "--deep") and len(arglist) >=3:
 			# Start the Deep search process
