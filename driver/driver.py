@@ -225,7 +225,7 @@ Type help or ? for a list of commands.
 		GITEXE = "git"
 		arglist = shlex.split(args)
 		arglist.insert(0, GITEXE)
-		subprocess.run(arglist, capure_output=True)
+		subprocess.run(arglist)
 		#pid = os.spawnvp(os.P_NOWAIT, GITEXE, arglist) # Will terminate normally, no need to reap
 
 		# List of things to render in the UI
@@ -273,13 +273,15 @@ Type help or ? for a list of commands.
 			
 			for path in searchFiles:
 				path = os.path.expanduser(path)
-				if os.path.isdir(path):
+				if os.path.exists(path) and os.path.isdir(path):
 					fileMap = {**fileMap, **self.search_dir(pattern, os.scandir(path))}
-				else:
+				elif os.path.exists(path):
 					fileMap[path] = search_file(pattern, path)
+				else: 
+					print("File path given does not exist. Run 'help search' for details on the search command.")
 
 			for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
-				print("["+ key[2:] + ", " + str(value) + "]")
+				print("["+ key + ", " + str(value) + "]")
 
 		elif len(arglist) >= 1:
 			# Just run a quick file name search

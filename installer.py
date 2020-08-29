@@ -9,11 +9,13 @@ installPath = os.path.expanduser("~/.notes/.exe")
 if not os.path.exists(basePath):
 	os.mkdir(basePath)
 
-rmtree(basePath + "/.exe")
-print("Cleaned old installation")
-
 if not os.path.exists(installPath):
 	os.mkdir(installPath)
+else:
+	rmtree(basePath + "/.exe")
+	print("Cleaned old installation")
+
+
 
 print("Necessary Directories Created")
 
@@ -37,4 +39,4 @@ print("Installed UI")
 copy("./driver/driver.py", installPath + "/notes")
 print("Installed CLI")
 
-
+copy("./notes_gitignore", basePath + "/.gitignore")
