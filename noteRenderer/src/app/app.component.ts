@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+
 
 @Component({
 	selector: 'app-root',
@@ -9,6 +11,8 @@ export class AppComponent
 {
 	title = 'noteRenderer';
 	headerStyle = "";
+
+	constructor(private router: Router) {}
 
 	href(str, event): void
 	{
@@ -48,6 +52,6 @@ export class AppComponent
 
 	openHelpModal(): void
 	{
-		console.log("Help Hit.");
+		this.router.navigate(["help"]);
 	}
 }

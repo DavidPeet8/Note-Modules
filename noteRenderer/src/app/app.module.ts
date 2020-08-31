@@ -14,7 +14,8 @@ import { ServicesModule } from './services/services.module';
 import { FetchRenderEventBusService } from '@services/fetch-render-event-bus.service';
 import { FileAccessAPIService } from '@services/file-access-api.service';
 
-import { MarkedOptions, MarkedRenderer } from 'ngx-markdown'
+import { MarkedOptions, MarkedRenderer } from 'ngx-markdown';
+import { HelpModalComponent } from './components/help-modal/help-modal.component'
 
 export function markedOptionsFactory(): MarkedOptions 
 {
@@ -91,6 +92,7 @@ export function markedOptionsFactory(): MarkedOptions
     CodeviewComponent,
     DirectoryTreeComponent,
     RenderParentComponent,
+    HelpModalComponent,
   ],
   imports: [
     BrowserModule,
