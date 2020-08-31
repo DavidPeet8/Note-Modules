@@ -5,7 +5,8 @@
 	border-bottom: 1px solid white
 	padding: 10px
 	margin-bottom: 20px
-	@include scaleProp(font-size, 35pt, 40pt, 40pt, 45pt, 45pt)
+	font-size: 2em
+	//@include scaleProp(font-size, 35pt, 40pt, 40pt, 45pt, 45pt)
 
 .md-h2
 	@include scaleProp(font-size, 20pt, 25pt, 25pt, 30pt, 30pt)
@@ -40,6 +41,7 @@ a
 	line-height: 1.2
 	background-color: $light-grey
 	color: #EB236C
+	font-family: 'Ubuntu Mono', monospace
 
 .md-strong
 	font-weight: 15pt
@@ -76,3 +78,5 @@ table tr:last-child td
 table tr td:last-child 
   border-right: 0
 
+code 
+	font-family: 'Ubuntu Mono', monospace
