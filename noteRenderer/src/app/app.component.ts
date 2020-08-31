@@ -46,8 +46,8 @@ export class AppComponent
 		});
 	}
 
-	openSettingsModal(): void
+	openHelpModal(): void
 	{
-		console.log("Settings Hit.");
+		console.log("Help Hit.");
 	}
 }
