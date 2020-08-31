@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-import os
+import os, subprocess
 from shutil import copy, copytree, rmtree
 
 basePath = os.path.expanduser("~/.notes")
@@ -26,7 +26,7 @@ print("Installed Local Directory Server")
 # Remake the file
 cwd = os.getcwd()
 os.chdir("./preprocessor")
-os.spawnvp(os.P_WAIT, "make", ["make", "debug"])
+subprocess.run(["make", "debug"])
 print("Remade Preprocessor")
 os.chdir(cwd)
 # Install the preprocessor
@@ -36,7 +36,7 @@ print("Installed Preprocessor")
 copytree("./noteRenderer/build", installPath + "/UI")
 print("Installed UI")
 # Install the cli driver
-copy("./driver/driver.py", installPath + "/notes")
+copytree("./driver", installPath + installPath + "/driver")
 print("Installed CLI")
 
 copy("./notes_gitignore", basePath + "/.gitignore")

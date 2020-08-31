@@ -9,6 +9,7 @@ import atexit, signal
 import webbrowser
 import subprocess
 import shlex
+from fs_helpers import *
 init()
 
 basePath = os.path.expanduser("~/.notes")
@@ -19,6 +20,7 @@ promptColor = Fore.CYAN + Style.BRIGHT
 PREPROCESSOR_EXE = basePath + "/.exe/preprocessor"
 SERVER_EXE = basePath + "/.exe/dirServer/server.py"
 UI_EXE = basePath + "/.exe/UI"
+RENDER_PORT = "4300"
 arPID = []
 
 def invalid(reason=""):
@@ -26,10 +28,13 @@ def invalid(reason=""):
 	if reason != "":
 		print(reason)
 
-# reap all children onexit - this may prevent exit from process 
+# reap all children onexit
 def reap():
 	for pid in arPID:
 		os.kill(pid, signal.SIGKILL)
+
+def reset_print_style():
+	print(Style.RESET_ALL, end="")
 
 atexit.register(reap)
 
@@ -47,48 +52,20 @@ Type help or ? for a list of commands.
 
 	# should recieve no arguments
 	def do_init(self, arg):
-		'Initialize directories needed for this application to function as required'
-		if not os.path.isdir(flatNotesPath):
-			os.mkdir(flatNotesPath)
-		if not os.path.isdir(basePath + "/build"):
-			os.mkdir(basePath + "/build")
-		if not os.path.isdir(basePath+ "/.config"):
-			os.mkdir(basePath + "/.config")
-		if not os.path.isdir(basePath+ "/.exe"):
-			os.mkdir(basePath + "/.exe")
-		cwd = os.getcwd();
-		os.chdir(basePath) # Go to root directory
-		self.do_git("init") # initialize a git repository
-		os.chdir(cwd) # change back to the previous directory
+		check_and_mkdirs([flatNotesPath, basePath+"/build", basePath + "/.config", basePath + "/.exe"])
+		temp_chdir_run(basePath, self.do_git, ["init"])
 
 
 	# Directory to open in text editor
 	def do_edit(self, args):
-		'Opens the specified file or directory in sublime text'
-		arglist = shlex.split(args)
-		filelist = []
+		rawarglist = shlex.split(args)
+		temp_chdir_run(flatNotesPath, self.edit_files, [rawarglist])
 		
-		cwd = os.getcwd()
-		os.chdir(flatNotesPath)
-		for p in arglist:
-			if not os.path.exists(p):
-				shouldCreate = input("Note " + p + " does not exist, do you want to create it in .flat_notes? [y/n]")
-				if shouldCreate.lower().strip() == "y":
-					self.do_create("-n " + p)
-					filelist += [p]
-			else:
-				filelist += [p]
-
-		if filelist:
-			filelist.insert(0, textEditorCMD)
-			subprocess.run(filelist, close_fds = True)
-		os.chdir(cwd)
 
 	def do_ls(self, args):
-		'List contents of current directory'
 		arglist = shlex.split(args)
 		firstArg = arglist[0].lower() if arglist else ""
-		isAll = False
+		isAll, arr = False, []
 
 		try:
 			if firstArg != "":
@@ -108,34 +85,26 @@ Type help or ? for a list of commands.
 					continue
 				if entry.is_dir():
 					print(Fore.BLUE + Style.BRIGHT + entry.name)
-					print(Style.RESET_ALL, end="")
+					reset_print_style()
 				else:
 					print(entry.name)
 		except:
 			invalid()
 
-	def do_cat(self, args):
-		'Print out the contents of the argument file'
-		text = self._cat_helper(args)
-
+	def do_cat(self, arg):
+		text = self.cat_helper(arg)
 		if text != "":
 			print(text)
 
 	def do_cd(self, arg):
-		'Navigate within stored notes'
 		try:
 			os.chdir(arg)
 			promptPath = os.getcwd().split('.notes',1)
 			self.promptPath = promptPath[1] if isinstance(promptPath, list) and len(promptPath) > 1 else "/"
 		except:
-			invalid()
+			invalid('Check that the filter exists, and that you have execute permission')
 
 	def do_create(self, args):
-		'''
-		Command for creating new filters or notes.
-		To create a filter - create filter <filter_path>
-		To create a note - create note <note_path>
-		'''
 		arglist = shlex.split(args)
 
 		if arglist and len(arglist) >= 2:
@@ -143,52 +112,33 @@ Type help or ? for a list of commands.
 			if firstArg == '-f' or firstArg == '--filter':
 				# Create the new filters
 				for f in arglist[1:]:
-					try:
-						os.mkdir(f)
-					except:
-						print("Filter Already Exists.")
+					check_and_mkdir(f)
 				return
 			elif firstArg == '-n' or firstArg == '--note':
 				# Create the new notes
 				for n in arglist[1:]:
 					if os.path.exists(flatNotesPath + '/' + n):
-						invalid()
 						print('A note of this name already exists in .flat_notes')
-						print('To add this note to the specified directory use the add command.')
-						print('To remove this file permanantly use the remove command.')
+						print('To add this note to the specified directory use the add command')
+						print('To remove this file permanantly use the remove command with the -p flag')
 						return
-					fd = open(flatNotesPath + '/' + n,"a+")
-					fd.write("")
-					fd.close()
+					touch_file(flatNotesPath + '/' + n)
 
-					try:
-						if os.getcwd() != flatNotesPath:
-							os.link(flatNotesPath + '/' + n, n)
-					except: 
-						print("Note Already Exists.")
+					if os.getcwd() != flatNotesPath:
+						os.link(flatNotesPath + '/' + n, n)
 				return
-		invalid("Unspecified Creation Type.")
+		invalid("Create command requires at least 2 arguments")
 
 	def do_remove(self, args):
-		'''
-		Remove all files matching given paths from the current filter
-		-r flag allows recursive removal of directories matched
-		-p flag allows permanant removal of a note, remove all instances of the note within the notes directory
-		'''
 		arglist = shlex.split(args)
 		i, recursive = 0, False
 		firstArg = arglist[0].lower() if arglist else ""
 
 		if firstArg == "-r" or firstArg == "--recursive":
-			i = 1
-			recursive = True
+			i,recursive = 1,True
 
 		if firstArg == "-p" or firstArg == "--permanent":
-			# Go to root directory and walk through removng all occurances
-			cwd = os.getcwd();
-			os.chdir(basePath) # Go to root directory
-			self._perm_remove(arglist[1:])
-			os.chdir(cwd) # change back to the previous directory
+			temp_chdir_run(basePath, self.perm_remove, arglist[1:])
 
 		for rgx in arglist[i:]:
 			if os.path.exists(rgx):
@@ -201,86 +151,74 @@ Type help or ? for a list of commands.
 				else:
 					invalid()
 
+	def do_rename(self, args):
+		arglist = shlex.split(args)
+		if len(args) != 2:
+			print("Command 'mv' expects 2 arguments")
+			return
+		try:
+			os.rename(args[0], args[1])
+		except: 
+			invalid()
+
+
 	def do_add(self, args):
-		'''
-		Add an existing notes by NAME not by path to target filter
-		add p <path to add to> [ list of files ]
-		add [ list of files ] 	--> (added to .)
-		'''
 		arglist = shlex.split(args)
 		firstArg = arglist[0].lower() if arglist else ""
 	
 		try:
 			if firstArg == "-p" or firstArg == '--path':
-				cwd = os.getcwd();
-				os.chdir(arglist[1]) # Go to root directory
-				self._add_helper(arglist[2:])
-				os.chdir(cwd) # change back to the previous directory
+				temp_chdir_run(arglist[1], self.add_helper, arglist[2:])
 			else: 
-				self._add_helper(arglist)
-
+				self.add_helper(arglist)
 		except:
 			invalid()
 
 	def do_quit(self, args):
-		'Quit the command line interface'
 		sys.exit()
 
 	def do_save(self, args):
-		'Save the notes to github'
-		self.do_git("add .")
-		self.do_git("commit -m \"Save\"")
-		self.do_git("push")
-
+		temp_chdir_run_list(basePath, [self.do_git]*3, [["add ."], ["commit -m \"Save\""], ["push"]])
+		
 	def do_git(self, args):
-		'Allow performing git commands, syntax as usual'
 		GITEXE = "git"
 		arglist = shlex.split(args)
 		arglist.insert(0, GITEXE)
 		subprocess.run(arglist)
 
 		# List of things to render in the UI
+
 	def do_render(self, args):
-		'Render target files in the Angular UI'
 		arglist = shlex.split(args)
 		arglist.insert(0, SERVER_EXE)
-		port = "4300"
 		global arPID
 
+		# Start the file server
 		pid = subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
-		pid2 = subprocess.Popen(["python3", "-m", "http.server", port, "-d", UI_EXE], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+		# Serve the UI
+		pid2 = subprocess.Popen(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
 		arPID += [pid, pid2]
-		webbrowser.open("http://localhost:" + port)
+		webbrowser.open("http://localhost:" + RENDER_PORT)
 		print("Server PID: ", pid)
 		print("UI PID: ", pid2)
 
 	def do_build(self, args):
-		'Preprocess notes and send them to the build directory'
 		arglist = shlex.split(args)
-		print(arglist)
 		arglist.insert(0, PREPROCESSOR_EXE)
 		arglist.insert(1, basePath)
-		pid = os.spawnvp(os.P_WAIT, PREPROCESSOR_EXE, arglist) # This will terminate of it's own accord, no need to be reaped
+		pid = subprocess.run(arglist).pid
 
 	def do_clean(self, args):
-		cwd = os.getcwd()
-		os.chdir(basePath)
-		shutil.rmtree("build")
-		os.chdir(cwd)
+		temp_chdir_run(basePath, shutil.rmtree, ["build"])
 
 	def do_search(self, args):
-		'''
-		Search for notes. 
-		Use the -d flag for a deep search including the bodies of each file
-		search [-d] pattern [dir to search in]
-		'''
 		arglist = shlex.split(args)
 		firstArg = arglist[0].lower() if arglist else ""
 		fileMap = {}
-		if (firstArg == "-d" or firstArg == "--deep") and len(arglist) >=3:
-			# Start the Deep search process
+
+		if (firstArg == "-d" or firstArg == "--deep") and len(arglist) == 3:
 			pattern = arglist[1]
-			searchFiles = arglist[2:]
+			searchFiles = arglist[2:] if arglist[2:] else [flatNotesPath] # Files / Dirs to search in
 			
 			for path in searchFiles:
 				path = os.path.expanduser(path)
@@ -291,11 +229,11 @@ Type help or ? for a list of commands.
 				else: 
 					print("File path given does not exist. Run 'help search' for details on the search command.")
 
+			# Sort deep search results by number of occurances
 			for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
 				print("["+ key + ", " + str(value) + "]")
 
-		elif len(arglist) >= 1:
-			# Just run a quick file name search
+		elif len(arglist) == 1: # Search only by file name
 			notes = os.listdir(flatNotesPath)
 			pattern = arglist[0]
 
@@ -340,6 +278,7 @@ Type help or ? for a list of commands.
 		self.do_create("-n " + args)
 
 	# ------------- AUTO COMPLETE --------------
+	
 	def complete_ls(self, text, line, startIdx, endIdx):
 		return self.dir_complete(text, line, startIdx, endIdx)
 
@@ -349,39 +288,156 @@ Type help or ? for a list of commands.
 	def complete_cd(self, text, line, startIdx, endIdx):
 		return self.dir_complete(text, line, startIdx, endIdx)
 
+	def complete_add(self, text, line, startIdx, endIdx):
+		return self.note_complete(text, line, startIdx, endIdx)
+
+	def complete_remove(self, text, line, startIdx, endIdx):
+		return self.file_dir_complete(text, line, startIdx, endIdx)
+
+	def complete_rm(self, text, line, startIdx, endIdx):
+		return self.file_dir_complete(text, line, startIdx, endIdx)
+
+	def complete_rename(self, text, line, startIdx, endIdx):
+		return self.file_dir_complete(text, line, startIdx, endIdx)
+
+	def complete_edit(self, text, line, startIdx, endIdx):
+		return self.file_dir_note_complete(text, line, startIdx, endIdx)
+
+	# ---------------- DOCS --------------------
+
+	def help_init():
+		print('Initialize directories needed for this application to function as required.')
+
+	def help_rename():
+		print("Rename src to dest")
+
+	def help_edit():
+		print('Opens the specified file or directory path in sublime text')
+
+	def help_cat():
+		print('Print out the contents of the argument file path')
+
+	def help_ls():
+		print('''
+List contents of directory, defaults to current directory.
+Syntax: ls [optional filter path]
+		''')
+
+	def help_cd():
+		print('Used to navigate within the file system.\nSyntax: cd <filter path>')
+
+	def help_create():
+		print('''
+Command for creating new filters or notes.
+This command is aliased by the command 'cr'
+Syntax: 
+create [--filter/-f] [ list of filter paths ]
+create [--note/-n] [ list of note paths ]
+		''')
+
+	def help_remove():
+		print('''
+Removes all files matching given paths from the current filter.
+Note that notes removed without the -p flag still exist in .flat_notes
+This command is aliased by the command 'rm'
+Flags:
+-r allows recursive removal of directories matched
+-p permanantly removal of all instances of the note (recursive removal from ~/.notes)
+Syntax:
+remove [file list]
+remove -r [file list]
+remove -p [file list]
+		''')
+
+	def help_quit():
+		print('Quit the command line interface')
+
+	def help_save():
+		print('Saves the base ~/.notes directory to github.\nRequires that a git repo has already been set up in ~/.notes')
+
+	def help_build():
+		print('''
+Preprocess notes and send them to the build directory.
+The build command is aliased by the command 'b'
+		''')
+
+	def help_add():
+		print('''
+The add command adds existing notes by NAME (not by path) to the current filter / directory
+Flags:
+-p --> indicate the path of the filter to add to instead of adding to .
+Syntax:
+add -p <filter path> [ list of notes ]
+add [ list of notes ]
+		''')
+
+	def help_search():
+		print('''
+Search by default will search for matching note names.
+All patterns must be provided as Regex conforming to the ECMA Script standard.
+The search command is aliased by 'sr'
+Flags:
+-d --> searches the contents of files instead of their file names
+Syntax:
+search [pattern]
+search -d [pattern] [list of files / directories to search in - defaults to .notes/.flat_notes]
+		''')
+
+	def help_clean():
+		print('Clean command removes the build directory so that everything may be rebuild from scratch')
+
+	def help_git():
+		print('The Git command allows performing git commands, syntax is as usual')
+
+	def help_render():
+		print('Render target files in the Angular UI')
+
 	# ---------------- OVERRIDES ---------------
 
 	def postcmd(self, stop, line):
 		self.prompt = self.promptBase + self.promptPath + self.propmptTerminator
 
+	def default(self, line):
+		print("Unrecognized Command.")
+
 	# ---------------- HELPERS ----------------
-	def _add_helper(self, arglist):
-		'''
-		Should only be called by do_add 
-		'''
+
+	def add_helper(self, arglist):
 		for file in arglist:
 			os.link(flatNotesPath + "/" + file, './' + file)
 
-	def _perm_remove(self, arglist):
-		cwd = os.getcwd();
+	def perm_remove(self, arglist):
 		arr = os.scandir(".")
 		for file in arr:
 			if file.is_dir():
-				os.chdir(file.name)
-				self._perm_remove(arglist)
-				os.chdir(cwd)
+				temp_chdir_run(file.name, self.perm_remove, arglist)
 			elif file.name in arglist:
 				self.do_remove(file.name)
 
-	def _cat_helper(self, args):
+	def cat_helper(self, arg):
 		try:
-			fd = open(args, "r")
+			fd = open(arg, "r")
 			text = fd.read()
 			fd.close()
 			return text
 		except: 
 			invalid("Cannot cat, check that file exists and that you have read permission.")
 			return ""
+
+	def edit_files(self, rawarglist):
+		arglist = []
+		for p in rawarglist:
+			if os.path.exists(p):
+				arglist += [p]
+			else:
+				shouldCreate = input("Note " + p + " does not exist, do you want to create it in .flat_notes? [y/n]")
+				if shouldCreate.lower().strip() == "y":
+					self.do_create("-n " + p)
+					arglist += [p]
+
+		if arglist:
+			arglist.insert(0, textEditorCMD)
+			pid = subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
 
 	def search_file(self, pattern, path):
 		fd = open(path, "r")
@@ -399,32 +455,31 @@ Type help or ? for a list of commands.
 				results[file.path] = self.search_file(pattern, file.path);
 		return results
 
-	def cur_dir_contents(self):
-		return os.scandir(os.getcwd())
-
 	def file_complete(self, text, line, startIdx, endIdx):
 		if text:
 			return [
-				entry.name for entry in self.cur_dir_contents()
-				if entry.is_file() and entry.name.startswith(text)
+				entry.path for entry in dir_contents(text)
+				if entry.is_file() and entry.name.startswith(os.path.basename(text))
 			]
 		else: 
-			return [
-				entry.name for entry in self.cur_dir_contents()
-				if entry.is_file()
-			]
-			
-	def dir_complete(self, text, line, startIdx, endIds):
+			print(entry.path for entry in dir_contents(text) if entry.is_file())
+
+	def dir_complete(self, text, line, startIdx, endIdx):
 		if text:
 			return [
-				entry.name for entry in self.cur_dir_contents()
-				if entry.is_dir() and entry.name.startswith(text)
+				entry.path for entry in dir_contents(text)
+				if entry.is_dir() and entry.name.startswith(os.path.basename(text))
 			]
 		else: 
-			return [
-				entry.name for entry in self.cur_dir_contents()
-				if entry.is_dir()
-			]
+			print(entry.path for entry in dir_contents(text) if entry.is_dir())
+
+	def file_dir_complete(self, text, line, startIdx, endIdx):
+
+	def file_dir_note_complete(self, text, line, startIdx, endIdx):
+
+	def note_complete(self, text, line, startIdx, endIdx):
+		if text:
+			return 
 
 if not os.path.isdir(basePath):
 	os.mkdir(basePath)
