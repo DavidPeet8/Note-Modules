@@ -1,20 +1,15 @@
 @import "variables"
 
 /*---------------------------- MARKDOWN STYLING -----------------------------*/
-* + .md-h1,
-* + .md-h2,
-* + .md-h3,
-* + .md-h4,
-* + .md-h5,
-* + .md-h6,
+* + .md-header,
 	margin-top: 30px
+	@include scaleProp(font-size, 18pt, 23pt, 23pt, 28pt, 28pt)
 
 .md-h1
 	border-bottom: 1px solid white
 	padding: 10px
 	margin-bottom: 20px
-	font-size: 2em
-	//@include scaleProp(font-size, 35pt, 40pt, 40pt, 45pt, 45pt)
+	@include scaleProp(font-size, 25pt, 30pt, 30pt, 35pt, 35pt)
 
 .md-h2
 	@include scaleProp(font-size, 20pt, 25pt, 25pt, 30pt, 30pt)
@@ -58,6 +53,10 @@ a
 	border-collapse: collapse
 	table-layout: fixed
 	margin: 25px auto
+
+.md-plaintext
+	@include scaleProp(font-size, 12pt, 14pt, 14pt, 16pt, 16pt)
+	line-height: 150%
 
 th
 	text-align: center

@@ -28,7 +28,7 @@ export function markedOptionsFactory(): MarkedOptions
 
   renderer.heading = (text:string, level:number) => 
   {
-    return `<h${level} class="md-h${level}">${text}</h${level}>`;
+    return `<h${level} class="md-header md-h${level}">${text}</h${level}>`;
   }
 
   renderer.hr = () => 
@@ -44,7 +44,7 @@ export function markedOptionsFactory(): MarkedOptions
   
   renderer.paragraph = (text:string) => 
   {
-    return `<p class="md-p">${text}</p>`;
+    return `<p class="md-plaintext md-p">${text}</p>`;
   }
 
   renderer.html = (html:string) => 
@@ -54,7 +54,7 @@ export function markedOptionsFactory(): MarkedOptions
 
   renderer.listitem = (text:string) => 
   {
-    return `<li class="md-li">${text}</li>`;
+    return `<li class="md-plaintext md-li">${text}</li>`;
   }
 
   renderer.table = (header:string, body:string) => 
@@ -73,7 +73,12 @@ export function markedOptionsFactory(): MarkedOptions
 
   renderer.strong = (text:string) => 
   {
-    return `<strong class="md-strong">${text}</strong>`
+    return `<strong class="md-plaintext md-strong">${text}</strong>`
+  }
+
+  renderer.em = (text: string) => 
+  {
+    return `<em class="md-plaintext md-em">${text}</em>`;
   }
 
   return {

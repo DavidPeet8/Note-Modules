@@ -165,6 +165,7 @@ void Preprocessor::build(const string &noteName)
 	ifstream in (baseNotesDir + "/.flat_notes/" + note->getName());
 	ofstream out (baseNotesDir + "/build/.flat_notes/" + note->getName());
 	string line;
+	const char * lineEnd = "  \n";
 
 	while (getline(in, line))
 	{
@@ -174,18 +175,18 @@ void Preprocessor::build(const string &noteName)
 
 		if (matchBeginItr == matchEndItr)
 		{
-			out << line << "\n";
+			out << line << lineEnd;
 		}
 		else 
 		{
 			for (auto match = matchBeginItr; match != matchEndItr; ++match)
 			{
 				string matchedStr = match->str();
-				cerr << "Command found\n" << matchedStr << endl;
-				out << match->prefix() << endl;
+				cerr << "Command found\n" << matchedStr << lineEnd;
+				out << match->prefix() << lineEnd;
 				Cmd cmd = getCmd(matchedStr);
 				applyCmd(cmd, note, out);
-				if (match == matchEndItr) { out << match->suffix() << endl; }
+				if (match == matchEndItr) { out << match->suffix() << lineEnd; }
 			}
 		}
 	}
