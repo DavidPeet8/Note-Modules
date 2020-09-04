@@ -1,16 +1,25 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Router, Routes, RouterModule, NavigationStart } from '@angular/router';
 import { HelpModalComponent } from 'app/components/help-modal/help-modal.component';
-
+import { CodeviewComponent } from 'app/components/codeview/codeview.component';
+import { FileAccessAPIService } from '@services/file-access-api.service';
 
 const routes: Routes = [
 	{
-		path: 'help', component: HelpModalComponent
+		path: 'help', component: HelpModalComponent,
+
 	},
-	/*{
-		// This route for loading each note based on url / note name
-		//path: 'note/*', component: 
-	}*/
+	{
+		path: 'note', children: [
+			{
+				path: '**',
+				component: CodeviewComponent
+			}
+		]
+	},
+	{
+		path: '**', redirectTo: '/', pathMatch: 'full'
+	}
 ];
 
 @NgModule({
@@ -19,5 +28,22 @@ const routes: Routes = [
 })
 export class AppRoutingModule 
 { 
+	constructor(private router: Router, private fileAPI: FileAccessAPIService) 
+	{
+		this.router.events.subscribe(e => {
+			if (e instanceof NavigationStart) {
+				this.onNavigationStart(e);
+			}
+		})
+	}
+
+	onNavigationStart(event): void
+	{
+		if (event.url.startsWith('/note/')) 
+		{
+			let file = '/' + event.url.split('/').slice(2).join('/');
+			this.fileAPI.switchActiveFile(file);
+		}
+	}
 
 }

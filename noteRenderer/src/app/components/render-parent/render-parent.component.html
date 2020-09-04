@@ -7,7 +7,8 @@
 			<div draggable="true" (drag)="onDrag($event)" class="dirtree-sidebar" #resizeBar></div>
 		</div>
 		<div class="codeview" #codeSection>
-			<app-codeview></app-codeview>
+			<router-outlet></router-outlet>
+			<!-- <app-codeview></app-codeview> -->
 		</div>
 	</div>
 </section>

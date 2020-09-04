@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FileAccessAPIService } from '@services/file-access-api.service';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-directory-tree',
@@ -17,7 +17,7 @@ export class DirectoryTreeComponent implements OnInit
 	iconClasses = "fas fa-folder";
 	dropdownClasses = "hidden";
 
-	constructor(private fileAPI: FileAccessAPIService) { }
+	constructor(private router: Router) { }
 
 	ngOnInit(): void 
 	{
@@ -61,7 +61,7 @@ export class DirectoryTreeComponent implements OnInit
 
 		if (!this.isDirectory)
 		{
-			this.fileAPI.switchActiveFile(this.basePath + "/" + this.fileName);
+			this.router.navigate(['note'].concat(this.basePath.split('/').slice(1)).concat([this.fileName]));
 		}
 
 		if (this.isDirectory && !this.isOpen) 
