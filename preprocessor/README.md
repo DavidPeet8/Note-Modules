@@ -4,6 +4,8 @@ This supports the following directives:
 1. [//]:# (include [path array])
 2. [//]:# (link path)
 
+# Installation:
+
 ## Notes: 
 All paths must not contain spaces, or must be wrapped in quotations
 

@@ -206,7 +206,7 @@ Type help or ? for a list of commands.
 		arglist = shlex.split(args)
 		arglist.insert(0, PREPROCESSOR_EXE)
 		arglist.insert(1, basePath)
-		pid = subprocess.run(arglist).pid
+		subprocess.run(arglist)
 
 	def do_clean(self, args):
 		temp_chdir_run(basePath, shutil.rmtree, ["build"])
@@ -474,8 +474,10 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			print(entry.path for entry in dir_contents(text) if entry.is_dir())
 
 	def file_dir_complete(self, text, line, startIdx, endIdx):
+		print("File Dir COmplete")
 
 	def file_dir_note_complete(self, text, line, startIdx, endIdx):
+		print("FIle Dir Note COmplete")
 
 	def note_complete(self, text, line, startIdx, endIdx):
 		if text:

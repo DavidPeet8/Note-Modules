@@ -21,12 +21,12 @@ print("Necessary Directories Created")
 
 
 # Install the directory server
-copytree("./dirServer", installPath+ "/dirServer")
+copytree("./dirServer", installPath + "/dirServer")
 print("Installed Local Directory Server")
 # Remake the file
 cwd = os.getcwd()
 os.chdir("./preprocessor")
-subprocess.run(["make", "debug"])
+subprocess.run(["make"])
 print("Remade Preprocessor")
 os.chdir(cwd)
 # Install the preprocessor
@@ -36,7 +36,8 @@ print("Installed Preprocessor")
 copytree("./noteRenderer/build", installPath + "/UI")
 print("Installed UI")
 # Install the cli driver
-copytree("./driver", installPath + installPath + "/driver")
+copytree("./driver", installPath + "/driver")
+os.rename(installPath + "/driver/driver.py", installPath + "/driver/notes")
 print("Installed CLI")
 
 copy("./notes_gitignore", basePath + "/.gitignore")
