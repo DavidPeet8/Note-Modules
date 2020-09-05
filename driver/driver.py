@@ -157,7 +157,7 @@ Type help or ? for a list of commands.
 			print("Command 'mv' expects 2 arguments")
 			return
 		try:
-			os.rename(arglist[0], arglist[1])
+			temp_chdir_run(basePath, self.rename_helper, [arglist])
 		except: 
 			invalid()
 
@@ -423,6 +423,14 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		except: 
 			invalid("Cannot cat, check that file exists and that you have read permission.")
 			return ""
+
+	def rename_helper(self, arglist):
+		arr = os.scandir(".")
+		for file in arr:
+			if file.is_dir():
+				temp_chdir_run(file.name, self.rename_helper, [arglist])
+			elif file.name == arglist[0]:
+				os.rename(file.name, arglist[1])
 
 	def edit_files(self, rawarglist):
 		arglist = []

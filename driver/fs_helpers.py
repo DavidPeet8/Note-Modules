@@ -17,15 +17,19 @@ def check_and_mkdirs(ar_paths):
 def temp_chdir_run(path, func, args):
 	cwd = os.getcwd();
 	os.chdir(path) 
-	func(*args)
-	os.chdir(cwd)
+	try:
+		func(*args)
+	finally:
+		os.chdir(cwd)
 
 def temp_chdir_run_list(path, funclist, argslist):
 	cwd = os.getcwd()
 	os.chdir(path)
-	for func, args in zip(funclist, argslist):
-		func(*args)
-	os.chdir(cwd)
+	try:
+		for func, args in zip(funclist, argslist):
+			func(*args)
+	finally:
+		os.chdir(cwd)
 
 def touch_file(path):
 	fd = open(path, "a+")
