@@ -2,12 +2,17 @@
 
 import os, subprocess
 from shutil import copy, copytree, rmtree
-import sys, getopt
+import sys, argparse
 # getopt is a bit simpler than arg parse even though it is not the recommended module
 
 basePath = os.path.expanduser("~/.notes")
 installPath = os.path.expanduser("~/.notes/.exe")
 notesDirPaths = [os.path.expanduser("~/.notes")]
+
+def parse_args(arglist):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-p', '--path')
+	return parser.parse_args(arglist)
 
 if not os.path.exists(basePath):
 	os.mkdir(basePath)
@@ -17,22 +22,18 @@ if not os.path.exists(installPath):
 else:
 	rmtree(installPath)
 	print("Cleaned old installation")
-try:
-	opts, args = getopt.getopt(sys.argv[1:], "p:", ["path="])
-except getopt.GetoptError:
-	print("Failed to get options, Exiting.")
-	sys.exit(1)
 
-for opt, arg in opts:
-	if opt in ('-p', '--path'):
-		newPath = os.path.expanduser(arg)
-		notesDirPaths += [newPath]
+args = parse_args(sys.argv[1:])
 
-		if not os.path.exists(newPath):
-			os.mkdir(newPath)
+if args.path:
+	newPath= os.path.expanduser(args.path)
+	notesDirPaths += [newPath]
+
+	if not os.path.exists(newPath):
+			os.mkdir(newPath)		
+
 
 print("Necessary Directories Created")
-
 
 # Install the directory server
 copytree("./dirServer", installPath + "/dirServer")

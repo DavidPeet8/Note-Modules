@@ -23,11 +23,11 @@ def get_server_args(arglist):
 	parser.add_argument('-h', '--help', action="store_true")
 	parser.add_argument('-p', '--port', type=int)
 	parser.add_argument('-d', '--dir')
+	return parser.parse_args(arglist)
 
 def main(argv):
 	args = get_server_args(argv)
-	opts, args = getopt.getopt(argv, "hp:d:", ["port=", "dir="]);
-
+	
 	if args.help:
 		printHelp()
 		return
