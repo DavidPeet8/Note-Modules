@@ -11,8 +11,12 @@ from argparser import *
 
 args = get_driver_args(sys.argv[1:])
 
-if args.path != None:
+if args.path:
 	update_base_path(args.path)
+
+if not os.path.isdir(get_base_path()):
+	os.mkdir(get_base_path())
+os.chdir(get_base_path()) # Set working directory to base of notes directory
 
 
 def invalid(reason=""):
@@ -37,14 +41,14 @@ Type help or ? for a list of commands.
 
 	# should recieve no arguments
 	def do_init(self, arg):
-		check_and_mkdirs([flatNotesPath, basePath+"/build", basePath + "/.config", basePath + "/.exe"])
-		temp_chdir_run(basePath, self.do_git, ["init"])
+		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config", get_base_path() + "/.exe"])
+		temp_chdir_run(get_base_path(), self.do_git, ["init"])
 
 
 	# Directory to open in text editor
 	def do_edit(self, args):
 		rawarglist = shlex.split(args)
-		temp_chdir_run(flatNotesPath, self.edit_files, [rawarglist])
+		temp_chdir_run(get_flat_notes_path(), self.edit_files, [rawarglist])
 		
 
 	def do_ls(self, args):
@@ -53,12 +57,12 @@ Type help or ? for a list of commands.
 		isAll, arr = False, []
 
 		args = get_ls_args(arglist)
-
-		if args.all != None:
+		
+		if args.all:
 			isAll = True
 			dirPath = args.path
-		elif args.notes != None:
-			dirPath = flatNotesPath
+		elif args.notes:
+			dirPath = get_flat_notes_path()
 		else:
 			dirPath = args.path
 
@@ -66,7 +70,7 @@ Type help or ? for a list of commands.
 
 		try:
 			for entry in arr:
-				if isAll == False and entry.name.startswith('.'): 
+				if not isAll and entry.name.startswith('.'): 
 					continue
 				if entry.is_dir():
 					print_dir(entry.name)
@@ -104,15 +108,15 @@ Type help or ? for a list of commands.
 			
 		if args.note != None:
 			for n in args.note:
-				if os.path.exists(flatNotesPath + '/' + n):
+				if os.path.exists(get_flat_notes_path() + '/' + n):
 					print('A note of this name already exists in .flat_notes')
 					print('To add this note to the specified directory use the add command')
 					print('To remove this file permanantly use the remove command with the -p flag')
 					continue
-				touch_file(flatNotesPath + '/' + n)
+				touch_file(get_flat_notes_path() + '/' + n)
 
-				if os.getcwd() != flatNotesPath:
-					os.link(flatNotesPath + '/' + n, n)
+				if os.getcwd() != get_flat_notes_path():
+					os.link(get_flat_notes_path() + '/' + n, n)
 		
 
 	def do_remove(self, args):
@@ -123,7 +127,7 @@ Type help or ? for a list of commands.
 		if args.recursive != None:
 			recursive = True
 		elif args.permanent != None:
-			temp_chdir_run(basePath, self.perm_remove, args.paths)			
+			temp_chdir_run(get_base_path(), self.perm_remove, args.paths)			
 
 		for rgx in args.paths:
 			if os.path.exists(rgx):
@@ -142,7 +146,7 @@ Type help or ? for a list of commands.
 			print("Command 'mv' expects 2 arguments")
 			return
 		try:
-			temp_chdir_run(basePath, self.rename_helper, [arglist])
+			temp_chdir_run(get_base_path(), self.rename_helper, [arglist])
 		except: 
 			invalid()
 
@@ -162,7 +166,7 @@ Type help or ? for a list of commands.
 		sys.exit()
 
 	def do_save(self, args):
-		temp_chdir_run_list(basePath, [self.do_git]*3, [["add ."], ["commit -m \"Save\""], ["push"]])
+		temp_chdir_run_list(get_base_path(), [self.do_git]*3, [["add ."], ["commit -m \"Save\""], ["push"]])
 		
 	def do_git(self, args):
 		GITEXE = "git"
@@ -188,14 +192,14 @@ Type help or ? for a list of commands.
 	def do_build(self, args):
 		arglist = shlex.split(args)
 		arglist.insert(0, PREPROCESSOR_EXE)
-		arglist.insert(1, basePath)
+		arglist.insert(1, get_base_path())
 		run(arglist)
 
 	def do_clean(self, args):
-		temp_chdir_run(basePath, shutil.rmtree, ["build"])
+		temp_chdir_run(get_base_path(), shutil.rmtree, ["build"])
 
 	def do_search(self, args):
-		args = get_search_args(shlex.split(args), [flatNotesPath])
+		args = get_search_args(shlex.split(args), [get_flat_notes_path()])
 		fileMap = {}
 
 		if args.deep:
@@ -378,7 +382,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 
 	def add_helper(self, arglist):
 		for file in arglist:
-			os.link(flatNotesPath + "/" + file, './' + file)
+			os.link(get_flat_notes_path() + "/" + file, './' + file)
 
 	def perm_remove(self, arglist):
 		arr = os.scandir(".")
@@ -482,16 +486,11 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 	def note_complete(self, text, line, startIdx, endIdx):
 		if text:
 			return [
-				os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(flatNotesPath) + "/")
+				os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/")
 			]
 		else:
-			print(os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(flatNotesPath) + "/"))
-
-if not os.path.isdir(basePath):
-	os.mkdir(basePath)
-os.chdir(basePath) # Set working directory to base of notes directory
+			print(os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/"))
 
 # Start the CLI if this is the main process
 if __name__ == '__main__':
 	NoteShell().cmdloop()
-

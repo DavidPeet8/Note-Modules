@@ -7,8 +7,6 @@ from config import config, Config
 from workingDir import WorkingDir
 from requestHandler import RequestHandler
 
-
-
 def stopServer():
 	print ("Closing HTTP Server on port: " + str(config.port))
 	config.webServer.server_close()
@@ -49,5 +47,3 @@ def main(argv):
 
 main(sys.argv)
 
-
-# REturn file last odified tiem along with file data

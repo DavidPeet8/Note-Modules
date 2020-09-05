@@ -19,15 +19,15 @@ def get_create_args(arglist):
 
 def get_ls_args(arglist):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-n', '--notes', help="List all notes in flat_notes")
-	parser.add_argument('-a', '--all', help="List all files including hidden ones")
+	parser.add_argument('-n', '--notes', action="store_true", help="List all notes in flat_notes")
+	parser.add_argument('-a', '--all', action="store_true", help="List all files including hidden ones")
 	parser.add_argument('path', nargs="?", help="Path to list", default=".")
 	return parser.parse_args(arglist)
 
 def get_remove_args(arglist):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-r', '--recursive', help="Recursively remove a directory")
-	parser.add_argument('-p', '--permenant', help="Remove all instances of target")
+	parser.add_argument('-r', '--recursive', action="store_true", help="Recursively remove a directory")
+	parser.add_argument('-p', '--permenant', action="store_true", help="Remove all instances of target")
 	parser.add_argument('paths', nargs="+", help="Targets to remove")
 	return  parser.parse_args(arglist)
 
