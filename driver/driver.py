@@ -488,10 +488,10 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 	def note_complete(self, text, line, startIdx, endIdx):
 		if text:
 			return [
-				entry.path for entry in dir_contents(os.path.expanduser(flatNotesPath))
+				os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(flatNotesPath) + "/")
 			]
 		else:
-			print(entry.path for entry in dir_contents(os.path.expanduser(flatNotesPath)))
+			print(os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(flatNotesPath) + "/"))
 
 if not os.path.isdir(basePath):
 	os.mkdir(basePath)
