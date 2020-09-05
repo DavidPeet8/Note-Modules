@@ -2,7 +2,7 @@
 
 from http.server import HTTPServer
 import os, atexit, time
-import sys, getopt
+import sys, argparse
 from config import config, Config
 from workingDir import WorkingDir
 from requestHandler import RequestHandler
@@ -19,18 +19,26 @@ def printHelp():
 	print ("-p | --port=<num> - Select the port you wish to serve on")
 	print ("-d | --dir=<path> - Select the directory to serve, default is working directory")
 
+
+def get_server_args(arglist):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-h', '--help', action="store_true")
+	parser.add_argument('-p', '--port', type=int)
+	parser.add_argument('-d', '--dir')
+
 def main(argv):
+	args = get_server_args(argv)
 	opts, args = getopt.getopt(argv, "hp:d:", ["port=", "dir="]);
 
-	for opt, arg in opts:
-		if opt == "-h":
-			printHelp()
-		if opt in ("-p", "--port"):
-			config.port = int(arg)
-			print ("Set port: " + arg)
-		elif opt in ("-d", "dir="):
-			config.serveDir = os.path.expanduser(string(arg))
-			print("Set serve path: " + arg)
+	if args.help:
+		printHelp()
+		return
+	if args.port:
+		config.port = args.port
+		print ("Set port: " + args.port)
+	elif args.dir:
+		config.serveDir = os.path.expanduser(args.dir)
+		print("Set serve path: " + args.dir)
 
 	config.currentDir.cd(config.serveDir)
 	

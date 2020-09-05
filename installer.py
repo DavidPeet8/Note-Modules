@@ -2,9 +2,12 @@
 
 import os, subprocess
 from shutil import copy, copytree, rmtree
+import sys, getopt
+# getopt is a bit simpler than arg parse even though it is not the recommended module
 
 basePath = os.path.expanduser("~/.notes")
 installPath = os.path.expanduser("~/.notes/.exe")
+notesDirPaths = [os.path.expanduser("~/.notes")]
 
 if not os.path.exists(basePath):
 	os.mkdir(basePath)
@@ -14,8 +17,19 @@ if not os.path.exists(installPath):
 else:
 	rmtree(installPath)
 	print("Cleaned old installation")
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "p:", ["path="])
+except getopt.GetoptError:
+	print("Failed to get options, Exiting.")
+	sys.exit(1)
 
+for opt, arg in opts:
+	if opt in ('-p', '--path'):
+		newPath = os.path.expanduser(arg)
+		notesDirPaths += [newPath]
 
+		if not os.path.exists(newPath):
+			os.mkdir(newPath)
 
 print("Necessary Directories Created")
 
@@ -40,4 +54,5 @@ copytree("./driver", installPath + "/driver")
 os.rename(installPath + "/driver/driver.py", installPath + "/driver/notes")
 print("Installed CLI")
 
-copy("./notes_gitignore", basePath + "/.gitignore")
+for path in notesDirPaths:
+	copy("./notes_gitignore", path + "/.gitignore")
