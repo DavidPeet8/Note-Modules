@@ -1,54 +1,39 @@
 #! /usr/bin/python3
-# CLI Driver for note CLI
-# Maybe switch to using the subprocess module
 
 import cmd, sys, os, shutil, re
 import collections
-from colorama import init, Fore, Back, Style
-import atexit, signal
-import webbrowser
-import subprocess
 import shlex
 from fs_helpers import *
-init()
+from config import *
+from color_scheme import print_dir, get_prompt
+from process_manager import reap_pid, open_default, spawn_quiet, run
+from argparser import *
 
-basePath = os.path.expanduser("~/.notes")
-flatNotesPath = os.path.expanduser("~/.notes/.flat_notes")
-textEditorCMD = "subl"
-promptColor = Fore.CYAN + Style.BRIGHT
+args = get_driver_args(sys.argv[1:])
 
-PREPROCESSOR_EXE = basePath + "/.exe/preprocessor"
-SERVER_EXE = basePath + "/.exe/dirServer/server.py"
-UI_EXE = basePath + "/.exe/UI"
-RENDER_PORT = "4300"
-arPID = []
+if args.path != None:
+	update_base_path(args.path)
+
 
 def invalid(reason=""):
 	print("Invalid Command.")
 	if reason != "":
 		print(reason)
 
-# reap all children onexit
-def reap():
-	for pid in arPID:
-		os.kill(pid, signal.SIGKILL)
-
-def reset_print_style():
-	print(Style.RESET_ALL, end="")
-
-atexit.register(reap)
-
 class NoteShell (cmd.Cmd):
-	intro = '''
+
+	def __init__(self):
+		cmd.Cmd.__init__(self)
+		self.intro = '''
 Welcome to NoteShell.
 Author: David Peet
 Github: davidpeet8
 Type help or ? for a list of commands.
-	'''
-	promptBase = promptColor + "(NoteShell) " 
-	promptPath = ""
-	propmptTerminator = ": " + Style.RESET_ALL
-	prompt = promptColor + "(NoteShell) : " + Style.RESET_ALL
+		'''
+		self.promptBase = "(NoteShell) " 
+		self.promptPath = ""
+		self.promptTerminator = ": "
+		self.prompt = get_prompt(self.promptBase, self.promptPath, self.promptTerminator)
 
 	# should recieve no arguments
 	def do_init(self, arg):
@@ -67,25 +52,24 @@ Type help or ? for a list of commands.
 		firstArg = arglist[0].lower() if arglist else ""
 		isAll, arr = False, []
 
-		try:
-			if firstArg != "":
-				if firstArg == "-a" or firstArg == "--all":
-					isAll = True
-					dirPath = arglist[1] if len(arglist) > 1 and arglist[1] else "."
-					arr = os.scandir(dirPath)
-				elif firstArg == "-n" or firstArg == "--notes":
-					arr = os.scandir(flatNotesPath)
-				else:
-					arr = os.scandir(args)
-			else: 
-				arr = os.scandir(".")
+		args = get_ls_args(arglist)
 
+		if args.all != None:
+			isAll = True
+			dirPath = args.path
+		elif args.notes != None:
+			dirPath = flatNotesPath
+		else:
+			dirPath = args.path
+
+		arr = os.scandir(dirPath)
+
+		try:
 			for entry in arr:
 				if isAll == False and entry.name.startswith('.'): 
 					continue
 				if entry.is_dir():
-					print(Fore.BLUE + Style.BRIGHT + entry.name)
-					reset_print_style()
+					print_dir(entry.name)
 				else:
 					print(entry.name)
 		except:
@@ -107,40 +91,41 @@ Type help or ? for a list of commands.
 	def do_create(self, args):
 		arglist = shlex.split(args)
 
-		if arglist and len(arglist) >= 2:
-			firstArg = arglist[0].lower()
-			if firstArg == '-f' or firstArg == '--filter':
-				# Create the new filters
-				for f in arglist[1:]:
-					check_and_mkdir(f)
-				return
-			elif firstArg == '-n' or firstArg == '--note':
-				# Create the new notes
-				for n in arglist[1:]:
-					if os.path.exists(flatNotesPath + '/' + n):
-						print('A note of this name already exists in .flat_notes')
-						print('To add this note to the specified directory use the add command')
-						print('To remove this file permanantly use the remove command with the -p flag')
-						return
-					touch_file(flatNotesPath + '/' + n)
+		args = get_create_opts(arglist)
+		if not args.filter and not args.note:
+			invalid("Must specify -f or -n")
+			return
+		elif (args.filter and len(args.filter) < 1) or (args.note and len(args.note) < 1):
+			invalid("Both -f and -n require an argument")
 
-					if os.getcwd() != flatNotesPath:
-						os.link(flatNotesPath + '/' + n, n)
-				return
-		invalid("Create command requires at least 2 arguments")
+		if args.filter != None:
+			for f in args.filter:
+				check_and_mkdir(f)
+			
+		if args.note != None:
+			for n in args.note:
+				if os.path.exists(flatNotesPath + '/' + n):
+					print('A note of this name already exists in .flat_notes')
+					print('To add this note to the specified directory use the add command')
+					print('To remove this file permanantly use the remove command with the -p flag')
+					continue
+				touch_file(flatNotesPath + '/' + n)
+
+				if os.getcwd() != flatNotesPath:
+					os.link(flatNotesPath + '/' + n, n)
+		
 
 	def do_remove(self, args):
 		arglist = shlex.split(args)
-		i, recursive = 0, False
-		firstArg = arglist[0].lower() if arglist else ""
+		recursive = False
+		args = get_remove_args(arglist)
 
-		if firstArg == "-r" or firstArg == "--recursive":
-			i,recursive = 1,True
+		if args.recursive != None:
+			recursive = True
+		elif args.permanent != None:
+			temp_chdir_run(basePath, self.perm_remove, args.paths)			
 
-		if firstArg == "-p" or firstArg == "--permanent":
-			temp_chdir_run(basePath, self.perm_remove, arglist[1:])
-
-		for rgx in arglist[i:]:
+		for rgx in args.paths:
 			if os.path.exists(rgx):
 				if os.path.isdir(rgx) and not os.listdir(rgx): # is an empty directory
 					os.rmdir(rgx)
@@ -163,12 +148,11 @@ Type help or ? for a list of commands.
 
 
 	def do_add(self, args):
-		arglist = shlex.split(args)
-		firstArg = arglist[0].lower() if arglist else ""
-	
+		args = get_add_args(shlex.split(args))
+
 		try:
-			if firstArg == "-p" or firstArg == '--path':
-				temp_chdir_run(arglist[1], self.add_helper, arglist[2:])
+			if args.path != None:
+				temp_chdir_run(args.path, self.add_helper, args.targets)					
 			else: 
 				self.add_helper(arglist)
 		except:
@@ -184,21 +168,20 @@ Type help or ? for a list of commands.
 		GITEXE = "git"
 		arglist = shlex.split(args)
 		arglist.insert(0, GITEXE)
-		subprocess.run(arglist)
+		run(arglist)
 
 		# List of things to render in the UI
 
 	def do_render(self, args):
 		arglist = shlex.split(args)
 		arglist.insert(0, SERVER_EXE)
-		global arPID
 
 		# Start the file server
-		pid = subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+		pid = spawn_quiet(arglist)
 		# Serve the UI
-		pid2 = subprocess.Popen(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
-		arPID += [pid, pid2]
-		webbrowser.open("http://localhost:" + RENDER_PORT)
+		pid2 = spawn_quiet(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE])
+		reap_pid([pid, pid2])
+		open_default("http://localhost:" + RENDER_PORT)
 		print("Server PID: ", pid)
 		print("UI PID: ", pid2)
 
@@ -206,26 +189,22 @@ Type help or ? for a list of commands.
 		arglist = shlex.split(args)
 		arglist.insert(0, PREPROCESSOR_EXE)
 		arglist.insert(1, basePath)
-		subprocess.run(arglist)
+		run(arglist)
 
 	def do_clean(self, args):
 		temp_chdir_run(basePath, shutil.rmtree, ["build"])
 
 	def do_search(self, args):
-		arglist = shlex.split(args)
-		firstArg = arglist[0].lower() if arglist else ""
+		args = get_search_args(shlex.split(args), [flatNotesPath])
 		fileMap = {}
 
-		if (firstArg == "-d" or firstArg == "--deep") and len(arglist) == 3:
-			pattern = arglist[1]
-			searchFiles = arglist[2:] if arglist[2:] else [flatNotesPath] # Files / Dirs to search in
-			
-			for path in searchFiles:
+		if args.deep:
+			for path in args.files:
 				path = os.path.expanduser(path)
 				if os.path.exists(path) and os.path.isdir(path):
-					fileMap = {**fileMap, **self.search_dir(pattern, os.scandir(path))}
+					fileMap = {**fileMap, **self.search_dir_deep(args.pattern, os.scandir(path))}
 				elif os.path.exists(path):
-					fileMap[path] = search_file(pattern, path)
+					fileMap[path] = search_file(args.pattern, path)
 				else: 
 					print("File path given does not exist. Run 'help search' for details on the search command.")
 
@@ -233,13 +212,8 @@ Type help or ? for a list of commands.
 			for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
 				print("["+ key + ", " + str(value) + "]")
 
-		elif len(arglist) == 1: # Search only by file name
-			notes = os.listdir(flatNotesPath)
-			pattern = arglist[0]
-
-			for note in notes:
-				if re.search(pattern, note, re.IGNORECASE):
-					print(note)
+		elif args.pattern: # Search only by file name
+			self.search_dir_names(args.pattern, args.files)
 		else: 
 			invalid("Incorrect Number of arguments")
 
@@ -395,7 +369,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 	# ---------------- OVERRIDES ---------------
 
 	def postcmd(self, stop, line):
-		self.prompt = self.promptBase + self.promptPath + self.propmptTerminator
+		self.prompt = get_prompt(self.promptBase, self.promptPath, self.promptTerminator)
 
 	def default(self, line):
 		print("Unrecognized Command.")
@@ -432,20 +406,23 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			elif file.name == arglist[0]:
 				os.rename(file.name, arglist[1])
 
-	def edit_files(self, rawarglist):
-		arglist = []
-		for p in rawarglist:
-			if os.path.exists(p):
-				arglist += [p]
-			else:
+	def edit_files(self, arglist):
+		cmd = ""
+		args = get_edit_args(arglist)
+		if args.command != None:
+			cmd = args.command
+
+		for p in args.paths:
+			if not os.path.exists(p):
 				shouldCreate = input("Note " + p + " does not exist, do you want to create it in .flat_notes? [y/n]")
 				if shouldCreate.lower().strip() == "y":
 					self.do_create("-n " + p)
-					arglist += [p]
 
-		if arglist:
-			arglist.insert(0, textEditorCMD)
-			pid = subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
+		if args.paths and not cmd:
+			open_default(' '.join(args.paths))
+		elif args.paths:
+			args.paths.insert(0, cmd)
+			spawn_quiet(args.paths)
 
 	def search_file(self, pattern, path):
 		fd = open(path, "r")
@@ -453,7 +430,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		fd.close()
 		return len(re.findall(pattern, text, re.IGNORECASE))
 
-	def search_dir(self, pattern, filelist):
+	def search_dir_deep(self, pattern, filelist):
 		results = {}
 		for file in filelist:
 			if os.path.isdir(file.path):
@@ -462,6 +439,15 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			else:
 				results[file.path] = self.search_file(pattern, file.path);
 		return results
+
+	def search_dir_names(self, pattern, filelist):
+		for file in filelist:
+			path = os.path.expanduser(file)
+			if os.path.exists(path) and os.path.isdir(path):
+				self.search_dir_names(pattern, map(lambda p: p.path, os.scandir(path)))
+			elif os.path.exists(path) and re.search(pattern, path, re.IGNORECASE):
+				print(os.path.basename(path))
+				
 
 	def file_complete(self, text, line, startIdx, endIdx):
 		if text:
