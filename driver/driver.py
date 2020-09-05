@@ -153,11 +153,11 @@ Type help or ? for a list of commands.
 
 	def do_rename(self, args):
 		arglist = shlex.split(args)
-		if len(args) != 2:
+		if len(arglist) != 2:
 			print("Command 'mv' expects 2 arguments")
 			return
 		try:
-			os.rename(args[0], args[1])
+			os.rename(arglist[0], arglist[1])
 		except: 
 			invalid()
 
@@ -474,14 +474,24 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			print(entry.path for entry in dir_contents(text) if entry.is_dir())
 
 	def file_dir_complete(self, text, line, startIdx, endIdx):
-		print("File Dir COmplete")
+		if text:
+			return [
+				entry.path for entry in dir_contents(text)
+				if (entry.is_dir() or entry.is_file()) and entry.name.startswith(os.path.basename(text))
+			]
+		else: 
+			print(entry.path for entry in dir_contents(text) if entry.is_dir() or entry.is_file())
 
 	def file_dir_note_complete(self, text, line, startIdx, endIdx):
-		print("FIle Dir Note COmplete")
+		return self.file_dir_complete(text, line, startIdx, endIdx) + self.note_complete(text, line, startIdx, endIdx);
 
 	def note_complete(self, text, line, startIdx, endIdx):
 		if text:
-			return 
+			return [
+				entry.path for entry in dir_contents(os.path.expanduser(flatNotesPath))
+			]
+		else:
+			print(entry.path for entry in dir_contents(os.path.expanduser(flatNotesPath)))
 
 if not os.path.isdir(basePath):
 	os.mkdir(basePath)

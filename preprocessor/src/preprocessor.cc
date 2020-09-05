@@ -164,7 +164,7 @@ void Preprocessor::build(const string &noteName)
 
 	File *note = itr->second.get();
 	if (shouldShortCircuit(note)) { return; }
-	cerr << "Initializing build of " << noteName << std::endl;
+	cerr << "Building: " << noteName << std::endl;
 
 	static basic_regex pattern("\\[\\/\\/\\]\\s*:\\s*#\\s*\\(.*?\\)");
 	
@@ -183,18 +183,18 @@ void Preprocessor::build(const string &noteName)
 		if (matchBeginItr == matchEndItr)
 		{
 			out << line << end;
+			continue;
 		}
-		else 
+
+		// Loop over all matches found in this line
+		for (auto match = matchBeginItr; match != matchEndItr; ++match)
 		{
-			for (auto match = matchBeginItr; match != matchEndItr; ++match)
-			{
-				string matchedStr = match->str();
-				cerr << "Command found\n" << matchedStr << end;
-				out << match->prefix() << end;
-				Cmd cmd = getCmd(matchedStr);
-				applyCmd(cmd, note, out);
-				if (match == matchEndItr) { out << match->suffix() << end; }
-			}
+			string matchedStr = match->str();
+			//cerr << "Command found\n" << matchedStr << end;
+			out << match->prefix() << end;
+			Cmd cmd = getCmd(matchedStr);
+			applyCmd(cmd, note, out);
+			if (match == matchEndItr) { out << match->suffix() << end; }
 		}
 	}
 
@@ -205,8 +205,6 @@ void Preprocessor::build(const string &noteName)
 void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail)
 {
 	// Traversal over non-hidden folders recreating folder and file structure
-	// only link files where willBuild is true 
-	// Link recursively
 	const auto cwd = fs::current_path();
 	fs::current_path(baseNotesDir + pathTail); // cd into build directory
 	fs::directory_iterator baseDir(basePath + pathTail);
@@ -214,7 +212,7 @@ void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail
 	for (const auto &item : baseDir)
 	{
 		string name = item.path().filename().string();
-		cerr << "Linking " << name << endl;
+		// cerr << "Linking " << name << endl;
 		string mirrorPath = basePath + "/build" + pathTail + "/" + name;
 
 		if (name[0] == '.' || name == "build") { continue; }
@@ -227,15 +225,11 @@ void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail
 				cerr << "Directory created" << endl;
 				fs::create_directory(mirrorPath);
 			}
-			cerr << "Proceeding to Link" << endl;
 			linkBuiltFiles(basePath, pathTail + "/" + name); // Recursively process next dir
 		}
 		else if (item.is_regular_file())
 		{
-			if (fs::exists(mirrorPath))
-			{
-				fs::remove(mirrorPath);
-			}
+			if (fs::exists(mirrorPath)) { fs::remove(mirrorPath); }
 
 			const auto itr = fileList.find(name);
 
@@ -245,8 +239,8 @@ void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail
 			}
 		}
 	}
-	fs::current_path(cwd);
 
+	fs::current_path(cwd);
 }
 
 bool Preprocessor::shouldShortCircuit(File *note)

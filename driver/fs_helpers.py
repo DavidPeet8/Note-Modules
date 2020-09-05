@@ -7,6 +7,7 @@ def dir_empty(path):
 def check_and_mkdir(path):
 	if not os.path.isdir(path):
 		os.mkdir(path)
+		return
 	print("Directory exists.")
 
 def check_and_mkdirs(ar_paths):
