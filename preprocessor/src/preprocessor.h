@@ -68,6 +68,10 @@ private:
 	void copyBuiltFile(std::ostream &curFileStream, const std::string &noteToAppend);
 	
 	bool shouldShortCircuit(File *note);
+
+	bool isBoldColonCase(const std::string &line);
+
+	void addToFilesList(std::unordered_map<std::string, std::unique_ptr<File>>::iterator &, const std::string &);
 };
 
 #endif

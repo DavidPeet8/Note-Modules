@@ -24,7 +24,7 @@ To run the installation as mentioned above the following must be installed on th
 1. Python3 & Pip3 
 ```bash
 	sudo apt install python3
-	sudp apt install pip3
+	sudo apt install pip3
 ```
 2. Clang C++ Compiler
 ```bash

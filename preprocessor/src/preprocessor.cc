@@ -13,6 +13,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+
 const unordered_map<Preprocessor::DFAState, unordered_map<Preprocessor::CharType, Preprocessor::DFAState>> Preprocessor::dfa = 
 {
 	{ DFAState::START, 
@@ -129,7 +130,22 @@ void Preprocessor::build()
 	}
 
 	cerr << "Linking" << endl;
-	linkBuiltFiles(fs::absolute(baseNotesDir), ""); // Must pass absolute path or the recursive traversal eats it
+	linkBuiltFiles(fs::absolute(baseNotesDir), ""); // Must pass absolute path
+}
+
+// Add to the list of files that we will preprocess
+void Preprocessor::addToFilesList(unordered_map<string, unique_ptr<File>>::iterator &itr, const string &noteName)
+{
+	File *prevFile = fileList.begin()->second.get();
+	File *nextFile = prevFile->getNext();
+
+	// Not in the file list but on the file system
+	itr = fileList.emplace(noteName, make_unique<File>(noteName)).first;
+
+	itr->second->setPrev(prevFile); // Set current to point to previous node
+	itr->second->setNext(nextFile); // Set current to point to next node
+	prevFile->setNext(itr->second.get()); // Set previous to point to new node
+	nextFile->setPrev(itr->second.get()); // Set next to point back to current node
 }
 
 // NoBuild simply means do not make any copies out of flat notes in builddir
@@ -138,16 +154,7 @@ void Preprocessor::build(const string &noteName)
 	auto itr = fileList.find(noteName);
 	if (itr == fileList.end() && fs::exists(baseNotesDir + "/.flat_notes/" + noteName)) 
 	{
-		File *prevFile = fileList.begin()->second.get();
-		File *nextFile = prevFile->getNext();
-
-		// Not in the file list but on the file system
-		itr = fileList.emplace(noteName, make_unique<File>(noteName)).first;
-
-		itr->second->setPrev(prevFile); // Set current to point to previous node
-		itr->second->setNext(nextFile); // Set current to point to next node
-		prevFile->setNext(itr->second.get()); // Set previous to point to new node
-		nextFile->setPrev(itr->second.get()); // Set next to point back to current node
+		addToFilesList(itr, noteName);
 	}
 	else if (itr == fileList.end())
 	{
@@ -165,13 +172,13 @@ void Preprocessor::build(const string &noteName)
 	ifstream in (baseNotesDir + "/.flat_notes/" + note->getName());
 	ofstream out (baseNotesDir + "/build/.flat_notes/" + note->getName());
 	string line = "";
-	const char * end = "\n\n";
 
 	while (getline(in, line))
 	{
 		// Use regex iterator here?
 		const auto matchBeginItr = sregex_iterator(line.begin(), line.end(), pattern);
 		const auto matchEndItr = sregex_iterator();
+		const char * end = isBoldColonCase(line) ? "\n\n" : "  \n";
 
 		if (matchBeginItr == matchEndItr)
 		{
@@ -322,4 +329,11 @@ Preprocessor::CmdType Preprocessor::strToCmdType(const string &str)
 	else if (str == "nobuild") { return CmdType::NOBUILD; }
 
 	return CmdType::ERR;
+}
+
+// There is a strange edge case where "  \n" does not create a line break if we have "**boldtxt**:  \n"
+bool Preprocessor::isBoldColonCase(const string &line)
+{
+	const string pattern = "**:";
+	return line.length() > 3 && line.compare(line.length() - 3, 3, pattern) == 0;
 }
