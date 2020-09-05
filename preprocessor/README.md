@@ -1,13 +1,10 @@
 # Preprocessor
 
-This supports the following directives:
+Supports the following directives:
 1. [//]:# (include [path array])
 2. [//]:# (link path)
-
-# Installation:
-
-## Notes: 
-All paths must not contain spaces, or must be wrapped in quotations
+3. [//]:# (nobuild)
+	- This indicates that the note containing this directive should not be displayed in any filter in the build subtree. The note will still exist under `build/.flat_notes`
 
 # Dependancies
 This project depends on libc++ (LLVM implementation) due to the use of the filesystem header. To install the required packages run the following command
