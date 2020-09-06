@@ -1,14 +1,14 @@
 <section class="viewport" [ngStyle]="getStyle()">
 	<div class="header" [style]="headerStyle">
+		<p class="settings">
+			<i (click)="openHelpModal()" class="fas fa-question-circle icon"></i> 
+		</p>
 		<h1 class="center title">Note Modules</h1>
-		<h4 class="sayhi">
+		<p class="sayhi">
 			<i (click)="href('github', $event)" class="fab fa-github-square connect icon"></i> 
 			<i (click)="href('linkedin', $event)" class="fab fa-linkedin connect icon"></i>
 			<i (click)="href('website', $event)" class="fas fa-link connect icon"></i>
-		</h4>
-		<h4 class="settings">
-			<i (click)="openHelpModal()" class="fas fa-question-circle icon"></i> 
-		</h4>
+		</p>
 	</div>
 	<div class="content">
 		<app-render-parent></app-render-parent>

@@ -7,6 +7,10 @@
 	flex-grow: 0
 	flex-shrink: 0
 	height: 100px
+	display: flex
+	flex-flow: row nowrap
+	justify-content: space-between
+	align-items: center
 
 .content
 	flex-grow: 1
@@ -23,10 +27,10 @@
 
 .title
 	font-family: 'Inter', sans-serif
-	font-size: 40pt
 	border: 0
 	padding: 0
 	margin: 0
+	@include scaleProp(font-size, 20pt, 30pt, 40pt, 40pt, 40pt)
 
 .viewport
 	position: fixed
@@ -40,24 +44,22 @@
 	overflow: hidden
 
 .sayhi
-	position: absolute
-	top: 0
-	right: 0
 	font-size: $iconFontSize
-	margin-top: 20px
-	margin-right: 20px
+	line-height: 100%
+	@include scaleProp(min-width, 90px, 90px,120px, 120px, 120px)
+	align-self: flex-start
 
 .icon
 	@include scaleProp(font-size, 14pt, 14pt, 18pt, 20pt, 25pt)
 	cursor: pointer
+	vertical-align: middle
 
 .connect
 	@include scaleProp(margin-left, 10px, 10px, 15px, 15px, 15px)
 
 .settings
-	position: absolute
-	top: 0
-	left: 0
 	font-size: $iconFontSize
-	margin-top: 20px
-	margin-left: 20px
+	line-height: 100%
+	@include scaleProp(min-width, 90px, 90px,120px, 120px, 120px)
+	align-self: flex-start
+
