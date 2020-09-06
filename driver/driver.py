@@ -156,9 +156,9 @@ Type help or ? for a list of commands.
 
 		try:
 			if args.path != None:
-				temp_chdir_run(args.path, self.add_helper, args.targets)					
+				temp_chdir_run(args.path, self.add_helper, [args.targets])					
 			else: 
-				self.add_helper(arglist)
+				self.add_helper(args.targets)
 		except:
 			invalid()
 

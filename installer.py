@@ -5,8 +5,8 @@ from shutil import copy, copytree, rmtree
 import sys, argparse
 # getopt is a bit simpler than arg parse even though it is not the recommended module
 
-basePath = os.path.expanduser("~/.notes")
-installPath = os.path.expanduser("~/.notes/.exe")
+basePath = os.path.expanduser("~/.notes_cfg")
+installPath = os.path.expanduser("~/.notes_cfg/.exe")
 notesDirPaths = [os.path.expanduser("~/.notes")]
 
 def parse_args(arglist):
@@ -56,4 +56,6 @@ os.rename(installPath + "/driver/driver.py", installPath + "/driver/notes")
 print("Installed CLI")
 
 for path in notesDirPaths:
+	if not os.path.exists(path):
+		os.mkdir(path)
 	copy("./notes_gitignore", path + "/.gitignore")
