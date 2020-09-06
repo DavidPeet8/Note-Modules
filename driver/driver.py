@@ -140,13 +140,13 @@ Type help or ? for a list of commands.
 				else:
 					invalid()
 
-	def do_rename(self, args):
+	def do_mv(self, args):
 		arglist = shlex.split(args)
 		if len(arglist) != 2:
 			print("Command 'mv' expects 2 arguments")
 			return
 		try:
-			temp_chdir_run(get_base_path(), self.rename_helper, [arglist])
+			shutil.move(arglist[0], arglist[1])
 		except: 
 			invalid()
 
@@ -221,6 +221,20 @@ Type help or ? for a list of commands.
 		else: 
 			invalid("Incorrect Number of arguments")
 
+
+	def do_cp(self, args):
+		arglist = shlex.split(args)
+		print(arglist)
+		if len(arglist) != 2: 
+			print("Incorrect number of arguments")
+			return
+
+		try:
+			shutil.copy(os.path.expanduser(arglist[0]), os.path.expanduser(arglist[1]))
+		except:
+			print("Cannot copy.")
+
+
 	# -------------------- ALIASES -------------------
 
 	def do_cr(self, args):
@@ -254,6 +268,10 @@ Type help or ? for a list of commands.
 	def do_touch(self, args):
 		'Alias for create --note command'
 		self.do_create("-n " + args)
+
+	def do_rename(self, args):
+		'Alias for mv'
+		self.do_mv(args)
 
 	# ------------- AUTO COMPLETE --------------
 	
@@ -303,6 +321,12 @@ Syntax: ls [optional filter path]
 
 	def help_cd():
 		print('Used to navigate within the file system.\nSyntax: cd <filter path>')
+
+	def help_mv():
+		print('Move a file from src to dest')
+
+	def help_cp():
+		print('Copy a file from src to dest')
 
 	def help_create():
 		print('''
@@ -401,14 +425,6 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		except: 
 			invalid("Cannot cat, check that file exists and that you have read permission.")
 			return ""
-
-	def rename_helper(self, arglist):
-		arr = os.scandir(".")
-		for file in arr:
-			if file.is_dir():
-				temp_chdir_run(file.name, self.rename_helper, [arglist])
-			elif file.name == arglist[0]:
-				os.rename(file.name, arglist[1])
 
 	def edit_files(self, arglist):
 		cmd = ""
