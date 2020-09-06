@@ -18,6 +18,9 @@ def reap_pid(arpid):
 def spawn_quiet(arglist):
 	return subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).pid
 
+def spawn(arglist):
+	return subprocess.Popen(arglist).pid
+
 def open_default(path):
 	webbrowser.open(path)
 

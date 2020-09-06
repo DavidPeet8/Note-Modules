@@ -2,12 +2,13 @@ import os
 
 basePath = os.path.expanduser("~/.notes")
 flatNotesPath = basePath + "/.flat_notes"
+exePath = os.path.expanduser('~/.notes_cfg')
 
 textEditorCMD = "subl"
 
-PREPROCESSOR_EXE = basePath + "/.exe/preprocessor"
-SERVER_EXE = basePath + "/.exe/dirServer/server.py"
-UI_EXE = basePath + "/.exe/UI"
+PREPROCESSOR_EXE = exePath + "/.exe/preprocessor"
+SERVER_EXE = exePath + "/.exe/dirServer/server.py"
+UI_EXE = exePath + "/.exe/UI"
 RENDER_PORT = "4300"
 
 def update_base_path(path):

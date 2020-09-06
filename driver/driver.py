@@ -6,7 +6,7 @@ import shlex
 from fs_helpers import *
 from config import *
 from color_scheme import print_dir, get_prompt
-from process_manager import reap_pid, open_default, spawn_quiet, run
+from process_manager import reap_pid, open_default, spawn, spawn_quiet, run
 from argparser import *
 
 args = get_driver_args(sys.argv[1:])
@@ -181,6 +181,7 @@ Type help or ? for a list of commands.
 		arglist.insert(0, SERVER_EXE)
 
 		# Start the file server
+		print(arglist)
 		pid = spawn_quiet(arglist)
 		# Serve the UI
 		pid2 = spawn_quiet(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE])
