@@ -95,7 +95,7 @@ Type help or ? for a list of commands.
 	def do_create(self, args):
 		arglist = shlex.split(args)
 
-		args = get_create_opts(arglist)
+		args = get_create_args(arglist)
 		if not args.filter and not args.note:
 			invalid("Must specify -f or -n")
 			return
