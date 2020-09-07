@@ -39,9 +39,11 @@ export class FileAccessAPIService {
 	async _fetchDirList()
 	{
 		let dirlist;
-		await fetch(this.host + this._getQueryParams({modify: false})).then((data) => { 
+		await fetch(this.host + this._getQueryParams({modify: false}))
+		.then((data) => { 
 			return data.json();
-		}).then((json) => {
+		})
+		.then((json) => {
 			console.log("Rerieved response for dirlist")
 			this.rootDir.dirlist = json.dirs;
 			this.rootDir.lastModifiedTime = json.modifyTime;
@@ -51,13 +53,16 @@ export class FileAccessAPIService {
 
 	async _fetchFile(fileName)
 	{
-		await fetch(this.host + fileName + this._getQueryParams({modify: false})).then((data) => {
+		await fetch(this.host + fileName + this._getQueryParams({modify: false}))
+		.then((data) => {
 			return data.json();
-		}).then((json) => {
+		})
+		.then((json) => {
 			this.activeFile.activeFileText = json.fileData;
 			this.activeFile.lastModifiedTime = json.modifyTime;
 			this.publishCodeEvent(fileName);
-		}).catch((e) => 
+		})
+		.catch((e) => 
 		{
 			this._fetchDirList();
 		});
@@ -65,24 +70,32 @@ export class FileAccessAPIService {
 
 	async _checkFileModified()
 	{
-		if (this.activeFile.activeFileURI)
+		console.log("|" + this.activeFile.activeFileURI + "|");
+		if (this.activeFile.activeFileURI != "")
 		{
-			await fetch(this.host + this.activeFile.activeFileURI + this._getQueryParams({modify: true})).then((data) => {
+			await fetch(this.host + this.activeFile.activeFileURI + this._getQueryParams({modify: true}))
+			.then((data) => {
 				return data.text()
-			}).then((text) => {
+			})
+			.then((text) => {
 				if (text != this.activeFile.lastModifiedTime) 
 				{
 					this._fetchFile(this.activeFile.activeFileURI); // File was Modified
 				}
+			})
+			.catch((e) => {
+				console.log("Failed to check for active file modifications", e)
 			});
 		}
 	}
 
 	async _checkDirListModified()
 	{
-		await fetch(this.host + this._getQueryParams({modify: true})).then((data) => {
+		await fetch(this.host + this._getQueryParams({modify: true}))
+		.then((data) => {
 			return data.text()
-		}).then((text) => {
+		})
+		.then((text) => {
 			console.log("Checking Dir List : lastModifiedTime: " + text);
 			console.log("Old Last Modified Time: " + this.rootDir.lastModifiedTime);
 			if (text != this.rootDir.lastModifiedTime) 
@@ -90,6 +103,9 @@ export class FileAccessAPIService {
 				console.log("different last modified time")
 				this._fetchDirList(); // DirTree was Modified
 			}
+		})
+		.catch((e) => {
+			console.log("Failed to check for Dir Tree modifications", e)
 		});
 	}
 
