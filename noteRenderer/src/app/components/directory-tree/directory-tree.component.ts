@@ -43,11 +43,12 @@ export class DirectoryTreeComponent implements OnInit
 		if (this.fileDescriptor == undefined || !(this.fileDescriptor instanceof Array))
 		{
 			this.isDirectory = false;
-			this.iconClasses = "fas fa-file";
+			this.iconClasses = "fas fa-file file-color";
 		} 
 		else 
 		{
 			this.isDirectory = true;
+			this.iconClasses = "fas fa-folder dir-color";
 		}
 	}
 
@@ -66,13 +67,13 @@ export class DirectoryTreeComponent implements OnInit
 
 		if (this.isDirectory && !this.isOpen) 
 		{
-			this.iconClasses = "fas fa-folder-open";
+			this.iconClasses = "fas fa-folder-open dir-color";
 			this.isOpen = true;
 			this.dropdownClasses = "children-dropdown show";
 		}
 		else if (this.isDirectory && this.isOpen)
 		{
-			this.iconClasses = "fas fa-folder";
+			this.iconClasses = "fas fa-folder dir-color";
 			this.isOpen = false;
 			this.dropdownClasses = "hidden";
 		}
