@@ -179,16 +179,24 @@ Type help or ? for a list of commands.
 	def do_render(self, args):
 		arglist = shlex.split(args)
 		arglist.insert(0, SERVER_EXE)
+		args = get_render_args(arglist)
 
 		# Start the file server
 		print(arglist)
 		pid = spawn_quiet(arglist)
-		# Serve the UI
-		pid2 = spawn_quiet(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE])
-		reap_pid([pid, pid2])
-		open_default("http://localhost:" + RENDER_PORT)
+		reap_pid([pid])
 		print("Server PID: ", pid)
-		print("UI PID: ", pid2)
+
+		# Serve the UI
+		if args.debug:
+			pid2 = spawn_quiet(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE])
+			reap_pid([pid2])
+			open_default("http://localhost:" + RENDER_PORT)
+			print("UI PID: ", pid2)
+		else:
+			open_default("https://davidpeet8.github.io/Note-Modules")
+		
+		
 
 	def do_build(self, args):
 		arglist = shlex.split(args)

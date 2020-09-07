@@ -65,14 +65,17 @@ export class FileAccessAPIService {
 
 	async _checkFileModified()
 	{
-		await fetch(this.host + this.activeFile.activeFileURI + this._getQueryParams({modify: true})).then((data) => {
-			return data.text()
-		}).then((text) => {
-			if (text != this.activeFile.lastModifiedTime) 
-			{
-				this._fetchFile(this.activeFile.activeFileURI); // File was Modified
-			}
-		});
+		if (this.activeFile.activeFileURI)
+		{
+			await fetch(this.host + this.activeFile.activeFileURI + this._getQueryParams({modify: true})).then((data) => {
+				return data.text()
+			}).then((text) => {
+				if (text != this.activeFile.lastModifiedTime) 
+				{
+					this._fetchFile(this.activeFile.activeFileURI); // File was Modified
+				}
+			});
+		}
 	}
 
 	async _checkDirListModified()

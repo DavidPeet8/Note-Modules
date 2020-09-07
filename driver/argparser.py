@@ -44,3 +44,9 @@ def get_search_args(arglist, default_files_path):
 	parser.add_argument('pattern', help="Pattern to search for")
 	parser.add_argument('files', nargs="*", default=default_files_path)
 	return parser.parse_args(arglist)
+
+def get_render_args(arglist):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-d', '--debug', action='store_true', help="Enter debug mode and host UI on localhost")
+	parser.add_argument('target', nargs="?")
+	return parser.parse_args(arglist)
