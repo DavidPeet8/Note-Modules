@@ -27,7 +27,7 @@ def get_ls_args(arglist):
 def get_remove_args(arglist):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-r', '--recursive', action="store_true", help="Recursively remove a directory")
-	parser.add_argument('-p', '--permenant', action="store_true", help="Remove all instances of target")
+	parser.add_argument('-p', '--permanent', action="store_true", help="Remove all instances of target")
 	parser.add_argument('paths', nargs="+", help="Targets to remove")
 	return  parser.parse_args(arglist)
 

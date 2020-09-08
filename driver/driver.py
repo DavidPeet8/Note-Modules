@@ -41,7 +41,7 @@ Type help or ? for a list of commands.
 
 	# should recieve no arguments
 	def do_init(self, arg):
-		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config", get_base_path() + "/.exe"])
+		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config"])
 		temp_chdir_run(get_base_path(), self.do_git, ["init"])
 
 
@@ -102,11 +102,11 @@ Type help or ? for a list of commands.
 		elif (args.filter and len(args.filter) < 1) or (args.note and len(args.note) < 1):
 			invalid("Both -f and -n require an argument")
 
-		if args.filter != None:
+		if args.filter:
 			for f in args.filter:
 				check_and_mkdir(f)
 			
-		if args.note != None:
+		if args.note:
 			for n in args.note:
 				if os.path.exists(get_flat_notes_path() + '/' + n):
 					print('A note of this name already exists in .flat_notes')
@@ -121,19 +121,20 @@ Type help or ? for a list of commands.
 
 	def do_remove(self, args):
 		arglist = shlex.split(args)
-		recursive = False
 		args = get_remove_args(arglist)
 
-		if args.recursive != None:
-			recursive = True
-		elif args.permanent != None:
-			temp_chdir_run(get_base_path(), self.perm_remove, args.paths)			
+		print(args.permanent)
+		
+		if args.permanent:
+			temp_chdir_run(get_base_path(), self.perm_remove, [args.paths])
+			return			
 
 		for rgx in args.paths:
+			print(rgx)
 			if os.path.exists(rgx):
 				if os.path.isdir(rgx) and not os.listdir(rgx): # is an empty directory
 					os.rmdir(rgx)
-				elif os.path.isdir(rgx) and recursive:
+				elif os.path.isdir(rgx) and args.recursive:
 					shutil.rmtree(rgx)
 				elif os.path.isfile(rgx):
 					os.remove(rgx)
@@ -155,7 +156,7 @@ Type help or ? for a list of commands.
 		args = get_add_args(shlex.split(args))
 
 		try:
-			if args.path != None:
+			if args.path:
 				temp_chdir_run(args.path, self.add_helper, [args.targets])					
 			else: 
 				self.add_helper(args.targets)
@@ -418,10 +419,12 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			os.link(get_flat_notes_path() + "/" + file, './' + file)
 
 	def perm_remove(self, arglist):
-		arr = os.scandir(".")
+		arr = os.scandir('.')
+		print(arglist)
+
 		for file in arr:
 			if file.is_dir():
-				temp_chdir_run(file.name, self.perm_remove, arglist)
+				temp_chdir_run(file.name, self.perm_remove, [arglist])
 			elif file.name in arglist:
 				self.do_remove(file.name)
 
@@ -438,7 +441,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 	def edit_files(self, arglist):
 		cmd = ""
 		args = get_edit_args(arglist)
-		if args.command != None:
+		if args.command:
 			cmd = args.command
 
 		for p in args.paths:
