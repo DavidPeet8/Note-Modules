@@ -9,6 +9,8 @@ from color_scheme import print_dir, get_prompt
 from process_manager import reap_pid, open_default, spawn, spawn_quiet, run
 from argparser import *
 
+hasStartedFileServer = False
+
 args = get_driver_args(sys.argv[1:])
 
 if args.path:
@@ -183,10 +185,13 @@ Type help or ? for a list of commands.
 		args = get_render_args(arglist)
 
 		# Start the file server
-		print(arglist)
-		pid = spawn_quiet(arglist)
-		reap_pid([pid])
-		print("Server PID: ", pid)
+		global hasStartedFileServer
+		if not hasStartedFileServer:
+			print(arglist)
+			pid = spawn_quiet(arglist)
+			reap_pid([pid])
+			print("Server PID: ", pid)
+			hasStartedFileServer = True;
 
 		# Serve the UI
 		if args.debug:
