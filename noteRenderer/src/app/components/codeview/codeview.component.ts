@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, ElementRef, ViewChild} from '@angular/core';
 import { FetchRenderEventBusService } from '@services/fetch-render-event-bus.service';
 import { FileAccessAPIService } from '@services/file-access-api.service';
-
+import { KatexOptions } from 'ngx-markdown';
+ 
 @Component({
   selector: 'app-codeview',
   templateUrl: './codeview.component.html',
@@ -15,6 +16,10 @@ export class CodeviewComponent implements OnInit {
 	@ViewChild('scrollContent') scrollContent;
 	@ViewChild('displayText') displayText;
 	renderContent: String = "";
+	options: KatexOptions = {
+		displayMode: false,
+		throwOnError: false
+	}
 	
 	constructor(private eventBus: FetchRenderEventBusService, private fileAPI: FileAccessAPIService) { }
 
