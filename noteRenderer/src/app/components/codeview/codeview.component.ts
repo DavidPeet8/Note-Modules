@@ -18,7 +18,10 @@ export class CodeviewComponent implements OnInit {
 	renderContent: String = "";
 	options: KatexOptions = {
 		displayMode: false,
-		throwOnError: false
+		throwOnError: false,
+		macros: {
+			//"\\floor"
+		}
 	}
 	
 	constructor(private eventBus: FetchRenderEventBusService, private fileAPI: FileAccessAPIService) { }
