@@ -7,7 +7,7 @@ from config import config, Config
 
 def pathExistsInCurrentDir(path):
 	pathArr = re.split('/', path)
-	currArr = config.currentDir.ls()
+	currArr = config.currentDir.ls_all()
 
 	for i in range(len(pathArr)):
 		matched = False
@@ -68,3 +68,4 @@ class RequestHandler(BaseHTTPRequestHandler):
 		self.setAccessControlHeaders();
 		self.end_headers()
 		self.wfile.write(encodedJson) # .encode() to treat as bytestring not obj
+

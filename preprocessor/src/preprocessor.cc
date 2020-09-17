@@ -166,7 +166,7 @@ void Preprocessor::build(const string &noteName)
 	if (shouldShortCircuit(note)) { return; }
 	cerr << "Building: " << noteName << std::endl;
 
-	static basic_regex pattern("\\[\\/\\/\\]\\s*:\\s*#\\s*\\(.*?\\)");
+	static basic_regex pattern("<!--.*?-->");
 	
 	note->visit();
 	ifstream in (baseNotesDir + "/.flat_notes/" + note->getName());
@@ -192,8 +192,11 @@ void Preprocessor::build(const string &noteName)
 			string matchedStr = match->str();
 			//cerr << "Command found\n" << matchedStr << end;
 			out << match->prefix() << end;
-			Cmd cmd = getCmd(matchedStr);
-			applyCmd(cmd, note, out);
+			vector<Cmd> cmds = getCmds(matchedStr);
+			for (const auto &cmd : cmds)
+			{
+				applyCmd(cmd, note, out);
+			}
 			if (match == matchEndItr) { out << match->suffix() << end; }
 		}
 	}
@@ -274,6 +277,11 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 			break;
 		}
 		case CmdType::LINK:
+			// Here we print out the proper link
+			for (const auto &target : cmd.getTargets())
+			{
+				curFileStream << "[" << fs::path(target).filename() << "]" << "(" << getLinkPath(target) << ") "; 
+			}
 			break;
 		case CmdType::NOBUILD:
 			curFile->setNoBuild();
@@ -284,6 +292,12 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 	}
 }
 
+
+const string Preprocessor::getLinkPath(const string &target)
+{
+	return string("/Note-Modules/#/note/build/.flat_notes/") + string(fs::path(target).filename());
+}
+
 void Preprocessor::copyBuiltFile(ostream &curFileStream, const string &srcName)
 {
 	// append the contents of the built note with name noteToAppend to the currentFileStream
@@ -291,29 +305,63 @@ void Preprocessor::copyBuiltFile(ostream &curFileStream, const string &srcName)
 	curFileStream << source.rdbuf(); // send the entire contents of source
 }
 
-Preprocessor::Cmd Preprocessor::getCmd(const string &rawCommand)
+vector<Preprocessor::Cmd> Preprocessor::getCmds(const string &rawCommand)
 {
-	size_t pos = rawCommand.find('(');
-	string partialCmd = rawCommand.substr(pos + 1, rawCommand.length() - pos - 2);
-	bool seenCmd = false;
-	int cmdLen = -1;
+	uint cmdStart = 0;
+	uint cmdEnd = 0;
+	uint nestLevel = 0;
+	vector<Cmd> commands = {};
 
-	for (int i = 0; i < partialCmd.length(); i++)
+	for (int i = 0; i < rawCommand.length(); ++i)
 	{
-		if (isspace(partialCmd[i]) && seenCmd) 
+		if (rawCommand[i] == '[') 
 		{
-			cmdLen = i;
-			break;
+			if (nestLevel == 0) { cmdStart = i; }
+			++nestLevel;
 		}
-		else if (!isspace(partialCmd[i]))
+		else if (rawCommand[i] == ']')
 		{
-			seenCmd = true;
+			--nestLevel;
+			if (nestLevel == 0) 
+			{ 
+				cmdEnd = i; 
+				commands.emplace_back(getCmd(rawCommand, cmdStart + 1, cmdEnd)); // add one to start to avoid passing [
+			}
 		}
 	}
 
-	const string targets = (cmdLen < partialCmd.length() && cmdLen > 0) ? partialCmd.substr(cmdLen, partialCmd.length() - cmdLen) : "";
+	return commands;
+}
 
-	return Cmd(strToCmdType(partialCmd.substr(0, cmdLen)), targets);
+Preprocessor::Cmd Preprocessor::getCmd(const string &cmd, uint startIdx, uint endIdx)
+{
+	string command  = "";
+	bool seen = false;
+	uint start = 0, end = 0;
+
+	for (int i = startIdx; i < endIdx; ++i)
+	{
+		if (seen && isspace(cmd[i]))
+		{
+			end = i;
+			if (command == "")
+			{
+				command = cmd.substr(start, end - start);
+			}
+		}
+		else if (!seen && !isspace(cmd[i]))
+		{
+			seen = true;
+			start = i;
+		}
+	}
+
+	if (seen && command == "") 
+	{
+		command = cmd.substr(start, endIdx - start);
+	}
+
+	return Cmd(strToCmdType(command), cmd.substr(end, endIdx - end));
 }
 
 Preprocessor::CmdType Preprocessor::strToCmdType(const string &str)
@@ -323,6 +371,21 @@ Preprocessor::CmdType Preprocessor::strToCmdType(const string &str)
 	else if (str == "nobuild") { return CmdType::NOBUILD; }
 
 	return CmdType::ERR;
+}
+
+string Preprocessor::cmdTypeToStr(const CmdType type)
+{
+	switch(type)
+	{
+		case CmdType::INCLUDE:
+			return "include";
+		case CmdType::LINK:
+			return "link";
+		case CmdType::NOBUILD:
+			return "nobuild";
+		default:
+			return "UNRECOGNIZED";
+	}
 }
 
 // There is a strange edge case where "  \n" does not create a line break if we have "**boldtxt**:  \n"

@@ -9,13 +9,14 @@ class WorkingDir:
 		os.chdir(path)
 		self.serveDir = path
 
-	def _ls(self, path):
+	def _ls(self, path, skipIfTrue):
 		results = [];
 		with os.scandir(path) as it:
 			for entry in it:
-				if  not entry.name.startswith('.'): 
+				if  not skipIfTrue(entry): 
+					print("ENTRY NAME IS: " + entry.name)
 					if entry.is_dir():
-						results.append([entry.name, self._ls(path+"/"+entry.name)])
+						results.append([entry.name, self._ls(path+"/"+entry.name, skipIfTrue)])
 					elif entry.is_file():
 						results.append(entry.name)
 		return results
@@ -25,9 +26,12 @@ class WorkingDir:
 		return os.path.getmtime(path)
 
 	def ls(self):
-		dirlist = self._ls('.')
+		dirlist = self._ls('.', lambda x: x.name.startswith('.'))
 		return dirlist
 
+	def ls_all(self):
+		dirlist = self._ls('.', lambda x: False)
+		return dirlist
 
 	def cat(self, path):
 		# try:

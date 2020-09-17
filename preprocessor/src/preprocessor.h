@@ -43,8 +43,6 @@ public:
 		CmdType getType() const { return type; }
 		const std::vector<std::string> &getTargets() const { return targets; }
 
-
-		bool operator==(const CmdType otherType) { return type == otherType; }
 	};
 
 	// Force the argument to be moved in 
@@ -53,9 +51,10 @@ public:
 	// Build the next nonvisited file in the file list
 	void build ();
 
-	static Cmd getCmd(const std::string &rawCommand);
+	static std::vector<Cmd> getCmds(const std::string &rawCommand);
 
 	static CmdType strToCmdType(const std::string &);
+	static std::string cmdTypeToStr(const CmdType);
 
 private:
 	// Build designated file recursively
@@ -72,6 +71,10 @@ private:
 	bool isBoldColonCase(const std::string &line);
 
 	void addToFilesList(std::unordered_map<std::string, std::unique_ptr<File>>::iterator &, const std::string &);
+
+	static Cmd getCmd(const std::string &, uint, uint);
+
+	const std::string getLinkPath(const std::string &);
 };
 
 #endif

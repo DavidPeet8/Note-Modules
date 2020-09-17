@@ -229,7 +229,8 @@ Type help or ? for a list of commands.
 
 			# Sort deep search results by number of occurances
 			for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
-				print("["+ key + ", " + str(value) + "]")
+				if value > 0:
+					print("["+ key + ", " + str(value) + "]")
 
 		elif args.pattern: # Search only by file name
 			self.search_dir_names(args.pattern, args.files)

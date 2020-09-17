@@ -105,10 +105,10 @@ TEST_F(PreprocessorTest, CmdParsesQuoteStringAtEndArgString)
 
 TEST_F(PreprocessorTest, ParsesRawCommand)
 {
-	Preprocessor::Cmd cmd = Preprocessor::getCmd("[//]:#(include other arguments \"this is all one arg\")");
-	EXPECT_EQ(cmd.getType(), Preprocessor::CmdType::INCLUDE);
-	const auto & targets = cmd.getTargets();
-	const std::vector<std::string> expected {"other", "arguments", "this is all one arg"};
+	std::vector<Preprocessor::Cmd> cmds = Preprocessor::getCmds("<!-- [include other arguments \"This is one arg\"]");
+	EXPECT_EQ(cmds[0].getType(), Preprocessor::CmdType::INCLUDE);
+	const auto & targets = cmds[0].getTargets();
+	const std::vector<std::string> expected {"other", "arguments", "This is one arg"};
 
 	if (expected.size() != targets.size()) 
 	{
