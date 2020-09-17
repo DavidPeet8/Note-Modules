@@ -15,7 +15,7 @@ class Preprocessor
 {
 	
 public:
-	enum CmdType { INCLUDE = 0, LINK, NOBUILD, ERR };
+	enum CmdType { INCLUDE = 0, LINK, NOBUILD, IMG, ERR };
 	enum DFAState { START = 0, LEADINGWS, STARTQUOTE, MIDQUOTE, ENDQUOTE, MIDNORM, ERROR };
 	enum CharType { WHITESPACE = 0, QUOTE, OTHER };
 

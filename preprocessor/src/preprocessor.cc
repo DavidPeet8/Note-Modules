@@ -286,6 +286,9 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 		case CmdType::NOBUILD:
 			curFile->setNoBuild();
 			break;
+		case CmdType::IMG:
+			// Handle an image tag here
+			break;
 		case CmdType::ERR:
 			cerr << "[ WARN ]: Command not recognized, ignoring." << endl;
 			break;	
@@ -295,6 +298,7 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 
 const string Preprocessor::getLinkPath(const string &target)
 {
+	// This is horrible I should really fix this
 	return string("/Note-Modules/#/note/build/.flat_notes/") + string(fs::path(target).filename());
 }
 
@@ -369,6 +373,7 @@ Preprocessor::CmdType Preprocessor::strToCmdType(const string &str)
 	if (str == "include") { return CmdType::INCLUDE; }
 	else if (str == "link") { return CmdType::LINK; }
 	else if (str == "nobuild") { return CmdType::NOBUILD; }
+	else if (str == "image") { return CmdType::IMG; }
 
 	return CmdType::ERR;
 }
@@ -383,6 +388,8 @@ string Preprocessor::cmdTypeToStr(const CmdType type)
 			return "link";
 		case CmdType::NOBUILD:
 			return "nobuild";
+		case CmdType::IMG:
+			return "image";
 		default:
 			return "UNRECOGNIZED";
 	}
