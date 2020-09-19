@@ -43,7 +43,7 @@ Type help or ? for a list of commands.
 
 	# should recieve no arguments
 	def do_init(self, arg):
-		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config", get_base_path() + "/assets"])
+		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config", get_base_path() + "/.assets"])
 		temp_chdir_run(get_base_path(), self.do_git, ["init"])
 
 

@@ -75,6 +75,8 @@ private:
 	static Cmd getCmd(const std::string &, uint, uint);
 
 	const std::string getLinkPath(const std::string &);
+	const std::string makeURL(const std::string &);
+
 };
 
 #endif

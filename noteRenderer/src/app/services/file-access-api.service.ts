@@ -39,7 +39,7 @@ export class FileAccessAPIService {
 	async _fetchDirList()
 	{
 		let dirlist;
-		await fetch(this.host + this._getQueryParams({modify: false}))
+		await fetch(this.host + "/dirtree")
 		.then((data) => { 
 			return data.json();
 		})
@@ -53,7 +53,7 @@ export class FileAccessAPIService {
 
 	async _fetchFile(fileName)
 	{
-		await fetch(this.host + fileName + this._getQueryParams({modify: false}))
+		await fetch(this.host + "/note" + fileName)
 		.then((data) => {
 			return data.json();
 		})
@@ -73,7 +73,7 @@ export class FileAccessAPIService {
 		console.log("|" + this.activeFile.activeFileURI + "|");
 		if (this.activeFile.activeFileURI != "")
 		{
-			await fetch(this.host + this.activeFile.activeFileURI + this._getQueryParams({modify: true}))
+			await fetch(this.host + '/status/note' + this.activeFile.activeFileURI)
 			.then((data) => {
 				return data.text()
 			})
@@ -91,7 +91,7 @@ export class FileAccessAPIService {
 
 	async _checkDirListModified()
 	{
-		await fetch(this.host + this._getQueryParams({modify: true}))
+		await fetch(this.host + "status/dirtree")
 		.then((data) => {
 			return data.text()
 		})
@@ -108,12 +108,6 @@ export class FileAccessAPIService {
 			console.log("Failed to check for Dir Tree modifications", e)
 		});
 	}
-
-	_getQueryParams(data): String
-	{
-		return '?modify='+ data.modify;
-	}
-
 
 	// ----------------------------PUBLIC INTERFACE -------------------------------
 

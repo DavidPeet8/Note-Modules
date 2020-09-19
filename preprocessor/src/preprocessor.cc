@@ -287,7 +287,11 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 			curFile->setNoBuild();
 			break;
 		case CmdType::IMG:
-			// Handle an image tag here
+			for (const auto &target : cmd.getTargets())
+			{
+				// curFileStream << "![" << fs::path(target).filename() << "](" << makeURL(target) << ") ";
+				curFileStream << "<img class=\"md-img\" width=\"40%\" src=\"" << makeURL(target) << "\"/>";
+			}
 			break;
 		case CmdType::ERR:
 			cerr << "[ WARN ]: Command not recognized, ignoring." << endl;
@@ -300,6 +304,25 @@ const string Preprocessor::getLinkPath(const string &target)
 {
 	// This is horrible I should really fix this
 	return string("/Note-Modules/#/note/build/.flat_notes/") + string(fs::path(target).filename());
+}
+
+const string Preprocessor::makeURL(const string &target)
+{
+	static basic_regex pattern("https?://.*?");
+
+	const auto matchBeginItr = sregex_iterator(target.begin(), target.end(), pattern);
+	const auto matchEndItr = sregex_iterator();
+
+	if (matchBeginItr == matchEndItr)
+	{
+		// Assume you are reffering to a local file
+		return string("http://localhost:8000/image/") + target;
+	} 
+	else 
+	{
+		// Assume that you put in a url properly
+		return target;
+	}
 }
 
 void Preprocessor::copyBuiltFile(ostream &curFileStream, const string &srcName)

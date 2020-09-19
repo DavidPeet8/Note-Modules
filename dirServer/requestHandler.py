@@ -2,7 +2,7 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import json, re
 
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, Response
 
 from config import config, Config
 
@@ -55,13 +55,13 @@ def get_note(note_path):
 		return setAccessControlHeaders(resp)
 
 
-@app.route('/status/note/', methods=['GET'])
-def get_note_updates():
-	resp = flask.Response(str(config.currentDir.modifyTime('./' + url.path[1:])))
-	return resp
+@app.route('/status/note/<path:note_path>', methods=['GET'])
+def get_note_updates(note_path):
+	resp = Response(str(config.currentDir.modifyTime('./' + note_path)))
+	return setAccessControlHeaders(resp)
 
 
-@app.route('/dirtree/', methods=['GET'])
+@app.route('/dirtree', methods=['GET'])
 def get_dir_tree():
 	basePathForRequest = './'
 	contents = config.currentDir.ls()
@@ -72,11 +72,13 @@ def get_dir_tree():
 	return setAccessControlHeaders(resp)
 
 
-@app.route('/status/dirtree/', methods=['GET'])
+@app.route('/status/dirtree', methods=['GET'])
 def get_dir_tree_updates():
-	return flask.Response("")
+	resp = Response("")
+	return setAccessControlHeaders(resp)
 
 @app.route('/image/<string:image_name>', methods=['GET'])
 def get_image(image_name):
 	basePathForRequest = config.serveDir + '.assets/'
-	return send_file(basePathForRequest + image_name, mimetype='image/gif')
+	resp = send_file(basePathForRequest + image_name, mimetype='image/gif')
+	return setAccessControlHeaders(resp)
