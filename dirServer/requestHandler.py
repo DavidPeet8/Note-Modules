@@ -1,12 +1,14 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import json
-import re
+import json, re
+
+from flask import Flask, request, jsonify, send_file
 
 from config import config, Config
 
-def pathExistsInCurrentDir(path):
-	pathArr = re.split('/', path)
+app = Flask(__name__)
+
+def pathExistsInCurrentDir(pathArr):
 	currArr = config.currentDir.ls_all()
 
 	for i in range(len(pathArr)):
@@ -22,50 +24,59 @@ def pathExistsInCurrentDir(path):
 		if matched == False: 
 			return False
 
-class RequestHandler(BaseHTTPRequestHandler):
 	
-	def setAccessControlHeaders(self):
-		self.send_header("Access-Control-Allow-Origin", "*")
-		self.send_header("Access-Control-Allow-Methods", "GET")
-		self.send_header("Access-Control-Allow-Headers", "*")
-		self.send_header("Access-Control-Expose-Headers", "*")
-		self.send_header("Access-Control-Allow-Credentials", "true")
+def setAccessControlHeaders(resp):
+	resp.headers["Access-Control-Allow-Origin"] = "*"
+	resp.headers["Access-Control-Allow-Methods"] = "GET"
+	resp.headers["Access-Control-Allow-Headers"] = "*"
+	resp.headers["Access-Control-Expose-Headers"] = "*"
+	resp.headers["Access-Control-Allow-Credentials"] = "true"
+	return resp
 
-	def do_HEAD(self):
-		self.send_response(200)
-		self.setAccessControlHeaders()
-		self.end_headers()
 
-	def do_GET(self):
-		encodedJson = ""
-		responseStatus = 200;
-		url = urlparse(self.path)
+def start_rest_api(_host, _port):
+	app.run(host=_host, port=_port)
 
-		if url.query == 'modify=true':
-			# We are looking for modification times not actual data
-			# Exists to reduce polling payload size
-			encodedJson = str(config.currentDir.modifyTime('./' + url.path[1:])).encode()
 
-		elif (url.path == "/"):
-			contents = config.currentDir.ls()
-			encodedJson = json.dumps({
-				'dirs': contents,
-				'modifyTime': config.currentDir.modifyTime(".")
-			}).encode()
-		elif pathExistsInCurrentDir(url.path[1:]):
-			print(url.path[1:])
-			encodedJson = json.dumps({
-				'fileData': config.currentDir.cat(url.path[1:]), 
-				'modifyTime': config.currentDir.modifyTime(url.path[1:])
-			}).encode();
-		else: 
-			# prefix with b so it is treated as a bytestring not a string obj
-			encodedJson = b"Cannot find requested file"
-			responseStatus = 404
+def start_rest_api_for_debug(host, port):
+	app.run(debug=True, host=_host, port=_port)
 
-		self.send_response(responseStatus)
-		self.send_header("Content-type", "text/json")
-		self.setAccessControlHeaders();
-		self.end_headers()
-		self.wfile.write(encodedJson) # .encode() to treat as bytestring not obj
+@app.route('/note/', defaults={'note_path': ''})
+@app.route('/note/<path:note_path>', methods=['GET'])
+def get_note(note_path):
+	url = re.split('/', note_path)
 
+	if pathExistsInCurrentDir(url):
+		resp = jsonify({
+			'fileData': config.currentDir.cat(note_path), 
+			'modifyTime': config.currentDir.modifyTime(note_path)
+		})
+
+		return setAccessControlHeaders(resp)
+
+
+@app.route('/status/note/', methods=['GET'])
+def get_note_updates():
+	resp = flask.Response(str(config.currentDir.modifyTime('./' + url.path[1:])))
+	return resp
+
+
+@app.route('/dirtree/', methods=['GET'])
+def get_dir_tree():
+	basePathForRequest = './'
+	contents = config.currentDir.ls()
+	resp = jsonify({
+		'dirs': contents,
+		'modifyTime': config.currentDir.modifyTime(basePathForRequest)
+	})
+	return setAccessControlHeaders(resp)
+
+
+@app.route('/status/dirtree/', methods=['GET'])
+def get_dir_tree_updates():
+	return flask.Response("")
+
+@app.route('/image/<string:image_name>', methods=['GET'])
+def get_image(image_name):
+	basePathForRequest = config.serveDir + '.assets/'
+	return send_file(basePathForRequest + image_name, mimetype='image/gif')

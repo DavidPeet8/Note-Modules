@@ -6,7 +6,6 @@ class HTTPServer: pass
 class Config:
 	hostName = "localhost"
 	port = 8000
-	webServer = None
 	serveDir = os.path.expanduser("~/.notes/")
 	currentDir = WorkingDir()
 

@@ -14,7 +14,6 @@ class WorkingDir:
 		with os.scandir(path) as it:
 			for entry in it:
 				if  not skipIfTrue(entry): 
-					print("ENTRY NAME IS: " + entry.name)
 					if entry.is_dir():
 						results.append([entry.name, self._ls(path+"/"+entry.name, skipIfTrue)])
 					elif entry.is_file():
@@ -41,3 +40,6 @@ class WorkingDir:
 		return text
 		# except:
 		#  	print("Permission Error")
+
+	def cwd(self):
+		return os.cwd()

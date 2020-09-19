@@ -1,15 +1,11 @@
 #!/usr/bin/python3
 
-from http.server import HTTPServer
 import os, atexit, time
 import sys, argparse
 from config import config, Config
 from workingDir import WorkingDir
-from requestHandler import RequestHandler
+from requestHandler import start_rest_api
 
-def stopServer():
-	print ("Closing HTTP Server on port: " + str(config.port))
-	config.webServer.server_close()
 
 def printHelp():
 	print ("Options:")
@@ -33,17 +29,13 @@ def main(argv):
 		return
 	if args.port:
 		config.port = args.port
-		print ("Set port: " + args.port)
+		print ("Set port: " + str(args.port))
 	if args.dir:
 		config.serveDir = os.path.expanduser(args.dir)
 		print("Set serve path: " + args.dir)
 
 	config.currentDir.cd(config.serveDir)
-	
-	config.webServer = HTTPServer((config.hostName, config.port), RequestHandler)
-	print("Serving at port", config.port)
-	atexit.register(stopServer)
-	config.webServer.serve_forever()
+	start_rest_api(config.hostName, config.port)	
 
 main(sys.argv[1:])
 
