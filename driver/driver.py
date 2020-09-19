@@ -124,15 +124,12 @@ Type help or ? for a list of commands.
 	def do_remove(self, args):
 		arglist = shlex.split(args)
 		args = get_remove_args(arglist)
-
-		print(args.permanent)
 		
 		if args.permanent:
 			temp_chdir_run(get_base_path(), self.perm_remove, [args.paths])
 			return			
 
 		for rgx in args.paths:
-			print(rgx)
 			if os.path.exists(rgx):
 				if os.path.isdir(rgx) and not os.listdir(rgx): # is an empty directory
 					os.rmdir(rgx)
