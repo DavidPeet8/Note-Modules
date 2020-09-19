@@ -43,7 +43,7 @@ Type help or ? for a list of commands.
 
 	# should recieve no arguments
 	def do_init(self, arg):
-		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config"])
+		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config", get_base_path() + "/assets"])
 		temp_chdir_run(get_base_path(), self.do_git, ["init"])
 
 
@@ -307,13 +307,16 @@ Type help or ? for a list of commands.
 		return self.file_dir_complete(text, line, startIdx, endIdx)
 
 	def complete_rm(self, text, line, startIdx, endIdx):
-		return self.file_dir_complete(text, line, startIdx, endIdx)
+		return self.complete_remove(text, line, startIdx, endIdx)
 
 	def complete_rename(self, text, line, startIdx, endIdx):
 		return self.file_dir_complete(text, line, startIdx, endIdx)
 
 	def complete_edit(self, text, line, startIdx, endIdx):
 		return self.file_dir_note_complete(text, line, startIdx, endIdx)
+
+	def complete_mv(self, text, line, startIdx, endIdx):
+		return self.file_dir_complete(text, line, startIdx, endIdx)
 
 	# ---------------- DOCS --------------------
 
@@ -520,7 +523,8 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 	def note_complete(self, text, line, startIdx, endIdx):
 		if text:
 			return [
-				os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/")
+				os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/") 
+				if entry.name.startswith(os.path.basename(text))
 			]
 		else:
 			print(os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/"))
