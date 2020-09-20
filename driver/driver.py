@@ -237,7 +237,6 @@ Type help or ? for a list of commands.
 
 	def do_cp(self, args):
 		arglist = shlex.split(args)
-		print(arglist)
 		if len(arglist) != 2: 
 			print("Incorrect number of arguments")
 			return
@@ -426,7 +425,6 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 
 	def perm_remove(self, arglist):
 		arr = os.scandir('.')
-		print(arglist)
 
 		for file in arr:
 			if file.is_dir():
