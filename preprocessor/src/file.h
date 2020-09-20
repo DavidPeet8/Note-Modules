@@ -22,7 +22,9 @@ public:
 	void visit() 
 	{ 
 		visited = true; 
-		prev->setNext(next); // Non owning no delete needed
+		// Non owning no delete needed
+		prev->setNext(next); 
+		next->setPrev(prev); 
 	}
 	bool isVisited() const { return visited; }
 	void setPrev(File * file) {	prev = file; }

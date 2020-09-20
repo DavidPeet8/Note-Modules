@@ -31,7 +31,7 @@ baseNotesPath(fs::path(argv[1]).string()), filesToProcess()
 
 void Args::initFileList(int argc, const char * const * const argv)
 {
-	cerr << "Initializing from provided file list" << endl;
+	cerr << "[ INFO ]: Initializing from provided file list" << endl;
 
 	// Set hashtable size to be argc^2 to attempt to minimize probability of collision
 	filesToProcess.reserve(pow(argc, 2));
@@ -54,7 +54,7 @@ void Args::initFileList(int argc, const char * const * const argv)
 
 void Args::initNoFileList()
 {
-	cerr << "Initializing from no file list" << endl; 
+	cerr << "[ WARN ]: No files specified defaulting to initializing from no file list" << endl; 
 
 	fs::directory_iterator dirit(baseNotesPath + "/.flat_notes");
 	File * prev = nullptr; // Non-owning ref

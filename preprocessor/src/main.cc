@@ -20,11 +20,17 @@ int main(int argc, char **argv)
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
+
+	if (argc < 2) 
+	{
+		cerr << "Not Enough arguments" << endl;
+		return 0;
+	}
 	
 	Args a(argc, argv);
 	auto &fileList = a.getMap(); // List of files to preprocess	
 	// a.printDirList();
 
-	Preprocessor preproc(move(fileList), a.getBaseNotesPath());
+	Preprocessor preproc(fileList, a.getBaseNotesPath());
 	preproc.build();
 }

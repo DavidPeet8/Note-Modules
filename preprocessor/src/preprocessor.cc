@@ -106,30 +106,30 @@ Preprocessor::Cmd::Cmd(const CmdType type, const string targetsStr): type{type}
 
 // ------------------- PREPROCESSOR -----------------------
 
-Preprocessor::Preprocessor(unordered_map<string, unique_ptr<File>> fl, const string notesDir): 
-fileList{move(fl)}, baseNotesDir{move(notesDir)} 
+Preprocessor::Preprocessor(unordered_map<string, unique_ptr<File>> &fl, const string notesDir): 
+fileList{fl}, baseNotesDir{move(notesDir)} 
 {}
 
 // API Build function
 void Preprocessor::build()
 {
-	cerr << "Initiating build..." << endl;
+	cerr << "[ INFO ]: Initiating build ..." << endl;
 	// Setup the build directory 
 
 	int status = mkdir((baseNotesDir + "/build").c_str(), S_IRWXU);
 	status = mkdir((baseNotesDir + "/build/.flat_notes").c_str(), S_IRWXU);
 
 	// Loop over not visited notes
-	auto itr = fileList.begin();
-	File *file = itr->second.get();
+	File *file = fileList.begin()->second.get();
 	
 	while (!file->isVisited())
 	{
+		cerr << "[ INFO ]: Starting build for " << file->getName() << endl;
 		build(file->getName());
 		file = file->getNext();
 	}
 
-	cerr << "Linking" << endl;
+	cerr << "[ INFO ]: Build completed, Initiating linking step" << endl;
 	linkBuiltFiles(fs::absolute(baseNotesDir), ""); // Must pass absolute path
 }
 
@@ -163,12 +163,16 @@ void Preprocessor::build(const string &noteName)
 	}
 
 	File *note = itr->second.get();
-	if (shouldShortCircuit(note)) { return; }
-	cerr << "Building: " << noteName << std::endl;
+	if (shouldShortCircuit(note)) 
+	{
+		cerr << "[ INFO ]: File is cached and already built, skipping." << endl;
+		return; 
+	}
+	cerr << "[ INFO ]: " << noteName << " is not cached, building now" << std::endl;
 
 	static basic_regex pattern("<!--.*?-->");
 	
-	note->visit();
+	note->visit(); // Visit the node and remove it from the linked list of unvisited files
 	ifstream in (baseNotesDir + "/.flat_notes/" + note->getName());
 	ofstream out (baseNotesDir + "/build/.flat_notes/" + note->getName());
 	string line = "";
@@ -221,11 +225,10 @@ void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail
 		if (name[0] == '.' || name == "build") { continue; }
 		if (item.is_directory())
 		{
-			cerr << "Item is a directory with mirrorPath: " << mirrorPath << endl;
 			// Create the corresponding directory under 
 			if (!fs::exists(mirrorPath))
 			{
-				cerr << "Directory created" << endl;
+				cerr << "[ INFO ]: Directory created: " << mirrorPath << endl;
 				fs::create_directory(mirrorPath);
 			}
 			linkBuiltFiles(basePath, pathTail + "/" + name); // Recursively process next dir
@@ -269,7 +272,7 @@ void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStrea
 			const auto & targets = cmd.getTargets();
 			for (const auto &target : targets)
 			{
-				cerr << "Recursively Building target " << target << endl;
+				cerr << "[ INFO ]: Recursively Building target " << target << endl;
 				build(target); // Recursively build each target to include in order
 				// Copy build contents into the current file inline
 				copyBuiltFile(curFileStream, target);

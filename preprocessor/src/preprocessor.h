@@ -21,7 +21,7 @@ public:
 
 private:
 	// Store a list of files to preprocess
-	std::unordered_map<std::string, std::unique_ptr<File>> fileList;
+	std::unordered_map<std::string, std::unique_ptr<File>> &fileList;
 	const std::string baseNotesDir;
 
 	// Store a cache of files that already have been processed - indicate 
@@ -46,7 +46,7 @@ public:
 	};
 
 	// Force the argument to be moved in 
-	Preprocessor(std::unordered_map<std::string, std::unique_ptr<File>> filesToProcess, const std::string baseNotesDir);
+	Preprocessor(std::unordered_map<std::string, std::unique_ptr<File>> &filesToProcess, const std::string baseNotesDir);
 	
 	// Build the next nonvisited file in the file list
 	void build ();
