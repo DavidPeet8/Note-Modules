@@ -43,7 +43,7 @@ void search(const string & basePath, const string &pattern, const bool deep_sear
 				if (occur < 1) { continue; }
 				else if (results.find(fileName) != results.end())
 				{
-					++results[fileName];
+					results[fileName] += occur;
 				}
 				else 
 				{
@@ -59,7 +59,7 @@ void print_results(const unordered_map<string, uint> &results)
 	cerr << "Printing Results" << endl;
 	for (const auto &p: results)
 	{
-		cout << p.first << " | " << p.second << "\n";
+		cout << p.first << " " << p.second << "\n";
 	}
 	cout << flush;
 }
@@ -70,10 +70,10 @@ int main(int argc, char **argv)
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 
-	if (argc != 4) { return 1; }
+	if (argc < 3) { return 1; }
 	const string basePath = argv[1];
 	const string pattern = argv[2];
-	const bool deep_search = argv[3];
+	const bool deep_search = argc >= 4;
 
 	unordered_map<string, uint> results {};
 	search(basePath, pattern, deep_search, results);
