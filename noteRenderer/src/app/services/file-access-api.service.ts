@@ -70,7 +70,6 @@ export class FileAccessAPIService {
 
 	async _checkFileModified()
 	{
-		console.log("|" + this.activeFile.activeFileURI + "|");
 		if (this.activeFile.activeFileURI != "")
 		{
 			await fetch(this.host + '/status/note' + this.activeFile.activeFileURI)
@@ -91,12 +90,12 @@ export class FileAccessAPIService {
 
 	async _checkDirListModified()
 	{
-		await fetch(this.host + "status/dirtree")
+		await fetch(this.host + "/status/dirtree")
 		.then((data) => {
 			return data.text()
 		})
 		.then((text) => {
-			console.log("Checking Dir List : lastModifiedTime: " + text);
+			console.log("Checking Dir List - lastModifiedTime: " + text);
 			console.log("Old Last Modified Time: " + this.rootDir.lastModifiedTime);
 			if (text != this.rootDir.lastModifiedTime) 
 			{
@@ -133,5 +132,16 @@ export class FileAccessAPIService {
 	{
 		this.publishDirEvent = publishMethods.dirEvent;
 		this.publishCodeEvent = publishMethods.codeEvent;
+	}
+
+	async doSearch(searchTerm, callback)
+	{
+		await fetch(this.host + "/search/" + searchTerm, { method: 'POST' })
+		.then((data) => {
+			return data.json();
+		})
+		.then((json) => {
+			callback(json);
+		});
 	}
 }

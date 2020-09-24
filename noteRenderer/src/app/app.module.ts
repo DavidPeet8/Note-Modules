@@ -3,6 +3,7 @@ import { NgModule, SecurityContext } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { MarkdownModule } from 'ngx-markdown';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,7 +16,8 @@ import { FetchRenderEventBusService } from '@services/fetch-render-event-bus.ser
 import { FileAccessAPIService } from '@services/file-access-api.service';
 
 import { MarkedOptions, MarkedRenderer } from 'ngx-markdown';
-import { HelpModalComponent } from './components/help-modal/help-modal.component'
+import { HelpModalComponent } from './components/help-modal/help-modal.component';
+import { SearchBarComponent } from './components/search-bar/search-bar.component'
 
 export function markedOptionsFactory(): MarkedOptions 
 {
@@ -98,6 +100,7 @@ export function markedOptionsFactory(): MarkedOptions
     DirectoryTreeComponent,
     RenderParentComponent,
     HelpModalComponent,
+    SearchBarComponent,
   ],
   imports: [
     BrowserModule,
@@ -113,6 +116,7 @@ export function markedOptionsFactory(): MarkedOptions
       }
     }),
     ServicesModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

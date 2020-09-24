@@ -1,0 +1,41 @@
+@import "mixins"
+
+.search-bar-container
+	display: flex
+	align-items: center
+	margin: 5px
+	background-color: white
+	color: $code-dark-grey
+	border-radius: 15px
+
+.search-bar
+	@include scaleProp(height, 20px, 25px, 30px, 30px, 35px)
+	width: 100%
+	border: none
+	background: transparent
+	margin-left: 10px
+	margin-right: 5px
+
+	&:focus
+		outline: none
+
+
+.submit
+	padding: 0 5px
+
+.button
+	border: none
+	background: $dark-grey
+	color: white
+	flex-grow: 0
+	border-radius: 100%
+	margin-right: 5px
+	@include scaleProp(height, 15px, 20px, 25px, 25px, 30px)
+	@include scaleProp(min-height, 15px, 20px, 25px, 25px, 30px)
+	@include scaleProp(max-height, 15px, 20px, 25px, 25px, 30px)
+	@include scaleProp(width, 15px, 20px, 25px, 25px, 30px)
+	@include scaleProp(min-width, 15px, 20px, 25px, 25px, 30px)
+	@include scaleProp(max-width, 15px, 20px, 25px, 25px, 30px)
+
+	&:focus
+		outline: none

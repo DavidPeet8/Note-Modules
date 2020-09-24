@@ -74,11 +74,17 @@ def get_dir_tree():
 
 @app.route('/status/dirtree', methods=['GET'])
 def get_dir_tree_updates():
-	resp = Response("")
+	resp = Response(str(config.currentDir.modifyTime(config.serveDir)))
 	return setAccessControlHeaders(resp)
 
 @app.route('/image/<string:image_name>', methods=['GET'])
 def get_image(image_name):
 	basePathForRequest = config.serveDir + '.assets/'
 	resp = send_file(basePathForRequest + image_name, mimetype='image/gif')
+	return setAccessControlHeaders(resp)
+
+@app.route('/search/<string:search_term>', methods=['POST'])
+def do_search(search_term):
+	print(search_term)
+	resp = Response("[]")
 	return setAccessControlHeaders(resp)
