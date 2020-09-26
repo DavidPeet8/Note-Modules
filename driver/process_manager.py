@@ -26,3 +26,12 @@ def open_default(path):
 
 def run(arglist):
 	subprocess.run(arglist)
+
+def spawn_attach_stdout(arglist):
+	return subprocess.Popen(arglist, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL);
+
+def spawn_attach_stderr(arglist):
+	return subprocess.Popen(arglist, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE);
+
+def spawn_attach_streams(arglist):
+	return subprocess.Popen(arglist, stdout=subprocess.PIPE, stderr=subprocess.PIPE);

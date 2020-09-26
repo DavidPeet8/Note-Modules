@@ -1,0 +1,18 @@
+{
+	"base_path": "~/.notes",
+	"flat_notes_path": "~/.notes/.flat_notes",
+	"exe_path": "~/.notes_cfg",
+
+	"render_port": "4300",
+
+	"default_applications": {
+		"textEditorCmd": "subl",
+	},
+	
+	"processes": {
+		"preprocessor": "~/.notes_cfg/.exe/preprocessor",
+		"server": "~/.notes_cfg/.exe/dirServer/server.py",
+		"ui": "~/.notes_cfg/.exe/UI",
+		"search_engine": "~/.notes_cfg/.exe/searchEngine",
+	},
+}

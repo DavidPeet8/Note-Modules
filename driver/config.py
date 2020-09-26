@@ -10,6 +10,7 @@ PREPROCESSOR_EXE = exePath + "/.exe/preprocessor"
 SERVER_EXE = exePath + "/.exe/dirServer/server.py"
 UI_EXE = exePath + "/.exe/UI"
 RENDER_PORT = "4300"
+SEARCH_ENGINE_EXE = exePath + "/.exe/searchEngine"
 
 def update_base_path(path):
 	global basePath

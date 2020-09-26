@@ -6,8 +6,12 @@ import shlex
 from fs_helpers import *
 from config import *
 from color_scheme import print_dir, get_prompt
-from process_manager import reap_pid, open_default, spawn, spawn_quiet, run
+from process_manager import reap_pid, open_default, spawn, spawn_quiet, run, spawn_attach_stdout
 from argparser import *
+
+sys.path.insert(1, "../searchLib")
+sys.path.insert(1, "./searchLib")
+from search import searchDirList, dumpMap
 
 hasStartedFileServer = False
 
@@ -210,29 +214,19 @@ Type help or ? for a list of commands.
 	def do_clean(self, args):
 		temp_chdir_run(get_base_path(), shutil.rmtree, ["build"])
 
+
+	# Might be a better idea to just make a python executable for searching
+	# Pythons regex lib is probably implemented in C++ anyway
 	def do_search(self, args):
 		args = get_search_args(shlex.split(args), [get_flat_notes_path()])
-		fileMap = {}
+		fileMap = searchDirList(args.files, args.pattern, args.deep)
 
-		if args.deep:
-			for path in args.files:
-				path = os.path.expanduser(path)
-				if os.path.exists(path) and os.path.isdir(path):
-					fileMap = {**fileMap, **self.search_dir_deep(args.pattern, os.scandir(path))}
-				elif os.path.exists(path):
-					fileMap[path] = search_file(args.pattern, path)
-				else: 
-					print("File path given does not exist. Run 'help search' for details on the search command.")
+		# Sort deep search results by number of occurances
+		for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
+			if int(value) > 0:
+				print(key + ", " + str(value), end="")
+		print("")
 
-			# Sort deep search results by number of occurances
-			for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
-				if value > 0:
-					print("["+ key + ", " + str(value) + "]")
-
-		elif args.pattern: # Search only by file name
-			self.search_dir_names(args.pattern, args.files)
-		else: 
-			invalid("Incorrect Number of arguments")
 
 
 	def do_cp(self, args):
@@ -460,29 +454,29 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			args.paths.insert(0, cmd)
 			spawn_quiet(args.paths)
 
-	def search_file(self, pattern, path):
-		fd = open(path, "r")
-		text = fd.read()
-		fd.close()
-		return len(re.findall(pattern, text, re.IGNORECASE))
+	# def search_file(self, pattern, path):
+	# 	fd = open(path, "r")
+	# 	text = fd.read()
+	# 	fd.close()
+	# 	return len(re.findall(pattern, text, re.IGNORECASE))
 
-	def search_dir_deep(self, pattern, filelist):
-		results = {}
-		for file in filelist:
-			if os.path.isdir(file.path):
-				if not file.name.startswith("."): 
-					results = {**results, **self.search_dir(pattern, os.scandir(file.path))}
-			else:
-				results[file.path] = self.search_file(pattern, file.path);
-		return results
+	# def search_dir_deep(self, pattern, filelist):
+	# 	results = {}
+	# 	for file in filelist:
+	# 		if os.path.isdir(file.path):
+	# 			if not file.name.startswith("."): 
+	# 				results = {**results, **self.search_dir(pattern, os.scandir(file.path))}
+	# 		else:
+	# 			results[file.path] = self.search_file(pattern, file.path);
+	# 	return results
 
-	def search_dir_names(self, pattern, filelist):
-		for file in filelist:
-			path = os.path.expanduser(file)
-			if os.path.exists(path) and os.path.isdir(path):
-				self.search_dir_names(pattern, map(lambda p: p.path, os.scandir(path)))
-			elif os.path.exists(path) and re.search(pattern, path, re.IGNORECASE):
-				print(os.path.basename(path))
+	# def search_dir_names(self, pattern, filelist):
+	# 	for file in filelist:
+	# 		path = os.path.expanduser(file)
+	# 		if os.path.exists(path) and os.path.isdir(path):
+	# 			self.search_dir_names(pattern, map(lambda p: p.path, os.scandir(path)))
+	# 		elif os.path.exists(path) and re.search(pattern, path, re.IGNORECASE):
+	# 			print(os.path.basename(path))
 				
 
 	def file_complete(self, text, line, startIdx, endIdx):

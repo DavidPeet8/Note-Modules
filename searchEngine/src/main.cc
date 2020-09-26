@@ -9,7 +9,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-void search(const string & basePath, const string &pattern, const bool deep_search, unordered_map<string, uint> &results)
+void search(const string & basePath, const string &pattern, const bool deep, unordered_map<string, uint> &results)
 {
 	static basic_regex patt(pattern);
 
@@ -18,7 +18,7 @@ void search(const string & basePath, const string &pattern, const bool deep_sear
 		string fileName = item.path().filename();
 		if (item.is_directory())
 		{
-			search(item.path(), pattern, deep_search, results);
+			search(item.path(), pattern, deep, results);
 		} 
 		else if (sregex_iterator(fileName.begin(), fileName.end(), patt) != sregex_iterator())
 		{
@@ -26,7 +26,7 @@ void search(const string & basePath, const string &pattern, const bool deep_sear
 		}
 
 		// Check if deep search is requested
-		if (deep_search)
+		if (deep)
 		{
 			fstream file {item.path()};
 			string line = "";
@@ -54,14 +54,60 @@ void search(const string & basePath, const string &pattern, const bool deep_sear
 	}
 }
 
-void print_results(const unordered_map<string, uint> &results)
+struct Args 
+{
+	bool deep = false;
+	bool json = false;
+	string pattern = "";
+	vector<string> targets = {};
+
+	void dump()
+	{
+		cerr << "--------- Args ---------\n";
+		cerr << "Deep Search: " << deep << "\n";
+		cerr << "Pattern: " << pattern << "\n";
+		cerr << "Targets: \n";
+
+		for (const auto &target : targets)
+		{
+			cerr << target << "\n";
+		}
+		cerr << flush;
+	}
+};
+
+// Could be faster by using a DFA, but small number of options makes this essentially constant time regardless
+Args parse_args(int argc, char **argv)
+{
+	if (argc < 3) { exit(1); }
+	
+	Args a;
+
+	for (int idx = 1; idx < argc; idx++)
+	{
+		if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--deep") == 0) { a.deep = true; }
+		else if (strcmp(argv[idx], "-j") == 0 || strcmp(argv[idx], "--json") == 0) { a.json = true; }
+		else if (a.pattern == "") 
+		{ 
+			a.pattern = argv[idx];
+		}
+		else
+		{
+			a.targets.emplace_back(argv[idx]);
+		}
+	}
+	return a;
+}
+
+void print_results(const unordered_map<string, uint> &results, const bool json)
 {
 	cerr << "Printing Results" << endl;
+	cout << (json ? "[\n" : "");
 	for (const auto &p: results)
 	{
-		cout << p.first << " " << p.second << "\n";
+		cout << (json ? "[" : "") << p.first << " " << p.second << (json ? "]" : "") << "\n";
 	}
-	cout << flush;
+	cout << (json ? "]\n" : "") << flush;
 }
 
 // This is a search engine for searching
@@ -70,16 +116,16 @@ int main(int argc, char **argv)
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
 
-	if (argc < 3) { return 1; }
-	const string basePath = argv[1];
-	const string pattern = argv[2];
-	const bool deep_search = argc >= 4;
-
-	unordered_map<string, uint> results {};
-	search(basePath, pattern, deep_search, results);
-
-	print_results(results);
+	Args args = parse_args(argc, argv);
+	args.dump();
 	
+	unordered_map<string, uint> results {};
+	for (const auto &path : args.targets)
+	{
+		search(path, args.pattern, args.deep, results);
+	}
+	
+	print_results(results, args.json);
 }
 
 

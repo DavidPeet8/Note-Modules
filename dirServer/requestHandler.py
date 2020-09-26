@@ -1,10 +1,13 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import json, re
-
+import json, re, sys
 from flask import Flask, request, jsonify, send_file, Response
 
 from config import config, Config
+
+sys.path.insert(1, "../searchLib")
+sys.path.insert(1, "./searchLib")
+from search import searchDir, dumpMap
 
 app = Flask(__name__)
 
@@ -85,6 +88,7 @@ def get_image(image_name):
 
 @app.route('/search/<string:search_term>', methods=['POST'])
 def do_search(search_term):
-	print(search_term)
-	resp = Response("[]")
+	fileMap = searchDir("~/.notes/.flat_notes", search_term, True)
+
+	resp = jsonify(fileMap)
 	return setAccessControlHeaders(resp)

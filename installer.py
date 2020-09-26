@@ -38,6 +38,9 @@ print("Necessary Directories Created")
 # Install the directory server
 copytree("./dirServer", installPath + "/dirServer")
 print("Installed Local Directory Server")
+# Install the search library
+copytree("./searchLib", installPath + "/searchLib")
+print("Installed python searching library")
 # Remake the file
 cwd = os.getcwd()
 os.chdir("./preprocessor")
@@ -47,15 +50,6 @@ os.chdir(cwd)
 # Install the preprocessor
 copy("./preprocessor/preprocessor", installPath + "/preprocessor")
 print("Installed Preprocessor")
-# Remake the file
-cwd = os.getcwd()
-os.chdir("./searchEngine")
-subprocess.run(["make"])
-print("Remade Search Engine")
-os.chdir(cwd)
-# Install the search engine
-copy("./searchEngine/searchEngine", installPath + "/searchEngine")
-print("Installed Search Engine")
 # Install the UI
 copytree("./noteRenderer/build", installPath + "/UI")
 print("Installed UI")
