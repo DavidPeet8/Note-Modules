@@ -2,8 +2,13 @@
 	<div class="main-flex">
 		<div class="dirtree-wrapper" #dirSection>
 			<div class="dirtree-content">
-				<app-search-bar></app-search-bar>
-				<app-directory-tree *ngFor="let dir of dirlist" [fileDescriptor]="dir" [basePath]="''"></app-directory-tree>
+				<app-search-bar (searchResultsChange)="onNewSearchResults($event)"></app-search-bar>
+				<div *ngIf="!searchResults">
+					<app-directory-tree *ngFor="let dir of dirlist" [fileDescriptor]="dir" [basePath]="''"></app-directory-tree>
+				</div>
+				<div *ngIf="searchResults">
+					<app-directory-tree *ngFor="let file of searchResults" [fileDescriptor]="file" [basePath]="''"></app-directory-tree>
+				</div>
 			</div>
 			<div draggable="true" (drag)="onDrag($event)" class="dirtree-sidebar" #resizeBar></div>
 		</div>

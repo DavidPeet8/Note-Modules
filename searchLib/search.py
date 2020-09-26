@@ -18,17 +18,14 @@ def _search(basePath, pattern, isDeep, resultsMap):
 	for file in os.scandir(basePath):
 		if file.is_dir():
 			_search(file.path, pattern, isDeep, resultsMap)
-		elif re.match(pattern, file.name):
-			resultsMap[file.name] = 1
+		elif re.search(pattern, file.name):
+			resultsMap[file.name] = resultsMap[file.name] + 1 if file.name in resultsMap else 1
 
 		if isDeep and file.is_file():
 			fcontents = open(file.path, 'r', encoding='utf8').read()
 			matches = len(re.findall(pattern, fcontents))
 			if matches > 0:
-				if not file.name in resultsMap:
-					resultsMap[file.name] = matches
-				else: 
-					resultsMap[file.name] += matches
+				resultsMap[file.name] = resultsMap[file.name] + matches if (file.name in resultsMap) else matches
 
 def dumpMap(themap, delim=" "):
 	for key, value in themap.items():

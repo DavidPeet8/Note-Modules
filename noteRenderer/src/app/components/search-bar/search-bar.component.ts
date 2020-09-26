@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FileAccessAPIService } from '@services/file-access-api.service';
 
 @Component({
@@ -9,6 +9,7 @@ import { FileAccessAPIService } from '@services/file-access-api.service';
 export class SearchBarComponent implements OnInit {
 
   searchText: string;
+  @Output() searchResultsChange:EventEmitter<Object> = new EventEmitter<Object>();
 
   constructor(private fileAPI: FileAccessAPIService) { }
 
@@ -18,7 +19,18 @@ export class SearchBarComponent implements OnInit {
   doSearch(): void 
   {
   	console.log(this.searchText);
-  	this.fileAPI.doSearch(this.searchText, (json) => {console.log(json)});
+  	if (this.searchText == "")
+  	{
+  		this.searchResultsChange.emit(null);
+  		return;
+  	}
+
+  	this.fileAPI.doSearch(this.searchText, this.searchCallback.bind(this));
+  }
+
+  searchCallback(json): void
+  {
+  	this.searchResultsChange.emit(json);
   }
 
 }

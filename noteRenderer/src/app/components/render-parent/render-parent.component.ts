@@ -13,6 +13,7 @@ export class RenderParentComponent implements OnInit
 	@ViewChild("editor") editor: ElementRef;
 	@ViewChild("resizeBar") resizeBar: ElementRef;
 	dirlist; resizeBarY;
+	searchResults = null;
 
 	constructor(private eventBus: FetchRenderEventBusService, private fileAPI: FileAccessAPIService) { }
 
@@ -31,6 +32,7 @@ export class RenderParentComponent implements OnInit
 	setDirList(): void 
 	{
 		this.dirlist = this.fileAPI.getDirList();
+		console.log("DirList: ", this.dirlist)
 	}
 
 	setMaxHeight(): void 
@@ -46,4 +48,14 @@ export class RenderParentComponent implements OnInit
 			this.dirSection.nativeElement.style.width = e.pageX + "px";
 		}
 	}
+
+	onNewSearchResults(json): void
+	{
+		console.log(json);
+		if (json == null) { this.searchResults = null; }
+		let results = Object.entries(json).sort((a,b) => { return Number(a[1]) - Number(b[1]); })
+		console.log("RESULTS: ", results);
+		this.searchResults = results.map(entry => entry[0]);
+		console.log("SearchResults: ", this.searchResults);
+	}	
 }
