@@ -1,12 +1,11 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import json, re, sys
+import json, re, sys, os
 from flask import Flask, request, jsonify, send_file, Response
 
 from config import config, Config
 
-sys.path.insert(1, "../searchLib")
-sys.path.insert(1, "./searchLib")
+sys.path.insert(1, os.path.expanduser("~/.notes_cfg/.exe/searchLib"))
 from search import searchDir, dumpMap
 
 app = Flask(__name__)
@@ -38,7 +37,7 @@ def setAccessControlHeaders(resp):
 
 
 def start_rest_api(_host, _port):
-	app.run(host=_host, port=_port)
+	app.run(host=_host, port=_port, debug=False)
 
 
 def start_rest_api_for_debug(host, port):

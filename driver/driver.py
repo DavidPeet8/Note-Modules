@@ -9,8 +9,7 @@ from color_scheme import print_dir, get_prompt
 from process_manager import reap_pid, open_default, spawn, spawn_quiet, run, spawn_attach_stdout
 from argparser import *
 
-sys.path.insert(1, "../searchLib")
-sys.path.insert(1, "./searchLib")
+sys.path.insert(1, os.path.expanduser("~/.notes_cfg/.exe/searchLib"))
 from search import searchDirList, dumpMap
 
 hasStartedFileServer = False
