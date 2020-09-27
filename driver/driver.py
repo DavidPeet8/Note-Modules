@@ -223,8 +223,7 @@ Type help or ? for a list of commands.
 		# Sort deep search results by number of occurances
 		for key, value in sorted(fileMap.items(), reverse=True, key=lambda x: x[1]):
 			if int(value) > 0:
-				print(key + ", " + str(value), end="")
-		print("")
+				print(key + ", " + str(value))
 
 
 
