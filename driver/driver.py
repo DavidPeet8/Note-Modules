@@ -186,20 +186,19 @@ Type help or ? for a list of commands.
 
 		# Start the file server
 		global hasStartedFileServer
-		if not hasStartedFileServer:
-			print(arglist)
+		if not hasStartedFileServer and not args.view:
 			pid = spawn_quiet(arglist)
 			reap_pid([pid])
 			print("Server PID: ", pid)
 			hasStartedFileServer = True;
 
 		# Serve the UI
-		if args.debug:
+		if args.debug and not args.attach:
 			pid2 = spawn_quiet(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE])
 			reap_pid([pid2])
 			open_default("http://localhost:" + RENDER_PORT)
 			print("UI PID: ", pid2)
-		else:
+		elif not args.attach:
 			open_default("https://davidpeet8.github.io/Note-Modules")
 		
 		

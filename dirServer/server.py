@@ -19,6 +19,7 @@ def get_server_args(arglist):
 	parser.add_argument('-h', '--help', action='store_true')
 	parser.add_argument('-p', '--port', type=int)
 	parser.add_argument('-d', '--dir')
+	parser.add_argument('-a', '--attach', action='store_true') # dead argument, here for information & debug purposes
 	return parser.parse_args(arglist)
 
 def main(argv):

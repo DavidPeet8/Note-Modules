@@ -48,6 +48,8 @@ def get_search_args(arglist, default_files_path):
 def get_render_args(arglist):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-d', '--debug', action='store_true', help="Enter debug mode and host UI on localhost")
+	parser.add_argument('-a', '--attach', action='store_true', help="Only launch dir server, not UI")
+	parser.add_argument('-v', '--view', action="store_true", help="launch the UI")
 	parser.add_argument('target', nargs="?")
 	return parser.parse_args(arglist)
 
