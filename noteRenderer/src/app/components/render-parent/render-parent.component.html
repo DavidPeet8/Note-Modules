@@ -7,7 +7,7 @@
 					<app-directory-tree *ngFor="let dir of dirlist" [fileDescriptor]="dir" [basePath]="''"></app-directory-tree>
 				</div>
 				<div *ngIf="searchResults">
-					<app-directory-tree *ngFor="let file of searchResults" [fileDescriptor]="file" [basePath]="'build/.flat_notes'"></app-directory-tree>
+					<app-directory-tree *ngFor="let file of searchResults" [fileDescriptor]="file" [basePath]="'/build/.flat_notes'"></app-directory-tree>
 				</div>
 			</div>
 			<div draggable="true" (drag)="onDrag($event)" class="dirtree-sidebar" #resizeBar></div>
