@@ -22,7 +22,6 @@ def print_base_path():
 	print("BasePath: " + basePath)
 
 def get_base_path():
-	print(basePath)
 	return basePath
 
 def get_flat_notes_path():

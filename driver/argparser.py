@@ -50,3 +50,4 @@ def get_render_args(arglist):
 	parser.add_argument('-d', '--debug', action='store_true', help="Enter debug mode and host UI on localhost")
 	parser.add_argument('target', nargs="?")
 	return parser.parse_args(arglist)
+

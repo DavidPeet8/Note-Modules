@@ -238,6 +238,11 @@ Type help or ? for a list of commands.
 		except:
 			print("Cannot copy.")
 
+	def do_refs(self, args):
+		# print all references to a note in the base dir
+		rawarglist = shlex.split(args)
+		temp_chdir_run(get_base_path(), self.get_refs, [rawarglist])
+
 
 	# -------------------- ALIASES -------------------
 
@@ -305,6 +310,9 @@ Type help or ? for a list of commands.
 
 	def complete_mv(self, text, line, startIdx, endIdx):
 		return self.file_dir_complete(text, line, startIdx, endIdx)
+
+	def complete_refs(self, text, line, startIdx, endIdx):
+		return self.note_complete(text, line, startIdx, endIdx)
 
 	# ---------------- DOCS --------------------
 
@@ -452,30 +460,14 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			args.paths.insert(0, cmd)
 			spawn_quiet(args.paths)
 
-	# def search_file(self, pattern, path):
-	# 	fd = open(path, "r")
-	# 	text = fd.read()
-	# 	fd.close()
-	# 	return len(re.findall(pattern, text, re.IGNORECASE))
+	def get_refs(self, arglist):
+		dirlist = os.scandir()
 
-	# def search_dir_deep(self, pattern, filelist):
-	# 	results = {}
-	# 	for file in filelist:
-	# 		if os.path.isdir(file.path):
-	# 			if not file.name.startswith("."): 
-	# 				results = {**results, **self.search_dir(pattern, os.scandir(file.path))}
-	# 		else:
-	# 			results[file.path] = self.search_file(pattern, file.path);
-	# 	return results
-
-	# def search_dir_names(self, pattern, filelist):
-	# 	for file in filelist:
-	# 		path = os.path.expanduser(file)
-	# 		if os.path.exists(path) and os.path.isdir(path):
-	# 			self.search_dir_names(pattern, map(lambda p: p.path, os.scandir(path)))
-	# 		elif os.path.exists(path) and re.search(pattern, path, re.IGNORECASE):
-	# 			print(os.path.basename(path))
-				
+		for file in dirlist:
+			if file.is_dir() and file.name != ".flat_notes" and file.name != "build":
+				temp_chdir_run(file.path, self.get_refs, [arglist])
+			elif file.name in arglist:
+				print(os.path.relpath(file.path, start=get_base_path()))
 
 	def file_complete(self, text, line, startIdx, endIdx):
 		if text:
