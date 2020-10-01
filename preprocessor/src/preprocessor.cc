@@ -195,7 +195,7 @@ void Preprocessor::build(const string &noteName)
 		{
 			string matchedStr = match->str();
 			//cerr << "Command found\n" << matchedStr << end;
-			out << match->prefix() << end;
+			out << match->prefix() << " ";
 			vector<Cmd> cmds = getCmds(matchedStr);
 			for (const auto &cmd : cmds)
 			{
