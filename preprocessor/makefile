@@ -12,7 +12,7 @@ TESTDIR=./test
 
 MAIN_OBJ=main.o
 MAIN_PATH=$(call addprefix, ${OBJDIR}/, ${MAIN_OBJ})
-OTHER_OBJS=args.o preprocessor.o
+OTHER_OBJS=args.o preprocessor.o command.o dfa.o
 OTHER_PATHS=$(call addprefix, ${OBJDIR}/, ${OTHER_OBJS})
 TEST_OBJS=preprocessor.test.o
 TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})

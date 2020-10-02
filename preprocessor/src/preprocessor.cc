@@ -1,4 +1,6 @@
 #include "preprocessor.h"
+#include "file.h"
+#include "command.h"
 
 #include <fstream>
 #include <iostream>
@@ -9,100 +11,11 @@
 #include <sys/types.h>
 #include <regex>
 #include <filesystem>
+#include <functional>
 
 using namespace std;
 namespace fs = std::filesystem;
 
-
-const unordered_map<Preprocessor::DFAState, unordered_map<Preprocessor::CharType, Preprocessor::DFAState>> Preprocessor::dfa = 
-{
-	{ DFAState::START, 
-		{
-			{ CharType::OTHER, DFAState::MIDNORM }, 
-			{ CharType::WHITESPACE, DFAState::LEADINGWS },
-			{ CharType::QUOTE, DFAState::STARTQUOTE }
-		}
-	},
-	{ DFAState::LEADINGWS, 
-		{
-			{ CharType::OTHER, DFAState::MIDNORM },
-			{ CharType::WHITESPACE, DFAState::LEADINGWS },
-			{ CharType::QUOTE, DFAState::STARTQUOTE }
-		}
-	},
-	{ DFAState::STARTQUOTE, 
-		{
-			{ CharType::OTHER, DFAState::MIDQUOTE },
-			{ CharType::WHITESPACE, DFAState::MIDQUOTE },
-			{ CharType::QUOTE, DFAState::START }
-		}
-	},
-	{ DFAState::MIDQUOTE, 
-		{
-			{ CharType::OTHER, DFAState::MIDQUOTE },
-			{ CharType::WHITESPACE, DFAState::MIDQUOTE },
-			{ CharType::QUOTE, DFAState::ENDQUOTE }
-		}
-	},
-	{ DFAState::ENDQUOTE, 
-		{
-			{ CharType::OTHER, DFAState::ERROR },
-			{ CharType::WHITESPACE, DFAState::START },
-			{ CharType::QUOTE, DFAState::ERROR }
-		}
-	},
-	{ DFAState::MIDNORM, 
-		{
-			{ CharType::OTHER, DFAState::MIDNORM },
-			{ CharType::WHITESPACE, DFAState::START },
-			{ CharType::QUOTE, DFAState::MIDNORM }
-		}
-	}
-};
-
-Preprocessor::Cmd::Cmd(const CmdType type, const string targetsStr): type{type}
-{
-	// Split the string targets by spaces but keeping quoted strings together
-	DFAState state = DFAState::START;
-	int startIdx = 0;
-
-	for (int i = 0; i < targetsStr.length(); i++)
-	{
-		CharType type;
-		if (targetsStr[i] == '"') {	type = CharType::QUOTE;	}
-		else if (isspace(targetsStr[i])) { type = CharType::WHITESPACE;	}
-		else { type = CharType::OTHER; }
-
-		const DFAState pstate = state;
-		state = dfa.at(state).at(type); // Step to next state
-
-		if (state == DFAState::START && pstate == DFAState::ENDQUOTE) 
-		{
-			targets.emplace_back(targetsStr.substr(startIdx, i-startIdx - 1)); // Remove the quotes from the argument
-		}
-		else if (state == DFAState::START && pstate == DFAState::MIDNORM)
-		{
-			targets.emplace_back(targetsStr.substr(startIdx, i-startIdx));
-		}
-		else if (state == DFAState::STARTQUOTE)
-		{
-			startIdx = i+1;
-		}
-		else if (state == DFAState::MIDNORM && pstate != DFAState::MIDNORM) 
-		{
-			startIdx = i;
-		}
-	}
-
-	if (state == DFAState::MIDNORM) // Emit final token if necessary
-	{
-		targets.emplace_back(targetsStr.substr(startIdx, targetsStr.length() - startIdx));
-	} 
-	else if (state == DFAState::ENDQUOTE)
-	{
-		targets.emplace_back(targetsStr.substr(startIdx, targetsStr.length() - startIdx - 1));
-	}
-}
 
 // ------------------- PREPROCESSOR -----------------------
 
@@ -151,6 +64,8 @@ void Preprocessor::addToFilesList(unordered_map<string, unique_ptr<File>>::itera
 // NoBuild simply means do not make any copies out of flat notes in builddir
 void Preprocessor::build(const string &noteName)
 {
+	using namespace std::placeholders;
+
 	auto itr = fileList.find(noteName);
 	if (itr == fileList.end() && fs::exists(baseNotesDir + "/.flat_notes/" + noteName)) 
 	{
@@ -194,12 +109,19 @@ void Preprocessor::build(const string &noteName)
 		for (auto match = matchBeginItr; match != matchEndItr; ++match)
 		{
 			string matchedStr = match->str();
-			//cerr << "Command found\n" << matchedStr << end;
 			out << match->prefix() << " ";
-			vector<Cmd> cmds = getCmds(matchedStr);
+			vector<Cmd> cmds = Cmd::getCmds(matchedStr);
+
 			for (const auto &cmd : cmds)
 			{
-				applyCmd(cmd, note, out);
+				Cmd::CommandHandlers handlers = {
+					std::bind(&Preprocessor::includeHandler, this, note, ref(out), _1),
+					std::bind(&Preprocessor::linkHandler, this, note, ref(out), _1), 
+					std::bind(&Preprocessor::nobuildHandler, this, note, ref(out), _1),
+					std::bind(&Preprocessor::imgHandler, this, note, ref(out), _1),
+					std::bind(&Preprocessor::errHandler, this, note, ref(out), _1)
+				};
+				cmd.apply(handlers);
 			}
 			if (match == matchEndItr) { out << match->suffix() << end; }
 		}
@@ -263,50 +185,64 @@ bool Preprocessor::shouldShortCircuit(File *note)
 
 }
 
-void Preprocessor::applyCmd(const Cmd &cmd, File *curFile, ostream &curFileStream)
-{
-	switch (cmd.getType()) 
-	{
-		case CmdType::INCLUDE:
-		{
-			const auto & targets = cmd.getTargets();
-			for (const auto &target : targets)
-			{
-				cerr << "[ INFO ]: Recursively Building target " << target << endl;
-				build(target); // Recursively build each target to include in order
-				// Copy build contents into the current file inline
-				copyBuiltFile(curFileStream, target);
-			}
-			break;
-		}
-		case CmdType::LINK:
-			// Here we print out the proper link
-			for (const auto &target : cmd.getTargets())
-			{
-				curFileStream << "[" << fs::path(target).filename() << "]" << "(" << getLinkPath(target) << ") "; 
-			}
-			break;
-		case CmdType::NOBUILD:
-			curFile->setNoBuild();
-			break;
-		case CmdType::IMG:
-			for (const auto &target : cmd.getTargets())
-			{
-				// curFileStream << "![" << fs::path(target).filename() << "](" << makeURL(target) << ") ";
-				curFileStream << "<img class=\"md-img\" width=\"40%\" src=\"" << makeURL(target) << "\"/>";
-			}
-			break;
-		case CmdType::ERR:
-			cerr << "[ WARN ]: Command not recognized, ignoring." << endl;
-			break;	
-	}
-}
-
-
 const string Preprocessor::getLinkPath(const string &target)
 {
 	// This is horrible I should really fix this
 	return string("/Note-Modules/#/note/build/.flat_notes/") + string(fs::path(target).filename());
+}
+
+void Preprocessor::copyBuiltFile(ostream &curFileStream, const string &srcName)
+{
+	// append the contents of the built note with name noteToAppend to the currentFileStream
+	ifstream source (baseNotesDir + "/build/.flat_notes/" + srcName);
+	curFileStream << source.rdbuf(); // send the entire contents of source
+}
+
+// There is a strange edge case where "  \n" does not create a line break if we have "**boldtxt**:  \n"
+bool Preprocessor::isBoldColonCase(const string &line)
+{
+	const string pattern = "**:";
+	return line.length() > 3 && line.compare(line.length() - 3, 3, pattern) == 0;
+}
+
+void Preprocessor::includeHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
+{
+	for (const auto &target : targets)
+	{
+		cerr << "[ INFO ]: Recursively Building target " << target << endl;
+		build(target); // Recursively build each target to include in order
+		// Copy build contents into the current file inline
+		copyBuiltFile(curFileStream, target);
+	}
+}
+
+void Preprocessor::linkHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
+{
+	// Here we print out the proper link
+	for (const auto &target : targets)
+	{
+		curFileStream << "[" << fs::path(target).filename() << "]" << "(" << getLinkPath(target) << ") "; 
+	}
+}
+
+void Preprocessor::nobuildHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
+{
+	curFile->setNoBuild();
+}
+
+void Preprocessor::errHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
+{
+	cerr << "[ WARN ]: Command not recognized, ignoring." << endl;
+}
+
+void Preprocessor::imgHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
+{
+	curFileStream << "<div class=\"md-image-container\">";
+	for (const auto &target : targets)
+	{
+		curFileStream << "<img class=\"md-img\" src=\"" << makeURL(target) << "\"/>";
+	}
+	curFileStream << "</div>\n";
 }
 
 const string Preprocessor::makeURL(const string &target)
@@ -326,104 +262,4 @@ const string Preprocessor::makeURL(const string &target)
 		// Assume that you put in a url properly
 		return target;
 	}
-}
-
-void Preprocessor::copyBuiltFile(ostream &curFileStream, const string &srcName)
-{
-	// append the contents of the built note with name noteToAppend to the currentFileStream
-	ifstream source (baseNotesDir + "/build/.flat_notes/" + srcName);
-	curFileStream << source.rdbuf(); // send the entire contents of source
-}
-
-vector<Preprocessor::Cmd> Preprocessor::getCmds(const string &rawCommand)
-{
-	uint cmdStart = 0;
-	uint cmdEnd = 0;
-	uint nestLevel = 0;
-	vector<Cmd> commands = {};
-
-	for (int i = 0; i < rawCommand.length(); ++i)
-	{
-		if (rawCommand[i] == '[') 
-		{
-			if (nestLevel == 0) { cmdStart = i; }
-			++nestLevel;
-		}
-		else if (rawCommand[i] == ']')
-		{
-			--nestLevel;
-			if (nestLevel == 0) 
-			{ 
-				cmdEnd = i; 
-				commands.emplace_back(getCmd(rawCommand, cmdStart + 1, cmdEnd)); // add one to start to avoid passing [
-			}
-		}
-	}
-
-	return commands;
-}
-
-Preprocessor::Cmd Preprocessor::getCmd(const string &cmd, uint startIdx, uint endIdx)
-{
-	string command  = "";
-	bool seen = false;
-	uint start = 0, end = 0;
-
-	for (int i = startIdx; i < endIdx; ++i)
-	{
-		if (seen && isspace(cmd[i]))
-		{
-			end = i;
-			if (command == "")
-			{
-				command = cmd.substr(start, end - start);
-			}
-		}
-		else if (!seen && !isspace(cmd[i]))
-		{
-			seen = true;
-			start = i;
-		}
-	}
-
-	if (seen && command == "") 
-	{
-		command = cmd.substr(start, endIdx - start);
-	}
-
-	return Cmd(strToCmdType(command), cmd.substr(end, endIdx - end));
-}
-
-Preprocessor::CmdType Preprocessor::strToCmdType(const string &str)
-{
-	if (str == "include") { return CmdType::INCLUDE; }
-	else if (str == "link") { return CmdType::LINK; }
-	else if (str == "nobuild") { return CmdType::NOBUILD; }
-	else if (str == "image") { return CmdType::IMG; }
-
-	return CmdType::ERR;
-}
-
-string Preprocessor::cmdTypeToStr(const CmdType type)
-{
-	switch(type)
-	{
-		case CmdType::INCLUDE:
-			return "include";
-		case CmdType::LINK:
-			return "link";
-		case CmdType::NOBUILD:
-			return "nobuild";
-		case CmdType::IMG:
-			return "image";
-		default:
-			return "UNRECOGNIZED";
-	}
-}
-
-// There is a strange edge case where "  \n" does not create a line break if we have "**boldtxt**:  \n"
-bool Preprocessor::isBoldColonCase(const string &line)
-{
-	const string pattern = "**:";
-	return line.length() > 3 && line.compare(line.length() - 3, 3, pattern) == 0;
 }
