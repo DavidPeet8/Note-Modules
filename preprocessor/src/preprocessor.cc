@@ -110,7 +110,7 @@ void Preprocessor::build(const string &noteName)
 		for (auto match = matchBeginItr; match != matchEndItr; ++match)
 		{
 			string matchedStr = match->str();
-			out << match->prefix() << " ";
+			out << match->prefix();
 			vector<Cmd> cmds = Cmd::getCmds(matchedStr);
 
 			for (const auto &cmd : cmds)
@@ -208,6 +208,7 @@ bool Preprocessor::isBoldColonCase(const string &line)
 
 void Preprocessor::includeHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
 {
+	curFileStream << "\n";
 	for (const auto &target : targets)
 	{
 		Logger::info() << "Recursively Building target " << target << "\n";
@@ -222,7 +223,7 @@ void Preprocessor::linkHandler(File * const curFile, ostream &curFileStream, con
 	// Here we print out the proper link
 	for (const auto &target : targets)
 	{
-		curFileStream << "[" << fs::path(target).filename() << "]" << "(" << getLinkPath(target) << ") "; 
+		curFileStream << " [" << fs::path(target).filename() << "]" << "(" << getLinkPath(target) << ") "; 
 	}
 }
 
@@ -238,7 +239,7 @@ void Preprocessor::errHandler(File * const curFile, ostream &curFileStream, cons
 
 void Preprocessor::imgHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
 {
-	curFileStream << "<div class=\"md-img-container\">";
+	curFileStream << "\n<div class=\"md-img-container\">";
 	for (const auto &target : targets)
 	{
 		curFileStream << "<img class=\"md-img\" src=\"" << makeURL(target) << "\"/>";
