@@ -238,7 +238,7 @@ void Preprocessor::errHandler(File * const curFile, ostream &curFileStream, cons
 
 void Preprocessor::imgHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
 {
-	curFileStream << "<div class=\"md-image-container\">";
+	curFileStream << "<div class=\"md-img-container\">";
 	for (const auto &target : targets)
 	{
 		curFileStream << "<img class=\"md-img\" src=\"" << makeURL(target) << "\"/>";

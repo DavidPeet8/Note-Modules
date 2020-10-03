@@ -20,7 +20,7 @@ TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
 OBJECTPATHS=${MAIN_PATH} ${OTHER_PATHS}
 DEPENDSPATHS=${OBJECTPATHS:.o=.d}
 
-.PHONY: clean debug compile link test warn error silent info
+.PHONY: clean debug compile link test warn error silent _silent info
 
 ${EXEC}: compile link
 -include ${DEPENDSPATHS}
@@ -51,11 +51,14 @@ warn: ${EXEC}
 error: COMPILATION_FLAGS+=-D LOGLEVEL=1 -O2
 warn: ${EXEC}
 
-silent: COMPILATION_FLAGS+=-D LOGLEVEL=0 -O2
-silent: ${EXEC}
+silent: COMPILATION_FLAGS+=-O2
+silent: _silent
+
+_silent: COMPILATION_FLAGS+=-D LOGLEVEL=0
+_silent: ${EXEC}
 
 prod: COMPILATION_FLAGS+=-Ofast
-prod: silent
+prod: _silent
 
 compile: $(OBJECTPATHS)
 	@echo Compiled

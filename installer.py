@@ -14,8 +14,7 @@ def parse_args(arglist):
 	parser.add_argument('-p', '--path')
 	parser.add_argument('-d', '--debug', action="store_true")
 	parser.add_argument('-c', '--clean', action="store_true")
-	parser.add_argument('-l', '--loglevel')
-	parser.add_argument('--prod', action="store_true")
+	parser.add_argument('-l', '--loglevel', default=-1) # Store -1 so we make a prod build
 	return parser.parse_args(arglist)
 
 if not os.path.exists(basePath):
