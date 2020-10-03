@@ -12,7 +12,7 @@ TESTDIR=./test
 
 MAIN_OBJ=main.o
 MAIN_PATH=$(call addprefix, ${OBJDIR}/, ${MAIN_OBJ})
-OTHER_OBJS=args.o preprocessor.o command.o dfa.o
+OTHER_OBJS=args.o preprocessor.o command.o dfa.o logger.o
 OTHER_PATHS=$(call addprefix, ${OBJDIR}/, ${OTHER_OBJS})
 TEST_OBJS=preprocessor.test.o
 TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
@@ -38,7 +38,7 @@ ${TEST_OBJDIR}/%.o: ${TESTDIR}/%.cc
 	${COMPILER} $< -std=${CPPSTANDARD} -c -o $@ ${COMPILATION_FLAGS}
 
 
-debug: COMPILATION_FLAGS+=-g -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 
+debug: COMPILATION_FLAGS+=-g -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 -D DEBUG
 debug: LINKER_FLAGS+=-fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 
 debug: ${EXEC}
 

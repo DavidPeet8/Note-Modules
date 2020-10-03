@@ -1,6 +1,7 @@
 #include "file.h"
 #include "args.h"
 #include "preprocessor.h"
+#include "logger.h"
 
 #include <iostream>
 
@@ -20,6 +21,8 @@ int main(int argc, char **argv)
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(nullptr);
+
+	Logger::create(std::cerr);
 
 	if (argc < 2) 
 	{
