@@ -53,6 +53,8 @@ export class FileAccessAPIService {
 
 	async _fetchFile(fileName)
 	{
+		if (fileName == ""){ return; }
+
 		await fetch(this.host + "/note" + fileName)
 		.then((data) => {
 			return data.json();
@@ -70,22 +72,21 @@ export class FileAccessAPIService {
 
 	async _checkFileModified()
 	{
-		if (this.activeFile.activeFileURI != "")
-		{
-			await fetch(this.host + '/status/note' + this.activeFile.activeFileURI)
-			.then((data) => {
-				return data.text()
-			})
-			.then((text) => {
-				if (text != this.activeFile.lastModifiedTime) 
-				{
-					this._fetchFile(this.activeFile.activeFileURI); // File was Modified
-				}
-			})
-			.catch((e) => {
-				console.log("Failed to check for active file modifications", e)
-			});
-		}
+		if (this.activeFile.activeFileURI == "") { return; }
+		
+		await fetch(this.host + '/status/note' + this.activeFile.activeFileURI)
+		.then((data) => {
+			return data.text()
+		})
+		.then((text) => {
+			if (text != this.activeFile.lastModifiedTime) 
+			{
+				this._fetchFile(this.activeFile.activeFileURI); // File was Modified
+			}
+		})
+		.catch((e) => {
+			console.log("Failed to check for active file modifications", e)
+		});
 	}
 
 	async _checkDirListModified()
