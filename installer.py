@@ -12,6 +12,10 @@ notesDirPaths = [os.path.expanduser("~/.notes")]
 def parse_args(arglist):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-p', '--path')
+	parser.add_argument('-d', '--debug', action="store_true")
+	parser.add_argument('-c', '--clean', action="store_true")
+	parser.add_argument('-l', '--loglevel')
+	parser.add_argument('--prod', action="store_true")
 	return parser.parse_args(arglist)
 
 if not os.path.exists(basePath):
@@ -44,7 +48,24 @@ print("Installed python searching library")
 # Remake the file
 cwd = os.getcwd()
 os.chdir("./preprocessor")
-subprocess.run(["make"])
+loglevel = int(args.loglevel)
+
+if args.clean:
+	subprocess.run(["make", "clean"])
+
+if args.debug or loglevel >= 4:
+	subprocess.run(["make", "debug"])
+elif loglevel == 0:
+	subprocess.run(["make", "silent"])
+elif loglevel == 1:
+	subprocess.run(["make", "error"])
+elif loglevel == 2:
+	subprocess.run(["make", "warn"])
+elif loglevel == 3:
+	subprocess.run(["make", "info"])
+else:
+	subprocess.run(["make", "prod"])
+
 print("Remade Preprocessor")
 os.chdir(cwd)
 # Install the preprocessor

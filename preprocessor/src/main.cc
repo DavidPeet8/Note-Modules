@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
 	if (argc < 2) 
 	{
-		cerr << "Not Enough arguments" << endl;
+		Logger::err() << "Not Enough arguments\n";
 		return 0;
 	}
 	

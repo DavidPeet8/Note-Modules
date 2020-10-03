@@ -20,7 +20,7 @@ TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
 OBJECTPATHS=${MAIN_PATH} ${OTHER_PATHS}
 DEPENDSPATHS=${OBJECTPATHS:.o=.d}
 
-.PHONY: clean debug compile link test
+.PHONY: clean debug compile link test warn error silent info
 
 ${EXEC}: compile link
 -include ${DEPENDSPATHS}
@@ -38,9 +38,24 @@ ${TEST_OBJDIR}/%.o: ${TESTDIR}/%.cc
 	${COMPILER} $< -std=${CPPSTANDARD} -c -o $@ ${COMPILATION_FLAGS}
 
 
-debug: COMPILATION_FLAGS+=-g -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 -D DEBUG
-debug: LINKER_FLAGS+=-fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 
+debug: COMPILATION_FLAGS+=-g -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O0 -D LOGLEVEL=4
+debug: LINKER_FLAGS+=-fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O0 
 debug: ${EXEC}
+
+info: COMPILATION_FLAGS+=-D LOGLEVEL=3 -O2
+info: ${EXEC}
+
+warn: COMPILATION_FLAGS+=-D LOGLEVEL=2 -O2
+warn: ${EXEC}
+
+error: COMPILATION_FLAGS+=-D LOGLEVEL=1 -O2
+warn: ${EXEC}
+
+silent: COMPILATION_FLAGS+=-D LOGLEVEL=0 -O2
+silent: ${EXEC}
+
+prod: COMPILATION_FLAGS+=-Ofast
+prod: silent
 
 compile: $(OBJECTPATHS)
 	@echo Compiled

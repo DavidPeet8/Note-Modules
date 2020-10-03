@@ -1,6 +1,7 @@
 #include "preprocessor.h"
 #include "file.h"
 #include "command.h"
+#include "logger.h"
 
 #include <fstream>
 #include <iostream>
@@ -26,7 +27,7 @@ fileList{fl}, baseNotesDir{move(notesDir)}
 // API Build function
 void Preprocessor::build()
 {
-	cerr << "[ INFO ]: Initiating build ..." << endl;
+	Logger::info() << "Initiating build ...\n";
 	// Setup the build directory 
 
 	int status = mkdir((baseNotesDir + "/build").c_str(), S_IRWXU);
@@ -37,12 +38,12 @@ void Preprocessor::build()
 	
 	while (!file->isVisited())
 	{
-		cerr << "[ INFO ]: Starting build for " << file->getName() << endl;
+		Logger::info() << "Starting build for " << file->getName() << "\n";
 		build(file->getName());
 		file = file->getNext();
 	}
 
-	cerr << "[ INFO ]: Build completed, Initiating linking step" << endl;
+	Logger::info() << "Build completed, Initiating linking step\n";
 	linkBuiltFiles(fs::absolute(baseNotesDir), ""); // Must pass absolute path
 }
 
@@ -73,17 +74,17 @@ void Preprocessor::build(const string &noteName)
 	}
 	else if (itr == fileList.end())
 	{
-		cerr << "[ ERROR ]: Note with name " << noteName << " does not exist and cannot be built" << endl;
+		Logger::err() << "Note with name " << noteName << " does not exist and cannot be built\n";
 		return;
 	}
 
 	File *note = itr->second.get();
 	if (shouldShortCircuit(note)) 
 	{
-		cerr << "[ INFO ]: File is cached and already built, skipping." << endl;
+		Logger::info() << "File is cached and already built, skipping.\n";
 		return; 
 	}
-	cerr << "[ INFO ]: " << noteName << " is not cached, building now" << std::endl;
+	Logger::info() << noteName << " is not cached, building now\n";
 
 	static basic_regex pattern("<!--.*?-->");
 	
@@ -150,7 +151,7 @@ void Preprocessor::linkBuiltFiles(const string &basePath, const string &pathTail
 			// Create the corresponding directory under 
 			if (!fs::exists(mirrorPath))
 			{
-				cerr << "[ INFO ]: Directory created: " << mirrorPath << endl;
+				Logger::info() << "Directory created: " << mirrorPath << "\n";
 				fs::create_directory(mirrorPath);
 			}
 			linkBuiltFiles(basePath, pathTail + "/" + name); // Recursively process next dir
@@ -178,7 +179,7 @@ bool Preprocessor::shouldShortCircuit(File *note)
 	if (isCached) { return true; }
 	else if (note->isVisited()) 
 	{
-		cerr << "[ ERROR ]: Cyclic dependancy detected. Exiting." << endl;
+		Logger::err() << "Cyclic dependancy detected. Exiting.\n";
 		return true;
 	}
 	return false;
@@ -209,7 +210,7 @@ void Preprocessor::includeHandler(File * const curFile, ostream &curFileStream, 
 {
 	for (const auto &target : targets)
 	{
-		cerr << "[ INFO ]: Recursively Building target " << target << endl;
+		Logger::info() << "Recursively Building target " << target << "\n";
 		build(target); // Recursively build each target to include in order
 		// Copy build contents into the current file inline
 		copyBuiltFile(curFileStream, target);
@@ -232,7 +233,7 @@ void Preprocessor::nobuildHandler(File * const curFile, ostream &curFileStream, 
 
 void Preprocessor::errHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)
 {
-	cerr << "[ WARN ]: Command not recognized, ignoring." << endl;
+	Logger::warn() << "Command not recognized, ignoring.\n";
 }
 
 void Preprocessor::imgHandler(File * const curFile, ostream &curFileStream, const vector<string> &targets)

@@ -1,5 +1,6 @@
 #include "args.h"
 #include "file.h"
+#include "logger.h"
 
 #include <string>
 #include <cmath>
@@ -23,7 +24,7 @@ baseNotesPath(fs::path(argv[1]).string()), filesToProcess()
 	}
 	else 
 	{
-		cerr << "Not enough arguments supplied." << endl;
+		Logger::err() << "Not enough arguments supplied.\n";
 		throw ":(";
 	}
 	
@@ -31,7 +32,7 @@ baseNotesPath(fs::path(argv[1]).string()), filesToProcess()
 
 void Args::initFileList(int argc, const char * const * const argv)
 {
-	cerr << "[ INFO ]: Initializing from provided file list" << endl;
+	Logger::info() << "Initializing from provided file list\n";
 
 	// Set hashtable size to be argc^2 to attempt to minimize probability of collision
 	filesToProcess.reserve(pow(argc, 2));
@@ -54,7 +55,7 @@ void Args::initFileList(int argc, const char * const * const argv)
 
 void Args::initNoFileList()
 {
-	cerr << "[ WARN ]: No files specified defaulting to initializing from no file list" << endl; 
+	Logger::warn() << "No files specified defaulting to initializing from no file list\n"; 
 
 	fs::directory_iterator dirit(baseNotesPath + "/.flat_notes");
 	File * prev = nullptr; // Non-owning ref
@@ -83,9 +84,9 @@ void Args::printDirList()
 {
 	for (const auto &entry : filesToProcess)
 	{
-		cout << entry.first << endl;
-		cout << "FileList entry ptr:" << entry.second.get() << "\n";
-		cout << "\tnext ptr:"<< entry.second->getNext() << "\n";
-		cout << "\tprev ptr:" << entry.second->getPrev() << "\n";
+		Logger::dbg() << entry.first << "\n";
+		Logger::dbg() << "FileList entry ptr:" << entry.second.get() << "\n";
+		Logger::dbg() << "\tnext ptr:"<< entry.second->getNext() << "\n";
+		Logger::dbg() << "\tprev ptr:" << entry.second->getPrev() << "\n";
 	}
 }
