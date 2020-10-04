@@ -9,6 +9,7 @@ import { FileAccessAPIService } from '@services/file-access-api.service';
 export class SearchBarComponent implements OnInit {
 
   searchText: string;
+  deepSearch: boolean = false;
   @Output() searchResultsChange:EventEmitter<Object> = new EventEmitter<Object>();
 
   constructor(private fileAPI: FileAccessAPIService) { }
@@ -25,12 +26,22 @@ export class SearchBarComponent implements OnInit {
   		return;
   	}
 
-  	this.fileAPI.doSearch(this.searchText, this.searchCallback.bind(this));
+  	this.fileAPI.doSearch(this.searchText, this.deepSearch, this.searchCallback.bind(this));
   }
 
   searchCallback(json): void
   {
   	this.searchResultsChange.emit(json);
+  }
+
+  toggleDeep()
+  {
+    this.deepSearch = !this.deepSearch;
+  }
+
+  getIconStyle()
+  {
+    return this.deepSearch ? "fas fa-toggle-on" : "fas fa-toggle-off";
   }
 
 }

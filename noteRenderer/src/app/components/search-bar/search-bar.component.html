@@ -1,4 +1,6 @@
 <section class="search-bar-container">
 	<input (keyup)="doSearch()" [(ngModel)]="searchText" type="text" class="search-bar"/>
-	<button (click)="doSearch()" class="button" type="submit"><i class="submit fa fa-search"></i></button>
+	<button (click)="toggleDeep()" class="button" type="submit">
+		<i class="submit {{getIconStyle()}}"></i>
+	</button>
 </section>

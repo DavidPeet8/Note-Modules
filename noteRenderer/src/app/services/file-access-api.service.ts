@@ -135,9 +135,10 @@ export class FileAccessAPIService {
 		this.publishCodeEvent = publishMethods.codeEvent;
 	}
 
-	async doSearch(searchTerm, callback)
+	async doSearch(searchTerm, isDeep, callback)
 	{
-		await fetch(this.host + "/search/" + searchTerm, { method: 'POST' })
+		let queryString = isDeep ? "?deep=true" : "?deep=false";
+		await fetch(this.host + "/search/" + searchTerm + queryString, { method: 'POST' })
 		.then((data) => {
 			return data.json();
 		})

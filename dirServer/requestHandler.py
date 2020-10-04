@@ -87,7 +87,8 @@ def get_image(image_name):
 
 @app.route('/search/<string:search_term>', methods=['POST'])
 def do_search(search_term):
-	fileMap = searchDir("~/.notes/.flat_notes", search_term, True)
+	isDeep = request.args.get('deep').lower() == "true";
+	fileMap = searchDir("~/.notes/.flat_notes", search_term, isDeep)
 
 	resp = jsonify(fileMap)
 	return setAccessControlHeaders(resp)
