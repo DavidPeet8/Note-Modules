@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, send_file, Response
 
 from config import config, Config
 
-sys.path.insert(1, os.path.expanduser("~/.notes_cfg/.exe/searchLib"))
+sys.path.insert(1, os.path.expanduser("~/.notes_cfg/exe/searchLib"))
 from search import searchDir, dumpMap
 
 app = Flask(__name__)

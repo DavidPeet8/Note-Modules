@@ -22,7 +22,7 @@ export class FileAccessAPIService {
 	activeFile = new File();
 	publishDirEvent = null;
 	publishCodeEvent = null;
-	host = 'http://localhost:8000';
+	host = 'http://localhost:8000'; // TODO: change this to being read from a file
 
 	constructor() 
 	{ 

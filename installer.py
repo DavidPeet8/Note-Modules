@@ -3,11 +3,11 @@
 import os, subprocess
 from shutil import copy, copytree, rmtree
 import sys, argparse
-# getopt is a bit simpler than arg parse even though it is not the recommended module
 
 basePath = os.path.expanduser("~/.notes_cfg")
-installPath = os.path.expanduser("~/.notes_cfg/.exe")
-notesDirPaths = [os.path.expanduser("~/.notes")]
+installPath = os.path.expanduser("~/.notes_cfg/exe")
+notesDirPath = os.path.expanduser("~/.notes")
+cfgPath = basePath + "/config"
 
 def parse_args(arglist):
 	parser = argparse.ArgumentParser()
@@ -16,6 +16,15 @@ def parse_args(arglist):
 	parser.add_argument('-c', '--clean', action="store_true")
 	parser.add_argument('-l', '--loglevel', default=-1) # Store -1 so we make a prod build
 	return parser.parse_args(arglist)
+
+args = parse_args(sys.argv[1:])
+call_path = os.path.dirname(os.path.abspath(sys.argv[0]));
+
+if args.path:
+	notesDirPath = os.path.expanduser(args.path)
+
+	if not os.path.exists(notesDirPath):
+			os.mkdir(notesDirPath)	
 
 if not os.path.exists(basePath):
 	os.mkdir(basePath)
@@ -26,27 +35,35 @@ else:
 	rmtree(installPath)
 	print("Cleaned old installation")
 
-args = parse_args(sys.argv[1:])
-
-if args.path:
-	newPath= os.path.expanduser(args.path)
-	notesDirPaths += [newPath]
-
-	if not os.path.exists(newPath):
-			os.mkdir(newPath)		
-
+if not os.path.exists(cfgPath):
+	os.mkdir(cfgPath)
+else:
+	rmtree(cfgPath)
+	print("Cleaned old configuration")
 
 print("Necessary Directories Created")
 
+# ---------------------------------------------------------------------------------------------
+
 # Install the directory server
-copytree("./dirServer", installPath + "/dirServer")
+copytree(call_path + "/dirServer", installPath + "/dirServer")
 print("Installed Local Directory Server")
+
 # Install the search library
-copytree("./searchLib", installPath + "/searchLib")
+copytree(call_path + "/searchLib", installPath + "/searchLib")
 print("Installed python searching library")
+
+# Install the config library
+copytree(call_path + "/configLib", installPath + "/configLib")
+print("Installed python configuration library")
+
+# Install config files
+copytree(call_path + "/config", cfgPath)
+print("Installed configuration files")
+
 # Remake the file
 cwd = os.getcwd()
-os.chdir("./preprocessor")
+os.chdir(call_path + "/preprocessor")
 loglevel = int(args.loglevel)
 
 if args.clean:
@@ -67,18 +84,19 @@ else:
 
 print("Remade Preprocessor")
 os.chdir(cwd)
+
 # Install the preprocessor
-copy("./preprocessor/preprocessor", installPath + "/preprocessor")
+copy(call_path + "/preprocessor/preprocessor", installPath + "/preprocessor")
 print("Installed Preprocessor")
+
 # Install the UI
-copytree("./noteRenderer/build", installPath + "/UI")
+copytree(call_path + "/noteRenderer/build", installPath + "/UI")
 print("Installed UI")
+
 # Install the cli driver
-copytree("./driver", installPath + "/driver")
+copytree(call_path + "/driver", installPath + "/driver")
 os.rename(installPath + "/driver/driver.py", installPath + "/driver/notes")
 print("Installed CLI")
 
-for path in notesDirPaths:
-	if not os.path.exists(path):
-		os.mkdir(path)
-	copy("./notes_gitignore", path + "/.gitignore")
+# Install the gitignore
+copy(call_path + "/notes_gitignore", notesDirPath + "/.gitignore")

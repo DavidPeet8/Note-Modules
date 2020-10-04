@@ -36,6 +36,7 @@ export class CodeviewComponent implements OnInit {
 		// Fetch the content Required, then set it here
 		this.renderContent = this.fileAPI.getCurrentFile();
 		this.setOverscroll();
+		this.scrollContent.nativeElement.scrollTo(0,0);
 	}
 
 	// TODO: Use Angular Observables

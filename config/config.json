@@ -1,18 +1,41 @@
 {
-	"base_path": "~/.notes",
-	"flat_notes_path": "~/.notes/.flat_notes",
-	"exe_path": "~/.notes_cfg",
+	"notes_cfg":{
+		"base_path": "~/.notes",
+		"flat_notes_path": "~/.notes/.flat_notes"
+	},
 
-	"render_port": "4300",
+	"exe_cfg": {
+		"base_path": "~/.notes_cfg",
+		"exe_path": "~/.notes_cfg/exe"
+	},
 
-	"default_applications": {
-		"textEditorCmd": "subl",
+	"renderer": {
+		"debug": {
+			"host_name": "localhost",
+			"port": "4300"
+		},
+		"prod": {
+			"host_name": "davidpeet8.github.io/Note-Modules/#"
+		}
+	},
+
+	"dir_server": {
+		"host_name": "localhost",
+		"port": "8000"
+	},
+
+	"default_apps": {
+		"text_editor_path": "subl"
 	},
 	
 	"processes": {
-		"preprocessor": "~/.notes_cfg/.exe/preprocessor",
-		"server": "~/.notes_cfg/.exe/dirServer/server.py",
-		"ui": "~/.notes_cfg/.exe/UI",
-		"search_engine": "~/.notes_cfg/.exe/searchEngine",
+		"preprocessor_pathsfx": "/preprocessor",
+		"server_pathsfx": "/dirServer/server.py",
+		"ui_pathsfx": "/UI",
+		"search_engine_pathsfx": "/searchEngine"
 	},
+
+	"external_procs": {
+		"git_path": "git"
+	}
 }

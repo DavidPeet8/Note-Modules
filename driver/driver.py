@@ -4,24 +4,25 @@ import cmd, sys, os, shutil, re
 import collections
 import shlex
 from fs_helpers import *
-from config import *
 from color_scheme import print_dir, get_prompt
 from process_manager import reap_pid, open_default, spawn, spawn_quiet, run, spawn_attach_stdout
 from argparser import *
 
-sys.path.insert(1, os.path.expanduser("~/.notes_cfg/.exe/searchLib"))
+sys.path.insert(1, os.path.expanduser("~/.notes_cfg/exe/searchLib"))
 from search import searchDirList, dumpMap
 
-hasStartedFileServer = False
+sys.path.insert(1, os.path.expanduser("~/.notes_cfg/exe/configLib"))
+from config_reader import *
 
+hasStartedFileServer = False
 args = get_driver_args(sys.argv[1:])
 
 if args.path:
 	update_base_path(args.path)
 
-if not os.path.isdir(get_base_path()):
-	os.mkdir(get_base_path())
-os.chdir(get_base_path()) # Set working directory to base of notes directory
+if not os.path.isdir(get_notes_path()):
+	os.mkdir(get_notes_path())
+os.chdir(get_notes_path()) # Set working directory to base of notes directory
 
 
 def invalid(reason=""):
@@ -46,8 +47,8 @@ Type help or ? for a list of commands.
 
 	# should recieve no arguments
 	def do_init(self, arg):
-		check_and_mkdirs([get_flat_notes_path(), get_base_path()+"/build", get_base_path() + "/.config", get_base_path() + "/.assets"])
-		temp_chdir_run(get_base_path(), self.do_git, ["init"])
+		check_and_mkdirs([get_flat_notes_path(), get_notes_path()+"/build", get_notes_path() + "/.config", get_notes_path() + "/.assets"])
+		temp_chdir_run(get_notes_path(), self.do_git, ["init"])
 
 
 	# Directory to open in text editor
@@ -129,7 +130,7 @@ Type help or ? for a list of commands.
 		args = get_remove_args(arglist)
 		
 		if args.permanent:
-			temp_chdir_run(get_base_path(), self.perm_remove, [args.paths])
+			temp_chdir_run(get_notes_path(), self.perm_remove, [args.paths])
 			return			
 
 		for rgx in args.paths:
@@ -169,19 +170,18 @@ Type help or ? for a list of commands.
 		sys.exit()
 
 	def do_save(self, args):
-		temp_chdir_run_list(get_base_path(), [self.do_git]*3, [["add ."], ["commit -m \"Save\""], ["push"]])
+		temp_chdir_run_list(get_notes_path(), [self.do_git]*3, [["add ."], ["commit -m \"Save\""], ["push"]])
 		
 	def do_git(self, args):
-		GITEXE = "git"
 		arglist = shlex.split(args)
-		arglist.insert(0, GITEXE)
+		arglist.insert(0, get_git_path())
 		run(arglist)
 
 		# List of things to render in the UI
 
 	def do_render(self, args):
 		arglist = shlex.split(args)
-		arglist.insert(0, SERVER_EXE)
+		arglist.insert(0, get_dir_server_path())
 		args = get_render_args(arglist)
 
 		# Start the file server
@@ -194,9 +194,9 @@ Type help or ? for a list of commands.
 
 		# Serve the UI
 		if args.debug and not args.attach:
-			pid2 = spawn_quiet(["python3", "-m", "http.server", RENDER_PORT, "-d", UI_EXE])
+			pid2 = spawn_quiet(["python3", "-m", "http.server", get_render_dbg_port(), "-d", get_ui_path()])
 			reap_pid([pid2])
-			open_default("http://localhost:" + RENDER_PORT)
+			open_default("http://localhost:" + get_render_dbg_port())
 			print("UI PID: ", pid2)
 		elif not args.attach:
 			open_default("https://davidpeet8.github.io/Note-Modules")
@@ -205,15 +205,14 @@ Type help or ? for a list of commands.
 
 	def do_build(self, args):
 		arglist = shlex.split(args)
-		arglist.insert(0, PREPROCESSOR_EXE)
-		arglist.insert(1, get_base_path())
+		arglist.insert(0, get_preproc_path())
+		arglist.insert(1, get_notes_path())
 		run(arglist)
 
 	def do_clean(self, args):
-		temp_chdir_run(get_base_path(), shutil.rmtree, ["build"])
+		temp_chdir_run(get_notes_path(), shutil.rmtree, ["build"])
 
 
-	# Might be a better idea to just make a python executable for searching
 	# Pythons regex lib is probably implemented in C++ anyway
 	def do_search(self, args):
 		args = get_search_args(shlex.split(args), [get_flat_notes_path()])
@@ -240,7 +239,7 @@ Type help or ? for a list of commands.
 	def do_refs(self, args):
 		# print all references to a note in the base dir
 		rawarglist = shlex.split(args)
-		temp_chdir_run(get_base_path(), self.get_refs, [rawarglist])
+		temp_chdir_run(get_notes_path(), self.get_refs, [rawarglist])
 
 
 	# -------------------- ALIASES -------------------
@@ -442,10 +441,8 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			return ""
 
 	def edit_files(self, arglist):
-		cmd = ""
 		args = get_edit_args(arglist)
-		if args.command:
-			cmd = args.command
+		cmd = args.command
 
 		for p in args.paths:
 			if not os.path.exists(p):
@@ -466,7 +463,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			if file.is_dir() and file.name != ".flat_notes" and file.name != "build":
 				temp_chdir_run(file.path, self.get_refs, [arglist])
 			elif file.name in arglist:
-				print(os.path.relpath(file.path, start=get_base_path()))
+				print(os.path.relpath(file.path, start=get_notes_path()))
 
 	def file_complete(self, text, line, startIdx, endIdx):
 		if text:

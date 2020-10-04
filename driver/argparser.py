@@ -1,4 +1,7 @@
-import argparse
+import argparse, sys, os
+
+sys.path.insert(1, os.path.expanduser("~/.notes_cfg/exe/configLib"))
+from config_reader import *
 
 def get_driver_args(arglist):
 	parser = argparse.ArgumentParser()
@@ -7,7 +10,7 @@ def get_driver_args(arglist):
 
 def get_edit_args(arglist):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-c', '--command', help="custom command to open the file Ex subl for sublime text")
+	parser.add_argument('-c', '--command', default=get_default_editor(), help="custom command to open the file Ex subl for sublime text")
 	parser.add_argument('paths', nargs='+')
 	return parser.parse_args(arglist)
 
