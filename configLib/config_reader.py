@@ -39,7 +39,7 @@ def get_dir_server_host():
 	return json["dir_server"]["host_name"]
 
 def get_default_editor():
-	return os.path.expanduser(json["default_apps"]["test_editor_path"])
+	return os.path.expanduser(json["default_apps"]["text_editor_path"])
 
 def get_preproc_path():
 	return os.path.expanduser(get_exe_path() + json["processes"]["preprocessor_pathsfx"])

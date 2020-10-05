@@ -304,7 +304,7 @@ Type help or ? for a list of commands.
 		return self.file_dir_complete(text, line, startIdx, endIdx)
 
 	def complete_edit(self, text, line, startIdx, endIdx):
-		return self.file_dir_note_complete(text, line, startIdx, endIdx)
+		return self.note_complete(text, line, startIdx, endIdx)
 
 	def complete_mv(self, text, line, startIdx, endIdx):
 		return self.file_dir_complete(text, line, startIdx, endIdx)

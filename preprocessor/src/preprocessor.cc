@@ -107,7 +107,8 @@ void Preprocessor::build(const string &noteName)
 		}
 
 		// Loop over all matches found in this line
-		for (auto match = matchBeginItr; match != matchEndItr; ++match)
+		auto match = matchBeginItr;
+		for (; match != matchEndItr; ++match)
 		{
 			string matchedStr = match->str();
 			out << match->prefix();
@@ -124,8 +125,8 @@ void Preprocessor::build(const string &noteName)
 				};
 				cmd.apply(handlers);
 			}
-			if (match == matchEndItr) { out << match->suffix() << end; }
 		}
+		if (match == matchEndItr) { out << match->suffix() << end; }
 	}
 
 	out << flush;
