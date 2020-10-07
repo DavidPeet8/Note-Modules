@@ -15,7 +15,7 @@ Note modules also provides the following features:
 After cloning the repo, cd to the root directory of the repo and do the following:
 1. Run `./installer.py`
 2. Open `~/.bash_profile` or `~/.bashrc` or another file that gets interpreted on shell creation and append the following:
-`PATH=$PATH:~/.notes_cfg/.exe:~/.notes_cfg/.exe/driver`
+`PATH=$PATH:~/.notes_cfg/exe:~/.notes_cfg/exe/driver`
 Installation is now complete. To run the note cli, run `notes`. Note that you will have to open a new shell or reload the file you appended the previous line to via `source <file name>`
 
 

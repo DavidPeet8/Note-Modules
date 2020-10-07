@@ -508,13 +508,9 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			]
 		else:
 			arr = dir_contents(os.path.expanduser(get_flat_notes_path()) + "/")
-			#os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/")
 			for entry in arr:
 				if entry.name.startswith(os.path.basename(text)):
 					print(entry.name)
-
-		print("The text is: " + text)
-		print("The line is: " + line)
 
 # Start the CLI if this is the main process
 if __name__ == '__main__':
