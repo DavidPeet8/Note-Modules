@@ -7,6 +7,7 @@ from fs_helpers import *
 from color_scheme import print_dir, get_prompt
 from process_manager import reap_pid, open_default, spawn, spawn_quiet, run, spawn_attach_stdout
 from argparser import *
+import readline
 
 sys.path.insert(1, os.path.expanduser("~/.notes_cfg/exe/searchLib"))
 from search import searchDirList, dumpMap
@@ -23,6 +24,10 @@ if args.path:
 if not os.path.isdir(get_notes_path()):
 	os.mkdir(get_notes_path())
 os.chdir(get_notes_path()) # Set working directory to base of notes directory
+
+# This is needed to autocomplete with the + symbol
+old_delims = readline.get_completer_delims()
+readline.set_completer_delims(old_delims.replace('+', ''))
 
 
 def invalid(reason=""):
@@ -502,7 +507,14 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 				if entry.name.startswith(os.path.basename(text))
 			]
 		else:
-			print(os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/"))
+			arr = dir_contents(os.path.expanduser(get_flat_notes_path()) + "/")
+			#os.path.basename(entry.path) for entry in dir_contents(os.path.expanduser(get_flat_notes_path()) + "/")
+			for entry in arr:
+				if entry.name.startswith(os.path.basename(text)):
+					print(entry.name)
+
+		print("The text is: " + text)
+		print("The line is: " + line)
 
 # Start the CLI if this is the main process
 if __name__ == '__main__':

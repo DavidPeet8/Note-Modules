@@ -15,6 +15,9 @@ def searchDir(basePath, pattern, isDeep):
 	return resultsMap
 
 def _search(basePath, pattern, isDeep, resultsMap):
+	if not os.path.isdir(basePath):
+		return
+		
 	for file in os.scandir(basePath):
 		if file.is_dir():
 			_search(file.path, pattern, isDeep, resultsMap)
@@ -23,7 +26,7 @@ def _search(basePath, pattern, isDeep, resultsMap):
 
 		if isDeep and file.is_file():
 			fcontents = open(file.path, 'r', encoding='utf8').read()
-			matches = len(re.findall(pattern, fcontents))
+			matches = len(re.findall(pattern, fcontents, re.IGNORECASE))
 			if matches > 0:
 				resultsMap[file.name] = resultsMap[file.name] + matches if (file.name in resultsMap) else matches
 
