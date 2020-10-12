@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-help-modal',
-  templateUrl: './help-modal.component.html',
-  styleUrls: ['./help-modal.component.sass']
+  selector: 'app-install-modal',
+  templateUrl: './install-modal.component.html',
+  styleUrls: ['./install-modal.component.sass']
 })
-export class HelpModalComponent implements OnInit {
+export class InstallModalComponent implements OnInit {
 
   constructor(private router: Router) { }
 

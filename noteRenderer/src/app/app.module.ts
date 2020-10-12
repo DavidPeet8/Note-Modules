@@ -17,7 +17,8 @@ import { FileAccessAPIService } from '@services/file-access-api.service';
 
 import { MarkedOptions, MarkedRenderer } from 'ngx-markdown';
 import { HelpModalComponent } from './components/help-modal/help-modal.component';
-import { SearchBarComponent } from './components/search-bar/search-bar.component'
+import { SearchBarComponent } from './components/search-bar/search-bar.component';
+import { InstallModalComponent } from './components/install-modal/install-modal.component'
 
 export function markedOptionsFactory(): MarkedOptions 
 {
@@ -101,6 +102,7 @@ export function markedOptionsFactory(): MarkedOptions
     RenderParentComponent,
     HelpModalComponent,
     SearchBarComponent,
+    InstallModalComponent,
   ],
   imports: [
     BrowserModule,

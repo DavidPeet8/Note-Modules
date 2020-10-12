@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 class File 
 {
@@ -24,7 +25,7 @@ export class FileAccessAPIService {
 	publishCodeEvent = null;
 	host = 'http://localhost:8000'; // TODO: change this to being read from a file
 
-	constructor() 
+	constructor(private router: Router) 
 	{ 
 		this._fetchDirList();
 		this._fetchFile(this.activeFile.activeFileURI);
@@ -48,6 +49,9 @@ export class FileAccessAPIService {
 			this.rootDir.dirlist = json.dirs;
 			this.rootDir.lastModifiedTime = json.modifyTime;
 			this.publishDirEvent();
+		})
+		.catch((err) => {
+			this.router.navigate(['install']);
 		});
 	}
 
