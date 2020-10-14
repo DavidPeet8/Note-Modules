@@ -81,7 +81,7 @@ def get_dir_tree_updates():
 
 @app.route('/image/<string:image_name>', methods=['GET'])
 def get_image(image_name):
-	basePathForRequest = config.serveDir + '.assets/'
+	basePathForRequest = config.serveDir + '/.assets/'
 	resp = send_file(basePathForRequest + image_name, mimetype='image/gif')
 	return setAccessControlHeaders(resp)
 
