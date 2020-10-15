@@ -20,7 +20,11 @@ export class CodeviewComponent implements OnInit {
 		displayMode: false,
 		throwOnError: false,
 		macros: {
-			//"\\floor"
+			"\\floor": "\\left\\lfloor{#0}\\right\\rfloor",
+			"\\ceil": "\\left\lceil{#1}\\right\\rceil",
+			"\\paren": "\\left({#1}\\right)",
+			"\\brac": "\\left[{#1}\\right]",
+			"\\brace": "\\lbrace{#1}\\rbrace"
 		}
 	}
 	
