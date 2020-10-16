@@ -291,7 +291,7 @@ Type help or ? for a list of commands.
 		return self.dir_complete(text, line, startIdx, endIdx)
 
 	def complete_cat(self, text, line, startIdx, endIdx):
-		return self.file_complete(text, line, startIdx, endIdx)
+		return self.file_dir_complete(text, line, startIdx, endIdx)
 
 	def complete_cd(self, text, line, startIdx, endIdx):
 		return self.dir_complete(text, line, startIdx, endIdx)
@@ -470,30 +470,42 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 			elif file.name in arglist:
 				print(os.path.relpath(file.path, start=get_notes_path()))
 
+	def get_word_at_index(self, text, index):
+		# Extract string including startIndex
+		tokens = re.split(" ", text)
+		length = 0;
+		for token in tokens:
+			length += len(token)
+			if index < length:
+				return token
+		return ""
+
+
 	def file_complete(self, text, line, startIdx, endIdx):
-		if text:
+		fullpath = self.get_word_at_index(line, startIdx)
+
+		if fullpath:
 			return [
-				entry.path for entry in dir_contents(text)
-				if entry.is_file() and entry.name.startswith(os.path.basename(text))
+				os.path.basename(entry.path) for entry in dir_contents(fullpath)
+				if entry.is_file() and entry.name.startswith(os.path.basename(fullpath))
 			]
 		else: 
 			print(entry.path for entry in dir_contents(text) if entry.is_file())
 
 	def dir_complete(self, text, line, startIdx, endIdx):
-		if text:
+		fullpath = self.get_word_at_index(line, startIdx)
+
+		if fullpath:
 			return [
-				entry.path for entry in dir_contents(text)
-				if entry.is_dir() and entry.name.startswith(os.path.basename(text))
+				os.path.basename(entry.path) for entry in dir_contents(fullpath)
+				if entry.is_dir() and entry.name.startswith(os.path.basename(fullpath))
 			]
 		else: 
 			print(entry.path for entry in dir_contents(text) if entry.is_dir())
 
 	def file_dir_complete(self, text, line, startIdx, endIdx):
 		if text:
-			return [
-				entry.path for entry in dir_contents(text)
-				if (entry.is_dir() or entry.is_file()) and entry.name.startswith(os.path.basename(text))
-			]
+			return self.dir_complete(text, line, startIdx, endIdx) + self.file_complete(text, line, startIdx, endIdx)
 		else: 
 			print(entry.path for entry in dir_contents(text) if entry.is_dir() or entry.is_file())
 
