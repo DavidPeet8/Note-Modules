@@ -476,38 +476,39 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		length = 0;
 		for token in tokens:
 			length += len(token)
-			if index < length:
+			if index <= length:
 				return token
 		return ""
 
 
-	def file_complete(self, text, line, startIdx, endIdx):
-		fullpath = self.get_word_at_index(line, startIdx)
-
+	def complete_abs(self, fullpath, cond):
 		if fullpath:
 			return [
 				os.path.basename(entry.path) for entry in dir_contents(fullpath)
-				if entry.is_file() and entry.name.startswith(os.path.basename(fullpath))
+				if cond(entry) and entry.name.startswith(os.path.basename(fullpath))
 			]
 		else: 
-			print(entry.path for entry in dir_contents(text) if entry.is_file())
+			return [
+				os.path.basename(entry.path) for entry in dir_contents(fullpath)
+				if cond(entry)
+			]
+
+	def file_complete(self, text, line, startIdx, endIdx):
+		fullpath = self.get_word_at_index(line, startIdx)
+
+		return self.complete_abs(fullpath, lambda entry: entry.is_file())
 
 	def dir_complete(self, text, line, startIdx, endIdx):
 		fullpath = self.get_word_at_index(line, startIdx)
 
-		if fullpath:
-			return [
-				os.path.basename(entry.path) for entry in dir_contents(fullpath)
-				if entry.is_dir() and entry.name.startswith(os.path.basename(fullpath))
-			]
-		else: 
-			print(entry.path for entry in dir_contents(text) if entry.is_dir())
+		return self.complete_abs(fullpath, lambda entry: entry.is_dir())
+
 
 	def file_dir_complete(self, text, line, startIdx, endIdx):
-		if text:
-			return self.dir_complete(text, line, startIdx, endIdx) + self.file_complete(text, line, startIdx, endIdx)
-		else: 
-			print(entry.path for entry in dir_contents(text) if entry.is_dir() or entry.is_file())
+		fullpath = self.get_word_at_index(line, startIdx)
+
+		return self.complete_abs(fullpath, lambda entry: entry.is_dir()) + self.complete_abs(fullpath, lambda entry: entry.is_file())
+
 
 	def file_dir_note_complete(self, text, line, startIdx, endIdx):
 		return self.file_dir_complete(text, line, startIdx, endIdx) + self.note_complete(text, line, startIdx, endIdx);
