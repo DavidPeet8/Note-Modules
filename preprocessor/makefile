@@ -12,7 +12,7 @@ TESTDIR=./test
 
 MAIN_OBJ=main.o
 MAIN_PATH=$(call addprefix, ${OBJDIR}/, ${MAIN_OBJ})
-OTHER_OBJS=args.o preprocessor.o command.o dfa.o logger.o
+OTHER_OBJS=args.o preprocessor.o command.o dfa.o logger.o arg_utils.o arg_parser.o preprocessor_utils.o
 OTHER_PATHS=$(call addprefix, ${OBJDIR}/, ${OTHER_OBJS})
 TEST_OBJS=preprocessor.test.o
 TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
@@ -20,7 +20,7 @@ TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
 OBJECTPATHS=${MAIN_PATH} ${OTHER_PATHS}
 DEPENDSPATHS=${OBJECTPATHS:.o=.d}
 
-.PHONY: clean debug compile link test warn error silent _silent info
+.PHONY: clean debug compile link test warn error silent _silent info symbols
 
 ${EXEC}: compile link
 -include ${DEPENDSPATHS}
@@ -38,6 +38,9 @@ ${TEST_OBJDIR}/%.o: ${TESTDIR}/%.cc
 	${COMPILER} $< -std=${CPPSTANDARD} -c -o $@ ${COMPILATION_FLAGS}
 
 
+symbols: COMPILATION_FLAGS+=-g -D LOGLEVEL=0 -O0
+symbols: ${EXEC}
+
 debug: COMPILATION_FLAGS+=-g -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O0 -D LOGLEVEL=4
 debug: LINKER_FLAGS+=-fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls -O0 
 debug: ${EXEC}
@@ -49,7 +52,7 @@ warn: COMPILATION_FLAGS+=-D LOGLEVEL=2 -O2
 warn: ${EXEC}
 
 error: COMPILATION_FLAGS+=-D LOGLEVEL=1 -O2
-warn: ${EXEC}
+error: ${EXEC}
 
 silent: COMPILATION_FLAGS+=-O2
 silent: _silent

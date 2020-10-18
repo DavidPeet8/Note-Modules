@@ -1,5 +1,6 @@
 #include "file.h"
 #include "args.h"
+#include "arg_parser.h"
 #include "preprocessor.h"
 #include "logger.h"
 
@@ -30,10 +31,10 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	
-	Args a(argc, argv);
-	auto &fileList = a.getMap(); // List of files to preprocess	
-	// a.printDirList();
-
-	Preprocessor preproc(fileList, a.getBaseNotesPath());
-	preproc.build();
+	ArgParse::ArgParser parser;
+	ArgParse::Args a = parser.parse(argc, argv);
+	// a.dump();
+	
+	Preprocessor::Preprocessor preproc(a);
+	preproc.startBuild();
 }

@@ -1,6 +1,8 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
+#include "args.h"
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -11,46 +13,40 @@
 class File;
 class Cmd;
 
-class Preprocessor 
+namespace Preprocessor
 {
-	// Store a list of files to preprocess
-	std::unordered_map<std::string, std::unique_ptr<File>> &fileList;
-	const std::string baseNotesDir;
 
-	// Store a cache of files that already have been processed - indicate 
-	std::unordered_set<File*> cache;
+	class Preprocessor 
+	{
+		// Store a list of files to preprocess
+		ArgParse::Args &globalArgs;
+		std::unordered_map<std::string, std::unique_ptr<File>> &fileList;
+		const std::string baseNotesDir;
 
-public:
-	// Force the argument to be moved in 
-	Preprocessor(std::unordered_map<std::string, std::unique_ptr<File>> &filesToProcess, const std::string baseNotesDir);
-	
-	// Build the next nonvisited file in the file list
-	void build ();
+		// Store a cache of files that already have been processed - indicate 
+		std::unordered_set<File*> cache;
 
-private:
-	// Build designated file recursively
-	void build (const std::string &noteName);
+		friend void includeHandler(File * const, std::ostream &, Preprocessor * const p, const std::vector<std::string> &);
 
-	void linkBuiltFiles(const std::string &basePath, const std::string &pathTail = "");
+	public:
+		// Force the argument to be moved in 
+		Preprocessor(ArgParse::Args &a);
+		
+		// Build the next nonvisited file in the file list
+		void startBuild ();
 
-	void copyBuiltFile(std::ostream &curFileStream, const std::string &noteToAppend);
-	
-	bool shouldShortCircuit(File *note);
+	private:
+		// Build designated file recursively
+		void build (const std::string &noteName);
 
-	bool isBoldColonCase(const std::string &line);
+		void linkBuiltFiles(const std::string &basePath, const std::string &pathTail = "");
 
-	void addToFilesList(std::unordered_map<std::string, std::unique_ptr<File>>::iterator &, const std::string &);
+		void copyBuiltFile(std::ostream &curFileStream, const std::string &noteToAppend);
+		
+		void addToFilesList(std::unordered_map<std::string, std::unique_ptr<File>>::iterator &, const std::string &);
+		bool shouldShortCircuit(File *note);
+	};
 
-	const std::string getLinkPath(const std::string &);	
-
-	void includeHandler(File * const curFile, std::ostream &curFileStream, const std::vector<std::string> &targets);
-	void linkHandler(File * const curFile, std::ostream &curFileStream, const std::vector<std::string> &targets);
-	void nobuildHandler(File * const curFile, std::ostream &curFileStream, const std::vector<std::string> &targets);
-	void imgHandler(File * const curFile, std::ostream &curFileStream, const std::vector<std::string> &targets);
-	void errHandler(File * const curFile, std::ostream &curFileStream, const std::vector<std::string> &targets);
-
-	const std::string makeURL(const std::string &);
-
-};
+}
 
 #endif
