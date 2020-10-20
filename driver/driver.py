@@ -260,10 +260,31 @@ Type help or ? for a list of commands.
 			print("Cannot copy.")
 
 	def do_refs(self, args):
-		# print all references to a note in the base dir
-		rawarglist = shlex.split(args)
-		temp_chdir_run(get_notes_path(), self.get_refs, [rawarglist])
+		arglist = shlex.split(args)
+		args = get_refs_args(arglist)
+		lower_bound = 1;
+		upper_bound = -1; # -1 means unbounded
 
+		if args.lower_bound: 
+			lower_bound = int(args.lower_bound)
+
+		if args.upper_bound:
+			upper_bound = int(args.upper_bound)
+
+		if args.files:
+			# print all references to a note in the base dir
+			rawarglist = shlex.split(args)
+			temp_chdir_run(get_notes_path(), self.get_refs, [rawarglist])
+		elif args.lower_bound or args.upper_bound:
+			# get refs for everything, print refs in given range
+			refs_dict = {} # Map file name to number of references
+			temp_chdir_run(get_notes_path(), self.get_refs_in_range, [refs_dict])
+			for entry in refs_dict:
+				if refs_dict[entry] >= lower_bound and (upper_bound == -1 or refs_dict[entry] <= upper_bound):
+					print(entry, refs_dict[entry])
+		else:
+			print("Invalid command invocation")
+ 
 
 	# -------------------- ALIASES -------------------
 
@@ -496,8 +517,21 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		for file in dirlist:
 			if file.is_dir() and file.name != "build":
 				temp_chdir_run(file.path, self.get_refs, [arglist])
-			elif file.name in arglist:
+			elif not file.is_dir and file.name in arglist:
 				print(os.path.relpath(file.path, start=get_notes_path()))
+
+	def get_refs_in_range(self, ref_dict):
+		dirlist = os.scandir()
+
+		for file in dirlist:
+			if file.is_dir() and file.name != "build" and (not file.name.startswith(".") or file.name == ".flat_notes"):
+				temp_chdir_run(file.path, self.get_refs_in_range, [ref_dict])
+			elif not file.is_dir():
+				if file.name in ref_dict:
+					ref_dict[file.name] += 1
+				else:
+					ref_dict[file.name] = 1
+
 
 	def get_word_at_index(self, text, index):
 		# Extract string including startIndex

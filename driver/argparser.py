@@ -56,3 +56,9 @@ def get_render_args(arglist):
 	parser.add_argument('target', nargs="?")
 	return parser.parse_args(arglist)
 
+def get_refs_args(arglist):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-l', '--lower-bound', help="Only display files referenced at least this number of times")
+	parser.add_argument('-u', '--upper-bound', help="Only display files referenced at most this number of times")
+	parser.add_argument('files', nargs="*", default=[], help="Set of files we want to query references for")
+	return parser.parse_args(arglist)
