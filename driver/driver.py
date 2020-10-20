@@ -154,10 +154,28 @@ Type help or ? for a list of commands.
 		if len(arglist) != 2:
 			print("Command 'mv' expects 2 arguments")
 			return
+		if not os.path.isdir(arglist[1]) and os.path.exists(arglist[1]):
+			# If the target already exists and is not a directorys
+			print("A file exists with the target path, aborting (no-clobber)")
+			return
+
 		try:
-			shutil.move(arglist[0], arglist[1])
+			# Check if the second argument is a file or a directory, if file perform a recursive rename and move
+			old_name = os.path.basename(arglist[0])
+			new_name = os.path.basename(arglist[1])
+
+			if os.path.isfile(arglist[0]) and not os.path.exists(arglist[1]) and old_name != new_name:
+				# We have a rename instead of a move
+				if os.path.exists(get_flat_notes_path() + "/" + new_name):
+					print("A note already exists with the given name, aborting")
+					return
+
+				temp_chdir_run(get_notes_path(), self.recursive_rename, [old_name, new_name])
+				shutil.move(os.path.dirname(os.path.abspath(arglist[0])) + "/" + new_name, arglist[1])
+			else:
+				shutil.move(arglist[0], arglist[1])
 		except: 
-			invalid()
+		 	invalid()
 
 
 	def do_add(self, args):
@@ -422,6 +440,17 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 
 	# ---------------- HELPERS ----------------
 
+	def recursive_rename(self, old_name, new_name):
+		# Requires that we start in root notes directory
+		dirlist = os.scandir()
+
+		for file in dirlist:
+			if file.is_dir():
+				temp_chdir_run(file.path, self.recursive_rename, [old_name, new_name])
+			elif file.name == old_name:
+				print("Renaming ", os.getcwd() + "/" + file.name)
+				shutil.move(old_name, new_name)
+
 	def add_helper(self, arglist):
 		for file in arglist:
 			os.link(get_flat_notes_path() + "/" + file, './' + file)
@@ -465,7 +494,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		dirlist = os.scandir()
 
 		for file in dirlist:
-			if file.is_dir() and file.name != ".flat_notes" and file.name != "build":
+			if file.is_dir() and file.name != "build":
 				temp_chdir_run(file.path, self.get_refs, [arglist])
 			elif file.name in arglist:
 				print(os.path.relpath(file.path, start=get_notes_path()))

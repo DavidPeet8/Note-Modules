@@ -26,6 +26,7 @@ namespace Preprocessor
 		// Store a cache of files that already have been processed - indicate 
 		std::unordered_set<File*> cache;
 
+		// TODO: Really quite horrible, remove this later & find a better way to do this 
 		friend void includeHandler(File * const, std::ostream &, Preprocessor * const p, const std::vector<std::string> &);
 
 	public:
