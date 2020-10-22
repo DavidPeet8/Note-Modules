@@ -24,7 +24,10 @@ export class CodeviewComponent implements OnInit {
 			"\\ceil": "\\left\lceil{#1}\\right\\rceil",
 			"\\paren": "\\left({#1}\\right)",
 			"\\brac": "\\left[{#1}\\right]",
-			"\\brace": "\\lbrace{#1}\\rbrace"
+			"\\brace": "\\lbrace{#1}\\rbrace",
+			"\\angle": "\\langle{#1\\rangle",
+			"\\group": "\\lgroup{#1}\\rgroup",
+			"\\mn": "\\mathnormal{#1}"
 		}
 	}
 	
@@ -39,8 +42,8 @@ export class CodeviewComponent implements OnInit {
 	{
 		// Fetch the content Required, then set it here
 		this.renderContent = this.fileAPI.getCurrentFile();
-		this.setOverscroll();
-		this.scrollContent.nativeElement.scrollTo(0,0);
+		this.codeview.nativeElement.scrollTop = 0;
+		setTimeout(this.setOverscroll.bind(this), 300);
 	}
 
 	// TODO: Use Angular Observables
@@ -52,8 +55,6 @@ export class CodeviewComponent implements OnInit {
 
 		let editorScreenHeight = this.codeview.nativeElement.offsetHeight;
 		let contentScrollHeight = this.scrollContent.nativeElement.scrollHeight;
-		console.log("editorScreenHeight: " + editorScreenHeight);
-		console.log("contentScrollHeight: " + contentScrollHeight);
 		this.content.nativeElement.style.height = contentScrollHeight + editorScreenHeight - 150 + "px";
 	}
 }

@@ -54,8 +54,6 @@ export class RenderParentComponent implements OnInit
 		console.log(json);
 		if (json == null) { this.searchResults = null; }
 		let results = Object.entries(json).sort((a,b) => { return Number(a[1]) - Number(b[1]); })
-		console.log("RESULTS: ", results);
 		this.searchResults = results.map(entry => entry[0]);
-		console.log("SearchResults: ", this.searchResults);
 	}	
 }
