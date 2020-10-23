@@ -1,8 +1,23 @@
 @import "variables"
 
 /*---------------------------- MARKDOWN STYLING -----------------------------*/
-* + .md-header
+* + .md-h1
  	margin-top: 50px
+
+* + .md-h2
+ 	margin-top: 40px
+
+* + .md-h3
+ 	margin-top: 30px
+
+* + .md-h4
+ 	margin-top: 30px
+
+* + .md-h5
+ 	margin-top: 20px
+
+* + .md-h6
+ 	margin-top: 20px
 
 .md-header
 	margin-bottom: 20px
@@ -18,8 +33,9 @@
 
 .md-ul, .md-ol
 	list-style-position: inside
+	margin-top: 10px
 	margin-left: 30px
-	margin-bottom: 16px
+	margin-bottom: 10px
 
 .md-hr
 	margin-top: 30px
@@ -34,7 +50,7 @@
 	padding-top: 10px
 	padding-bottom: 10px
 	border-radius: 5px
-	max-width: 80%
+	max-width: 90%
 
 a
 	color: $link-color
@@ -81,25 +97,34 @@ a
 
 	th, td
 		padding: 10px
+		border-right: 1px solid white
 
 	th 
 		text-align: center
+		border-bottom: 1px solid white
 
 	tr
 		padding-top: 10px
 		padding-bottom: 10px
+		border-bottom: 1px solid white
 
-	thead
-		background-color: $md-table-header-color
+	// thead
+	// 	background-color: $md-table-header-color
 
-	tbody tr:nth-child(even) 
-		background-color: $md-table-even-color
+	// tbody tr:nth-child(even) 
+	// 	background-color: $md-table-even-color
 	
-	tbody tr:nth-child(odd)
-		background-color: $md-table-odd-color
+	// tbody tr:nth-child(odd)
+	// 	background-color: $md-table-odd-color
 
 	td:first-child, th:first-child
 		padding-right: 20px
+
+	td:last-child, th:last-child
+		border-right: 0
+
+	tr:last-child
+		border-bottom: 0
 
 
 // table td 
