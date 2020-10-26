@@ -1,13 +1,17 @@
-<section (click)="closeModal()" class="modal" (keydown)="stopPropagation($event)">
-	<div class="modal-content help-container">
+<section (click)="closeModal()" class="modal">
+	<div class="modal-content help-container" (click)="stopPropagation($event)">
 		<p class="close" (click)="closeModal()" >&times;</p>
 
 		<div class="help-text">
+			<h2>Searching:</h2>
+			<ul>
+				<li>To run deep search from UI, click the toggle at the right of the search bar</li>
+			</ul>
 			<h2>Command Syntax:</h2>
 			<ul>
-				<li>[//]:# (include noteName1 noteName2 ...) --> Copy pastes the contents of another file inline</li>
-				<li>[//]:#(link noteName) --> Links to another note</li>
-				<li>[//]:#(nobuild) --> Prevents a note from showing in built filters</li>
+				<li>&lt;!-- [include noteName1 noteName2 ...] --&#x200C;&gt; Copy pastes the contents of another file inline </li>
+				<li>&lt;!-- [link noteName] --&#x200C;&gt; Links to another note </li>
+				<li>&lt;!-- [nobuild] --&#x200C;&gt; Prevents a note from showing in built filters </li>
 			</ul>
 		</div>
 	</div>
