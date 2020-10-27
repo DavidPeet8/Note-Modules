@@ -273,8 +273,7 @@ Type help or ? for a list of commands.
 
 		if args.files:
 			# print all references to a note in the base dir
-			rawarglist = shlex.split(args)
-			temp_chdir_run(get_notes_path(), self.get_refs, [rawarglist])
+			temp_chdir_run(get_notes_path(), self.get_refs, [args.files])
 		elif args.lower_bound or args.upper_bound:
 			# get refs for everything, print refs in given range
 			refs_dict = {} # Map file name to number of references
@@ -517,7 +516,7 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
 		for file in dirlist:
 			if file.is_dir() and file.name != "build":
 				temp_chdir_run(file.path, self.get_refs, [arglist])
-			elif not file.is_dir and file.name in arglist:
+			elif not file.is_dir() and file.name in arglist:
 				print(os.path.relpath(file.path, start=get_notes_path()))
 
 	def get_refs_in_range(self, ref_dict):
