@@ -17,7 +17,15 @@ def searchDir(basePath, pattern, isDeep):
 def _search(basePath, pattern, isDeep, resultsMap):
 	if not os.path.isdir(basePath):
 		return
-		
+	try:
+		_perf_search(basePath, pattern, isDeep, resultsMap)
+	except:
+		try:
+			_perf_search(basePath, re.escape(pattern), isDeep, resultsMap)
+		except:
+	 		print("Invalid Regex")
+
+def _perf_search(basePath, pattern, isDeep, resultsMap):
 	for file in os.scandir(basePath):
 		if file.is_dir():
 			_search(file.path, pattern, isDeep, resultsMap)
