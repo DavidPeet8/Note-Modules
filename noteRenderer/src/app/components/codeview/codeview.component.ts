@@ -20,14 +20,16 @@ export class CodeviewComponent implements OnInit {
 		displayMode: false,
 		throwOnError: false,
 		macros: {
-			"\\floor": "\\left\\lfloor{#0}\\right\\rfloor",
+			"\\floor": "\\left\\lfloor{#1}\\right\\rfloor",
 			"\\ceil": "\\left\lceil{#1}\\right\\rceil",
 			"\\paren": "\\left({#1}\\right)",
 			"\\brac": "\\left[{#1}\\right]",
 			"\\brace": "\\lbrace{#1}\\rbrace",
 			"\\angle": "\\langle{#1\\rangle",
 			"\\group": "\\lgroup{#1}\\rgroup",
-			"\\mn": "\\mathnormal{#1}"
+			"\\mn": "\\mathnormal{#1}",
+			"\\reg": "\\text{\\textdollar}{#1}",
+			"\\dlr": "\\text{\\textdollar}"
 		}
 	}
 	
