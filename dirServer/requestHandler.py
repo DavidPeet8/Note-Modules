@@ -88,6 +88,8 @@ def get_image(image_name):
 @app.route('/search/<string:search_term>', methods=['POST'])
 def do_search(search_term):
 	isDeep = request.args.get('deep').lower() == "true";
+	search_term = search_term.replace(" ", ".")
+	print("Search Term: |" + search_term + "|")
 	fileMap = searchDir(config.serveDir + "/build/.flat_notes", search_term, isDeep)
 
 	resp = jsonify(fileMap)
