@@ -128,7 +128,7 @@ namespace Preprocessor
 
 			if (match != matchEndItr)
 			{
-				out << match->prefix() << end; // Print the beginning
+				out << match->prefix() << " "; // Print the beginning
 			}
 
 			for (; match != matchEndItr; ++match)
@@ -142,6 +142,7 @@ namespace Preprocessor
 				}
 				out << match->suffix();
 			}
+			out << end;
 		}
 
 		out << flush;
