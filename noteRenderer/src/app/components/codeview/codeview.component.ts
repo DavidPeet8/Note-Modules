@@ -29,7 +29,8 @@ export class CodeviewComponent implements OnInit {
 			"\\group": "\\lgroup{#1}\\rgroup",
 			"\\mn": "\\mathnormal{#1}",
 			"\\reg": "\\text{\\textdollar}{#1}",
-			"\\dlr": "\\text{\\textdollar}"
+			"\\dlr": "\\text{\\textdollar}",
+			"\\abs": "\\lvert{#1}\\rvert"
 		}
 	}
 	
