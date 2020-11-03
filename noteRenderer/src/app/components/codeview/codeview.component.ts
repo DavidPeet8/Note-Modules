@@ -22,6 +22,7 @@ export class CodeviewComponent implements OnInit {
 		macros: {
 			"\\floor": "\\left\\lfloor{#1}\\right\\rfloor",
 			"\\ceil": "\\left\lceil{#1}\\right\\rceil",
+			"\\abs": "\\lvert{#1}\\rvert",
 			"\\paren": "\\left({#1}\\right)",
 			"\\brac": "\\left[{#1}\\right]",
 			"\\brace": "\\lbrace{#1}\\rbrace",
@@ -30,7 +31,8 @@ export class CodeviewComponent implements OnInit {
 			"\\mn": "\\mathnormal{#1}",
 			"\\reg": "\\text{\\textdollar}{#1}",
 			"\\dlr": "\\text{\\textdollar}",
-			"\\abs": "\\lvert{#1}\\rvert"
+			"\\iff": "\\longleftrightarrow",
+			"\\Iff": "\\Longleftrightarrow",
 		}
 	}
 	
