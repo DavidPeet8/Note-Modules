@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 namespace ArgParse
 {
 
-	Args::Args(const unordered_map<FlagType, optional<string>> &flags, 
+	Args::Args(const unordered_map<FlagType, vector<string>> &flags, 
 			   const vector<string> &positionalArgs):
 	baseNotesPath(),
 	filesToProcess()
@@ -79,9 +79,9 @@ namespace ArgParse
 		assert(positionalArgs.size() == filesToProcess.size() || positionalArgs.size() - 1 == filesToProcess.size());
 	}
 
-	void Args::initFlags(const unordered_map<FlagType, optional<string>> &flags)
+	void Args::initFlags(const unordered_map<FlagType, vector<string>> &flags)
 	{
-		unordered_map<FlagType, optional<string>>::const_iterator it;
+		unordered_map<FlagType, vector<string>>::const_iterator it;
 		
 		if ((it = flags.find(FlagType::OSTREAM)) != flags.end())
 		{
@@ -89,7 +89,7 @@ namespace ArgParse
 		}
 		if ((it = flags.find(FlagType::BASE_PATH)) != flags.end())
 		{
-			baseNotesPath = fs::path(it->second.value()).string();
+			baseNotesPath = fs::path(it->second[0]).string();
 		}
 	}
 

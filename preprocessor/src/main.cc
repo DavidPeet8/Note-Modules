@@ -16,8 +16,11 @@ The following directives are to be recognized
 
 */
 // argv[0] = proc name
-// argv[1] = path to .flat_notes
+// argv[1] = path to .notes
 // argv[i>1] = file name to build
+
+// TODO: allow directory paths as well as file names
+// Maybe prefix each directory with -d or --dir
 int main(int argc, char **argv) 
 {
 	ios_base::sync_with_stdio(false);
@@ -33,7 +36,6 @@ int main(int argc, char **argv)
 	
 	ArgParse::ArgParser parser;
 	ArgParse::Args a = parser.parse(argc, argv);
-	// a.dump();
 	
 	Preprocessor::Preprocessor preproc(a);
 	preproc.startBuild();

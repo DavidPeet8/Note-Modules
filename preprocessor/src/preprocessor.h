@@ -3,12 +3,8 @@
 
 #include "args.h"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <memory>
-#include <iostream>
+#include "datastructs.h"
+#include "io.h"
 
 class File;
 class Cmd;

@@ -1,7 +1,7 @@
 COMPILER=clang++
 EXEC=preprocessor
 TESTEXEC=unitTests
-COMPILATION_FLAGS=-Werror -Wall -MMD -stdlib=libc++
+COMPILATION_FLAGS=-Werror -Wall -MMD -stdlib=libc++ -I src/include
 LINKER_FLAGS=-lc++abi -lc++
 CPPSTANDARD=c++17
 
@@ -16,11 +16,16 @@ OTHER_OBJS=args.o preprocessor.o command.o dfa.o logger.o arg_utils.o arg_parser
 OTHER_PATHS=$(call addprefix, ${OBJDIR}/, ${OTHER_OBJS})
 TEST_OBJS=preprocessor.test.o
 TEST_PATHS=$(call addprefix, ${TEST_OBJDIR}/, ${TEST_OBJS})
+PCH_FILES=io.h other.h datastructs.h
+PCH_PATHS=$(call addprefix, src/include/, ${PCH_FILES})
+PCH_INCL1=$(call addsuffix,.gch, ${PCH_PATHS})
+PCH_INCL=$(call addprefix, -include-pch , ${PCH_INCL1})
+
 
 OBJECTPATHS=${MAIN_PATH} ${OTHER_PATHS}
 DEPENDSPATHS=${OBJECTPATHS:.o=.d}
 
-.PHONY: clean debug compile link test warn error silent _silent info symbols
+.PHONY: clean debug compile link test warn error silent _silent info symbols gen_pch use_pch
 
 ${EXEC}: compile link
 -include ${DEPENDSPATHS}
@@ -77,3 +82,13 @@ test: LINKER_FLAGS+=-lgtest_main -lgtest -lpthread
 test: ${OTHER_PATHS} ${TEST_PATHS}
 	${COMPILER} ${OTHER_PATHS} ${TEST_PATHS} -o ${TESTEXEC} ${LINKER_FLAGS}
 
+gen_pch:
+	${COMPILER} -Wall -stdlib=libc++ -std=${CPPSTANDARD} ${PCH_PATHS}
+
+pch_debug: COMPILATION_FLAGS+=${PCH_INCL} debug
+pch_info: COMPILATION_FLAGS+=${PCH_INCL} info
+pch_warn: COMPILATION_FLAGS+=${PCH_INCL} warn
+pch_error: COMPILATION_FLAGS+=${PCH_INCL} error
+pch_silent: COMPILATION_FLAGS+=${PCH_INCL} silent
+use_pch: COMPILATION_FLAGS+=${PCH_INCL} 
+use_pch: ${EXEC}

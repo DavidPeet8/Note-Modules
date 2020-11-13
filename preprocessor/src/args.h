@@ -3,12 +3,8 @@
 
 #include "arg_utils.h"
 #include "file.h"
-#include <vector>
-#include <string>
-#include <list>
-#include <unordered_map>
-#include <memory>
-#include <optional>
+#include "datastructs.h"
+#include "other.h"
 
 class File;
 
@@ -22,7 +18,7 @@ namespace ArgParse
 		bool outputToConsole = false;
 
 	public:
-		Args(const std::unordered_map<FlagType, std::optional<std::string>> &flags, 
+		Args(const std::unordered_map<FlagType, std::vector<std::string>> &flags, 
 			 const std::vector<std::string> &positionalArgs);
 
 		void dump() const;
@@ -33,7 +29,7 @@ namespace ArgParse
 	private:
 		void initFileList(const std::vector<std::string> &positionalArgs, int startIdx);
 		void initNoFileList();
-		void initFlags(const std::unordered_map<FlagType, std::optional<std::string>> &flags);
+		void initFlags(const std::unordered_map<FlagType, std::vector<std::string>> &flags);
 	};
 
 }
