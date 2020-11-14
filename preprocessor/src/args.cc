@@ -12,11 +12,67 @@
 #include "logger.h"
 
 using namespace std;
-namespace fs = std::filesystem;
+namespace fs  = std::filesystem;
+using FileMap = unordered_map<string, unique_ptr<File>>;
+using FlagMap = unordered_map<ArgParse::FlagType, vector<string>>;
+
+namespace
+{
+void addFileToFileList(FileMap &filesToProcess, const fs::path &filepath)
+{
+  Logger::dbg() << "Adding File " << filepath.filename() << " to file map\n";
+
+  if (filesToProcess.find(filepath.filename()) != filesToProcess.end()) {
+    // File already exists in the map so we do nothing
+    return;
+  }
+
+  unique_ptr<File> f = make_unique<File>(filepath.filename());
+
+  // Use the idea of inserting into a circle will preserve traversablility
+  if (filesToProcess.empty()) {
+    f->setNext(f.get());
+    f->setPrev(f.get());
+  } else {
+    File *first  = filesToProcess.begin()->second.get();
+    File *second = first->getNext();
+
+    first->setNext(f.get());
+    second->setPrev(f.get());
+    f->setPrev(first);
+    f->setNext(second);
+  }
+
+  filesToProcess[filepath.filename()] = move(f);
+}
+
+void addDirToFileList(FileMap &filesToProcess, const fs::path &dirpath)
+{
+  // Iterate over the directory path given, recursively add all files to the file list
+  fs::recursive_directory_iterator dirit(dirpath);  // Set up the dir iterator
+
+  for (const auto &entry : dirit) {
+    if (!entry.is_directory()) {
+      // It is some file we can add
+      addFileToFileList(filesToProcess, entry.path());
+    }
+    // No need for an else case, this is a recursive iterator
+  }
+}
+
+void addToFileList(FileMap &filesToProcess, const fs::path &path)
+{
+  if (fs::is_directory(path)) {
+    addDirToFileList(filesToProcess, path);
+  } else {
+    addFileToFileList(filesToProcess, path);
+  }
+}
+}  // namespace
+
 namespace ArgParse
 {
-Args::Args(const unordered_map<FlagType, vector<string>> &flags,
-           const vector<string> &positionalArgs) :
+Args::Args(const FlagMap &flags, const vector<string> &positionalArgs) :
     baseNotesPath(), filesToProcess()
 {
   int startIdx = 0;  // Index to start reading the file list from in positonal args
@@ -46,36 +102,17 @@ void Args::initFileList(const vector<string> &positionalArgs, int startIdx)
   unsigned numArgs = positionalArgs.size();
 
   // Set hashtable size to be argc^2 to attempt to minimize probability of collision
+  // Assuming we have no directories listed
   filesToProcess.reserve(pow(numArgs, 2));
-  bool fistIteration = true;
 
   for (unsigned i = startIdx; i < numArgs; i++) {
-    auto entry              = fs::path(positionalArgs[i]).filename();
-    std::unique_ptr<File> f = make_unique<File>(entry);
-
-    if (!fistIteration) {
-      auto prev = fs::path(positionalArgs[i - 1]).filename();
-      f->setPrev(filesToProcess[prev].get());
-      filesToProcess[prev]->setNext(f.get());
-    }
-
-    filesToProcess[entry] = move(f);
-    fistIteration         = false;
+    addToFileList(filesToProcess, fs::path(positionalArgs[i]));
   }
-
-  // All linked up but last node does not have a next, and first does not have a prev
-  filesToProcess[fs::path(positionalArgs[1]).filename()]->setPrev(
-      filesToProcess[fs::path(positionalArgs[numArgs - 1]).filename()].get());
-  filesToProcess[fs::path(positionalArgs[numArgs - 1]).filename()]->setNext(
-      filesToProcess[fs::path(positionalArgs[1]).filename()].get());
-
-  assert(positionalArgs.size() == filesToProcess.size()
-         || positionalArgs.size() - 1 == filesToProcess.size());
 }
 
-void Args::initFlags(const unordered_map<FlagType, vector<string>> &flags)
+void Args::initFlags(const FlagMap &flags)
 {
-  unordered_map<FlagType, vector<string>>::const_iterator it;
+  FlagMap::const_iterator it;
 
   if ((it = flags.find(FlagType::OSTREAM)) != flags.end()) {
     outputToConsole = true;
@@ -90,26 +127,11 @@ void Args::initNoFileList()
   Logger::warn() << "No files specified defaulting to initializing from no file list\n";
 
   fs::directory_iterator dirit(baseNotesPath + "/.flat_notes");
-  File *prev  = nullptr;  // Non-owning ref
-  File *first = nullptr;
+  fs::recursive_directory_iterator rit(baseNotesPath + "/.flat_notes");
 
-  for (const auto &entry : dirit) {
-    std::string filename    = entry.path().filename();
-    std::unique_ptr<File> f = make_unique<File>(filename);
-
-    if (prev != nullptr) {
-      prev->setNext(f.get());
-      f->setPrev(prev);
-    }
-    if (first == nullptr) {
-      first = f.get();
-    }
-    prev                     = f.get();
-    filesToProcess[filename] = move(f);
+  for (const auto &entry : rit) {
+    addToFileList(filesToProcess, entry.path());
   }
-  // All linked up but last node does not have a next and first does not have a prev
-  first->setPrev(prev);
-  prev->setNext(first);
 }
 
 void Args::dump() const
