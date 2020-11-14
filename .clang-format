@@ -1,0 +1,84 @@
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: Google
+IndentWidth: 2
+TabWidth: 2
+SpacesBeforeTrailingComments: 2
+AccessModifierOffset: -2
+ColumnLimit: 100
+UseCRLF: false
+UseTab: Never
+# BitFieldColonSpacing: Both
+# AlignConsecutiveBitFields: true
+# AllowShortEnumsOnASingleLine: true
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: true
+AlignEscapedNewlines: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+BreakStringLiterals: true
+CompactNamespaces: false
+FixNamespaceComments: true
+IncludeBlocks: Regroup
+IndentWrappedFunctionNames: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+ReflowComments: true
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+---
+Language: Cpp
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterStruct: true
+  AfterClass: true
+  AfterFunction: true
+  AfterControlStatement: MultiLine
+  BeforeElse: false
+  AfterNamespace: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+---
+Language: JavaScript
+JavaScriptQuotes: Single
+JavaScriptWrapImports: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterStruct: true
+  AfterClass: true
+  AfterFunction: true
+  AfterControlStatement: MultiLine
+  BeforeElse: false
+  AfterNamespace: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
