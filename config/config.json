@@ -1,14 +1,12 @@
 {
-	"notes_cfg":{
+	"notes_cfg": {
 		"base_path": "~/.notes",
 		"flat_notes_path": "~/.notes/.flat_notes"
 	},
-
 	"exe_cfg": {
 		"base_path": "~/.notes_cfg",
 		"exe_path": "~/.notes_cfg/exe"
 	},
-
 	"renderer": {
 		"debug": {
 			"host_name": "localhost",
@@ -18,23 +16,19 @@
 			"host_name": "davidpeet8.github.io/Note-Modules/#"
 		}
 	},
-
 	"dir_server": {
 		"host_name": "localhost",
 		"port": "8000"
 	},
-
 	"default_apps": {
-		"text_editor_path": "subl"
+		"text_editor_path": "code"
 	},
-	
 	"processes": {
 		"preprocessor_pathsfx": "/preprocessor",
 		"server_pathsfx": "/dirServer/server.py",
 		"ui_pathsfx": "/UI",
 		"search_engine_pathsfx": "/searchEngine"
 	},
-
 	"external_procs": {
 		"git_path": "git"
 	}

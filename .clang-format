@@ -1,4 +1,5 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# https://clang.llvm.org/docs/ClangFormat.html
 BasedOnStyle: Google
 IndentWidth: 2
 TabWidth: 2
