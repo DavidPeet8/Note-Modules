@@ -61,5 +61,6 @@
     "thread": "cpp",
     "cinttypes": "cpp",
     "typeinfo": "cpp"
-  }
+  },
+  "python.formatting.provider": "black"
 }
