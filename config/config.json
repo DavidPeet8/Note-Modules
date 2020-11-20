@@ -21,7 +21,7 @@
 		"port": "8000"
 	},
 	"default_apps": {
-		"text_editor_path": "code"
+		"text_editor_path": "subl"
 	},
 	"processes": {
 		"preprocessor_pathsfx": "/preprocessor",

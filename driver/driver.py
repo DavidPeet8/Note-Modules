@@ -111,7 +111,12 @@ Type help or ? for a list of commands.
 
     def do_cd(self, arg):
         try:
-            os.chdir(arg)
+            if arg.startswith("/"):
+                os.chdir(get_notes_path()) # Change back to root dir
+                if arg != "/":
+                    os.chdir(arg[1:])
+            else:
+                os.chdir(arg);
             promptPath = os.getcwd().split(".notes", 1)
             self.promptPath = (
                 promptPath[1]
