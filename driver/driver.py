@@ -639,6 +639,12 @@ search -d [pattern] [list of files / directories to search in - defaults to .not
                 for entry in dir_contents(fullpath)
                 if cond(entry) and entry.name.startswith(os.path.basename(fullpath))
             ]
+        elif fullpath.startswith("/"): # TODO: autocomplete for "absolute" paths
+            return [
+                os.path.basename(entry.path)
+                for entry in dir_contents(fullpath[1:], get_notes_path())
+                if cond(entry) and entry.name.startswith(os.path.basename(fullpath))
+            ]
         else:
             return [
                 os.path.basename(entry.path)
