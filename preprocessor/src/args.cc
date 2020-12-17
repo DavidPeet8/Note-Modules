@@ -18,14 +18,23 @@ using FlagMap = unordered_map<ArgParse::FlagType, vector<string>>;
 
 namespace
 {
+void addFileToFileList(FileMap &filesToProcess, const fs::path &filepath);
+void addDirToFileList(FileMap &filesToProcess, const fs::path &dirpath);
+void addToFileList(FileMap &filesToProcess, const fs::path &path);
+
+bool isHidden(const std::string &filename)
+{
+  return filename[0] == '.';
+}
+
 void addFileToFileList(FileMap &filesToProcess, const fs::path &filepath)
 {
-  Logger::dbg() << "Adding File " << filepath.filename() << " to file map\n";
-
   if (filesToProcess.find(filepath.filename()) != filesToProcess.end()) {
     // File already exists in the map so we do nothing
     return;
   }
+
+  Logger::dbg() << "Adding File " << filepath.filename() << " to file map\n";
 
   unique_ptr<File> f = make_unique<File>(filepath.filename());
 
@@ -48,24 +57,24 @@ void addFileToFileList(FileMap &filesToProcess, const fs::path &filepath)
 
 void addDirToFileList(FileMap &filesToProcess, const fs::path &dirpath)
 {
-  // Iterate over the directory path given, recursively add all files to the file list
-  fs::recursive_directory_iterator dirit(dirpath);  // Set up the dir iterator
+  fs::directory_iterator dirit(dirpath);  // Set up the dir iterator
 
   for (const auto &entry : dirit) {
-    if (!entry.is_directory()) {
-      // It is some file we can add
-      addFileToFileList(filesToProcess, entry.path());
-    }
-    // No need for an else case, this is a recursive iterator
+    addToFileList(filesToProcess, entry.path());
   }
 }
 
+// Handle adding any generic file to the file list
 void addToFileList(FileMap &filesToProcess, const fs::path &path)
 {
-  if (fs::is_directory(path)) {
-    addDirToFileList(filesToProcess, path);
+  if (!isHidden(path.filename())) {
+    if (fs::is_directory(path)) {
+      addDirToFileList(filesToProcess, path);
+    } else {
+      addFileToFileList(filesToProcess, path);
+    }
   } else {
-    addFileToFileList(filesToProcess, path);
+    Logger::warn() << "Ignoring hidden file: " << path << "\n";
   }
 }
 }  // namespace
@@ -126,10 +135,10 @@ void Args::initNoFileList()
 {
   Logger::warn() << "No files specified defaulting to initializing from no file list\n";
 
+  // This should work fine as we are only iterating over flat_notes
   fs::directory_iterator dirit(baseNotesPath + "/.flat_notes");
-  fs::recursive_directory_iterator rit(baseNotesPath + "/.flat_notes");
 
-  for (const auto &entry : rit) {
+  for (const auto &entry : dirit) {
     addToFileList(filesToProcess, entry.path());
   }
 }

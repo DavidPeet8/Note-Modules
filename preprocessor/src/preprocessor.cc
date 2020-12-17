@@ -76,7 +76,8 @@ void Preprocessor::build(const string &noteName)
     addToFilesList(itr, noteName);
   } else if (itr == fileList.end()) {
     // File does not exist
-    Logger::err() << "Note with name " << noteName << " does not exist and cannot be built\n";
+    Logger::err() << "Note with name " << noteName
+                  << " does not exist in .flat_notes and cannot be built\n";
     return;
   }
 

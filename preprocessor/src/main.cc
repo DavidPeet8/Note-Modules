@@ -8,6 +8,13 @@
 
 using namespace std;
 
+void printInvocation(int argc, char **argv)
+{
+  for (int i = 0; i < argc; i++) {
+    Logger::log() << argv[i] << "\n";
+  }
+}
+
 /*
 The following directives are to be recognized
 
@@ -18,13 +25,12 @@ The following directives are to be recognized
 // argv[0] = proc name
 // argv[1] = path to .notes
 // argv[i>1] = file name to build
-
-// TODO: allow directory paths as well as file names
-// Maybe prefix each directory with -d or --dir
 int main(int argc, char **argv)
 {
   ios_base::sync_with_stdio(false);
   cin.tie(nullptr);
+
+  // printInvocation(argc, argv);
 
   Logger::create(std::cerr);
 
