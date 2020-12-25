@@ -20,48 +20,43 @@ import { HelpModalComponent } from './components/help-modal/help-modal.component
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { InstallModalComponent } from './components/install-modal/install-modal.component'
 
-export function markedOptionsFactory(): MarkedOptions 
-{
+export function markedOptionsFactory(): MarkedOptions {
   const renderer = new MarkedRenderer();
 
-  renderer.blockquote = (text:string) => 
-  {
+  renderer.blockquote = (text: string) => {
     return `<blockquote class="md-blockquote">${text}</blockquote>`;
   }
 
-  renderer.heading = (text:string, level:number) => 
-  {
-    return `<h${level} class="md-header md-h${level}">${text}</h${level}>`;
+  renderer.heading = (text: string, level: number) => {
+    let getHeaderId = (text) => {
+      return text.toLowerCase().trim().replaceAll(" ", "-");
+    };
+    let headerid = getHeaderId(text);
+    return `<h${level} id="${headerid}" class="md-header md-h${level}">${text}</h${level}>`;
   }
 
-  renderer.hr = () => 
-  {
+  renderer.hr = () => {
     return '<hr class="md-hr">';
   }
 
-  renderer.list = (body:string, ordered:boolean, start:number) => 
-  {
+  renderer.list = (body: string, ordered: boolean, start: number) => {
     let char = ordered ? 'o' : 'u'
     return `<${char}l start="${start}" class="md-${char}l">${body}</${char}l>`;
   }
-  
-  renderer.paragraph = (text:string) => 
-  {
+
+  renderer.paragraph = (text: string) => {
     return `<p class="md-plaintext md-p">${text}</p>`;
   }
 
-  renderer.html = (html:string) => 
-  {
+  renderer.html = (html: string) => {
     return `<section class="md-html">${html}</section>`;
   }
 
-  renderer.listitem = (text:string) => 
-  {
+  renderer.listitem = (text: string) => {
     return `<li class="md-plaintext md-li">${text}</li>`;
   }
 
-  renderer.table = (header:string, body:string) => 
-  {
+  renderer.table = (header: string, body: string) => {
     return `
     <table class="md-table">
       <thead>${header}</thead>
@@ -69,18 +64,15 @@ export function markedOptionsFactory(): MarkedOptions
     </table>`;
   }
 
-  renderer.codespan = (text:string) => 
-  {
+  renderer.codespan = (text: string) => {
     return `<code class="md-codespan">${text}</code>`
   }
 
-  renderer.strong = (text:string) => 
-  {
+  renderer.strong = (text: string) => {
     return `<strong class="md-plaintext md-strong">${text}</strong>`
   }
 
-  renderer.em = (text: string) => 
-  {
+  renderer.em = (text: string) => {
     return `<em class="md-plaintext md-em">${text}</em>`;
   }
 
@@ -108,12 +100,12 @@ export function markedOptionsFactory(): MarkedOptions
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    MarkdownModule.forRoot({ 
-      loader: HttpClient, 
-      sanitize: SecurityContext.NONE, 
-      markedOptions: 
+    MarkdownModule.forRoot({
+      loader: HttpClient,
+      sanitize: SecurityContext.NONE,
+      markedOptions:
       {
-        provide: MarkedOptions, 
+        provide: MarkedOptions,
         useFactory: markedOptionsFactory
       }
     }),
