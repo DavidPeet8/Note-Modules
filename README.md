@@ -1,4 +1,4 @@
-# Note Modules
+# [Note Modules](https://notes.davidpeet.me)
 
 Note Modules is a note organization and rendering application focused on providing a modular note taking experience. Providing stylish markdown, Note Modules affords both markdown and Latex rendering to provide clean looking notes - especially technical ones.
 Designed to avoid data duplication, Note Modules solves issues of taking notes on closely related subjects but only storing data in one location. Note modules accomplishes this by supporting powerful commands enabling
@@ -7,7 +7,7 @@ Designed to avoid data duplication, Note Modules solves issues of taking notes o
 2. Link to another note inline instead of copy pasting
 3. Include images
 
-For a complete commands list, view [the preprocessor README](preprocessor/README.md)
+For a complete commands list, view the [preprocessor README](preprocessor/README.md)
 Note modules also provides features that improve on the basic markdown syntax including:
 1. **Traditional newline semantics** - all newlines in notes are treated as true newlines removing the sloppy antipattern of adding two or more trailing spaces at the end of a line to create a line break
 2. A powerful CLI allowing notes to be stored in multiple filters using hard links so that changing any instance of the note will change all instances of the note
