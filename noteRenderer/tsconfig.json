@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-        "@services/*":["app/services/*"], 
+      "@services/*": [
+        "app/services/*"
+      ],
     },
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
@@ -13,7 +15,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2016",
     "lib": [
       "es2018",
       "dom"
