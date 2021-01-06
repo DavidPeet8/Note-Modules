@@ -31,7 +31,6 @@
             "styles": [
               "src/styles.sass",
               "src/prism-monokai.sass",
-              //"node_modules/prismjs/themes/prism-okaidia.css",
               "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.css",
               "node_modules/katex/dist/katex.min.css",
             ],
@@ -56,8 +55,7 @@
               "node_modules/prismjs/components/prism-llvm.min.js",
               "node_modules/prismjs/components/prism-makefile.min.js",
               "node_modules/prismjs/components/prism-typescript.min.js",
-              "node_modules/prismjs/components/prism-opencl.min.js",
-              "node_modules/emoji-toolkit/lib/js/joypixels.min.js",
+              "node_modules/prismjs/components/prism-opencl.min.js"
             ]
           },
           "configurations": {
@@ -151,6 +149,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "noteRenderer"
 }

@@ -1,11 +1,11 @@
 @import "variables"
 
 code[class*="language-"],
-pre[class*="language-"] 
+pre[class*="language-"]
 	color: $code-off-white
 	background: none
 	text-shadow: 0 1px rgba(0, 0, 0, 0.3)
-	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace
 	font-size: 1em
 	text-align: left
 	white-space: pre
@@ -30,11 +30,11 @@ pre[class*="language-"]
 	border-radius: 0.3em
 
 *:not(pre) > code[class*="language-"],
-pre[class*="language-"] 
+pre[class*="language-"]
 	background: $code-dark-grey
 
 /* Inline code */
-*:not(pre) > code[class*="language-"] 
+*:not(pre) > code[class*="language-"]
 	padding: .1em
 	border-radius: .3em
 	white-space: normal
@@ -42,13 +42,13 @@ pre[class*="language-"]
 .token.comment,
 .token.prolog,
 .token.doctype,
-.token.cdata 
+.token.cdata
 	color: $code-blue-grey
 
-.token.punctuation 
+.token.punctuation
 	color: $code-off-white
 
-.token.namespace 
+.token.namespace
 	opacity: .7
 
 .token.operator,
@@ -56,35 +56,35 @@ pre[class*="language-"]
 .token.tag,
 .token.constant,
 .token.symbol,
-.token.deleted 
+.token.deleted
 	color: $code-light-red
 
 .token.boolean,
-.token.number 
+.token.number
 	color: $code-light-purple
 
 .token.function,
-.token.class-name, 
+.token.class-name,
 .token.selector,
 .token.attr-name,
 .token.char,
 .token.builtin,
-.token.inserted 
+.token.inserted
 	color: $code-light-green
 
 .token.entity,
 .token.url,
 .language-css .token.string,
 .style .token.string,
-.token.variable 
+.token.variable
 	color: $code-off-white
 
 .token.string,
 .token.atrule,
-.token.attr-value,
+.token.attr-value
 	color: $code-light-yellow
 
-.token.keyword 
+.token.keyword
 	color: $code-light-blue
 
 .token.regex,
@@ -92,12 +92,11 @@ pre[class*="language-"]
 	color: $code-light-orange
 
 .token.important,
-.token.bold 
+.token.bold
 	font-weight: bold
 
-.token.italic 
+.token.italic
 	font-style: italic
 
-.token.entity 
+.token.entity
 	cursor: help
-
