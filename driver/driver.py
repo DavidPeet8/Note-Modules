@@ -32,7 +32,7 @@ if not os.path.isdir(get_notes_path()):
     os.mkdir(get_notes_path())
 os.chdir(get_notes_path())  # Set working directory to base of notes directory
 
-# This is needed to autocomplete with the + symbol
+# This is needed to autocomplete with the + symbol used in files with name including c++
 old_delims = readline.get_completer_delims()
 readline.set_completer_delims(old_delims.replace("+", ""))
 
@@ -117,7 +117,7 @@ Type help or ? for a list of commands.
                     os.chdir(arg[1:])
             else:
                 os.chdir(arg);
-            promptPath = os.getcwd().split(".notes", 1)
+            promptPath = os.getcwd().split(os.path.basename(get_notes_path()), 1)
             self.promptPath = (
                 promptPath[1]
                 if isinstance(promptPath, list) and len(promptPath) > 1
