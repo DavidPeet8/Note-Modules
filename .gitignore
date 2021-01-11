@@ -2,3 +2,4 @@
 *.d
 core
 preprocessor
+*/__pycache__/*

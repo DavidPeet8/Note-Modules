@@ -1,9 +1,7 @@
-from http.server import BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
-import json, re, sys, os
+import re, sys, os
 from flask import Flask, request, jsonify, send_file, Response
 
-from config import config, Config
+from config import config
 
 sys.path.insert(1, os.path.expanduser("~/.notes_cfg/exe/searchLib"))
 from search import searchDir, dumpMap
@@ -19,14 +17,14 @@ def pathExistsInCurrentDir(pathArr):
 			if isinstance(currArr[j], list) and pathArr[i] == currArr[j][0]:
 				# print("Matched "+ pathArr[i] + " with " + currArr[j][0])
 				matched = True
-				currArr = currArr[j][1] 
+				currArr = currArr[j][1]
 				break;
 			if i == len(pathArr) - 1 and pathArr[i] == currArr[j]:
 				return True
-		if matched == False: 
+		if matched == False:
 			return False
 
-	
+
 def setAccessControlHeaders(resp):
 	resp.headers["Access-Control-Allow-Origin"] = "*"
 	resp.headers["Access-Control-Allow-Methods"] = "GET"
@@ -50,7 +48,7 @@ def get_note(note_path):
 
 	if pathExistsInCurrentDir(url):
 		resp = jsonify({
-			'fileData': config.currentDir.cat(note_path), 
+			'fileData': config.currentDir.cat(note_path),
 			'modifyTime': config.currentDir.modifyTime(note_path)
 		})
 
