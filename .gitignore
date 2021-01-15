@@ -3,3 +3,4 @@
 core
 preprocessor/preprocessor
 preprocessor/unitTests
+__pycache__
