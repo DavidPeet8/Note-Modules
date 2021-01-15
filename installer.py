@@ -23,8 +23,14 @@ call_path = os.path.dirname(os.path.abspath(sys.argv[0]));
 if args.path:
 	notesDirPath = os.path.expanduser(args.path)
 
-	if not os.path.exists(notesDirPath):
-			os.mkdir(notesDirPath)	
+if not os.path.exists(notesDirPath):
+	os.mkdir(notesDirPath)
+
+if not os.path.exists(notesDirPath + "/.flat_notes"):
+	os.mkdir(notesDirPath + "/.flat_notes")
+
+if not os.path.exists(notesDirPath + "/.assets"):
+	os.mkdir(notesDirPath + "/.assets")
 
 if not os.path.exists(basePath):
 	os.mkdir(basePath)
