@@ -117,7 +117,7 @@ Type help or ? for a list of commands.
                     os.chdir(arg[1:])
             else:
                 os.chdir(arg);
-            promptPath = os.getcwd().split(".notes", 1)
+            promptPath = os.getcwd().split(os.path.basename(get_notes_path()), 1)
             self.promptPath = (
                 promptPath[1]
                 if isinstance(promptPath, list) and len(promptPath) > 1
