@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 import cmd, sys, os, shutil, re
-import collections
 import shlex
 from fs_helpers import *
 from color_scheme import print_dir, get_prompt
@@ -252,7 +251,8 @@ Type help or ? for a list of commands.
         # Start the file server
         global hasStartedFileServer
         if not hasStartedFileServer and not args.view:
-            pid = spawn_quiet(arglist)
+            # FIXME: implement this in a less confusing way later
+            pid = spawn_quiet([get_dir_server_path(), "-d", get_notes_path()])
             reap_pid([pid])
             print("Server PID: ", pid)
             hasStartedFileServer = True
@@ -273,7 +273,7 @@ Type help or ? for a list of commands.
             open_default("http://localhost:" + get_render_dbg_port())
             print("UI PID: ", pid2)
         elif not args.attach:
-            open_default("https://davidpeet8.github.io/Note-Modules")
+            open_default("https://notes.davidpeet.me")
 
     def do_build(self, args):
         arglist = shlex.split(args)

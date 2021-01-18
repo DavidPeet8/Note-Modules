@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
-import os, atexit, time
+import os
 import sys, argparse
-from config import config, Config
-from workingDir import WorkingDir
+from config import config
 from requestHandler import start_rest_api
 
 
@@ -19,12 +18,11 @@ def get_server_args(arglist):
 	parser.add_argument('-h', '--help', action='store_true')
 	parser.add_argument('-p', '--port', type=int)
 	parser.add_argument('-d', '--dir')
-	parser.add_argument('-a', '--attach', action='store_true') # dead argument, here for information & debug purposes
 	return parser.parse_args(arglist)
 
 def main(argv):
 	args = get_server_args(argv)
-	
+
 	if args.help:
 		printHelp()
 		return
@@ -36,7 +34,6 @@ def main(argv):
 		print("Set serve path: " + args.dir)
 
 	config.currentDir.cd(config.serveDir)
-	start_rest_api(config.hostName, config.port)	
+	start_rest_api(config.hostName, config.port)
 
 main(sys.argv[1:])
-
