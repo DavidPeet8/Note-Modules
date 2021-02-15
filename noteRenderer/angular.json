@@ -31,9 +31,8 @@
             "styles": [
               "src/styles.sass",
               "src/prism-monokai.sass",
-              //"node_modules/prismjs/themes/prism-okaidia.css",
               "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.css",
-              "node_modules/katex/dist/katex.min.css",
+              "node_modules/katex/dist/katex.min.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -44,20 +43,8 @@
               "node_modules/marked/lib/marked.js",
               "node_modules/katex/dist/katex.min.js",
               "node_modules/prismjs/prism.js",
-              "node_modules/prismjs/components/prism-c.min.js",
-              "node_modules/prismjs/components/prism-cpp.min.js",
-              "node_modules/prismjs/components/prism-python.min.js",
-              "node_modules/prismjs/components/prism-rust.min.js",
-              "node_modules/prismjs/components/prism-go.min.js",
-              "node_modules/prismjs/components/prism-java.min.js",
-              "node_modules/prismjs/components/prism-javascript.min.js",
-              "node_modules/prismjs/components/prism-bash.min.js",
-              "node_modules/prismjs/components/prism-sql.min.js",
-              "node_modules/prismjs/components/prism-llvm.min.js",
-              "node_modules/prismjs/components/prism-makefile.min.js",
-              "node_modules/prismjs/components/prism-typescript.min.js",
-              "node_modules/prismjs/components/prism-opencl.min.js",
-              "node_modules/emoji-toolkit/lib/js/joypixels.min.js",
+              "code_styles.concat.js",
+              "node_modules/emoji-toolkit/lib/js/joypixels.min.js"
             ]
           },
           "configurations": {
@@ -151,6 +138,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "noteRenderer"
 }

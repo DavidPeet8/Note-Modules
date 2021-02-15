@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "eval $(dirname $0)/compile_code.py && ng serve",
+    "build": "eval $(dirname $0)/compile_code.py && ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "deploy": "gh-pages -d build",
-    "pbuild": "ng build --prod --output-path build --base-href /"
+    "pbuild": "eval $(dirname $0)/compile_code.py && ng build --prod --output-path build --base-href /"
   },
   "private": true,
   "dependencies": {
