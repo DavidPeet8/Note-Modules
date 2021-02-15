@@ -56,6 +56,9 @@ def get_search_path():
 def get_git_path():
 	return os.path.expanduser(json["external_procs"]["git_path"])
 
+def get_code_styles():
+	return json["code_styles"]
+
 # ------------------------- MUTATORS -------------------------
 
 def update_base_path(path):

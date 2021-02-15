@@ -60,14 +60,12 @@ Type help or ? for a list of commands.
 
     # should recieve no arguments
     def do_init(self, arg):
-        check_and_mkdirs(
-            [
-                get_flat_notes_path(),
-                get_notes_path() + "/build",
-                get_notes_path() + "/.config",
-                get_notes_path() + "/.assets",
-            ]
-        )
+        check_and_mkdirs([
+            get_flat_notes_path(),
+            get_notes_path() + "/build",
+            get_notes_path() + "/.config",
+            get_notes_path() + "/.assets",
+        ])
         temp_chdir_run(get_notes_path(), self.do_git, ["init"])
 
     # Directory to open in text editor
@@ -259,16 +257,14 @@ Type help or ? for a list of commands.
 
         # Serve the UI
         if args.debug and not args.attach:
-            pid2 = spawn_quiet(
-                [
-                    "python3",
-                    "-m",
-                    "http.server",
-                    get_render_dbg_port(),
-                    "-d",
-                    get_ui_path(),
-                ]
-            )
+            pid2 = spawn_quiet([
+                "python3",
+                "-m",
+                "http.server",
+                get_render_dbg_port(),
+                "-d",
+                get_ui_path(),
+            ])
             reap_pid([pid2])
             open_default("http://localhost:" + get_render_dbg_port())
             print("UI PID: ", pid2)
