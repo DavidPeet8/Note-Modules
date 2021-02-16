@@ -50,11 +50,11 @@ void linkHandler(File *const curFile, ostream &curFileStream, const vector<strin
   if (targets.size() == 1)
     curFileStream << " [" << fs::path(targets[0]).stem() << "](" << getLinkPath(targets[0]) << ") ";
   else if (targets.size() >= 2) {
-    if (targets.size() > 2) {
-      Logger::warn() << "Link command arguments ignored in link of target " << targets[0] << "\n";
-      return;
+    curFileStream << " [";
+    for (int i = 1; i < targets.size(); i++) {
+      curFileStream << targets[i] << " ";
     }
-    curFileStream << " [" << targets[1] << "](" << getLinkPath(targets[0]) << ") ";
+    curFileStream << "](" << getLinkPath(targets[0]) << ") ";
   }
 }
 

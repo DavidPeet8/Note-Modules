@@ -108,32 +108,24 @@ void Preprocessor::build(const string &noteName)
       bind(errHandler, note, ref(out), _1)};
 
   while (getline(in, line)) {
-    const auto matchBeginItr = sregex_iterator(line.begin(), line.end(), pattern);
-    const auto matchEndItr   = sregex_iterator();
-    const char *end          = isBoldColonCase(line) ? "\n\n" : "  \n";
+    const char *end = isBoldColonCase(line) ? "\n\n" : "  \n";
+    smatch match;
 
-    if (matchBeginItr == matchEndItr) {
-      out << line << end;
-      continue;
-    }
+    while (regex_search(line, match, pattern)) {
+      int posn = match.position();
+      out << line.substr(0, posn);
 
-    // Loop over all matches found in this line
-    auto match = matchBeginItr;
-
-    if (match != matchEndItr) {
-      out << match->prefix() << " ";  // Print the beginning
-    }
-
-    for (; match != matchEndItr; ++match) {
-      string matchedStr = match->str();
-      vector<Cmd> cmds  = Cmd::getCmds(matchedStr);
+      string matchedStr = match.str();
+      Logger::dbg() << "Matched String: " << matchedStr << "\n";
+      vector<Cmd> cmds = Cmd::getCmds(matchedStr);
 
       for (const auto &cmd : cmds) {
         cmd.apply(handlers);
       }
-      out << match->suffix();
+
+      line = line.substr(posn + match.length());
     }
-    out << end;
+    out << line << end;
   }
 
   out << flush;
