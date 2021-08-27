@@ -33,6 +33,8 @@ export class CodeviewComponent implements OnInit {
 			"\\dlr": "\\text{\\textdollar}",
 			"\\iff": "\\longleftrightarrow",
 			"\\Iff": "\\Longleftrightarrow",
+			"\\intersect": "\\cap",
+			"\\union": "\\cup",
 		}
 	}
 

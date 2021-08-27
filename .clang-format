@@ -5,7 +5,7 @@ IndentWidth: 2
 TabWidth: 2
 SpacesBeforeTrailingComments: 2
 AccessModifierOffset: -2
-ColumnLimit: 100
+ColumnLimit: 80
 UseCRLF: false
 UseTab: Never
 # BitFieldColonSpacing: Both
